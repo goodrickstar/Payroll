@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context=".NewLoadFragment">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorAccent"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="@dimen/large_margin"
+        android:paddingTop="@dimen/common_margin"
+        android:paddingRight="@dimen/common_margin"
+        android:paddingBottom="@dimen/common_margin"
+        android:text="@string/new_load_entry"
+        android:textColor="@color/colorText"
+        android:textSize="@dimen/title_text_size" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/common_margin"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorText"
+        android:textSize="@dimen/large_text_size" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/dialog"
+        android:layout_below="@id/title"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:isScrollContainer="true">
+
+            <EditText
+                android:id="@+id/location"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="10"
+                android:hint="@string/location_a"
+                android:inputType="textAutoCorrect|textCapWords"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintEnd_toStartOf="@+id/gpsA"
+                app:layout_constraintStart_toStartOf="@+id/textView9"
+                app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+            <EditText
+                android:id="@+id/location_b"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="10"
+                android:hint="@string/location_b"
+                android:inputType="textAutoCorrect|textCapWords"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintEnd_toStartOf="@+id/gpsB"
+                app:layout_constraintStart_toStartOf="@+id/textView9"
+                app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+            <EditText
+                android:id="@+id/cost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="5"
+                android:gravity="center"
+                android:hint="@string/dollar_signs"
+                android:inputType="number"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="@+id/textView12"
+                app:layout_constraintTop_toBottomOf="@+id/textView12" />
+
+            <EditText
+                android:id="@+id/empty_miles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="4"
+                android:gravity="center"
+                android:hint="@string/empty"
+                android:inputType="number"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toBottomOf="@+id/loaded_miles"
+                app:layout_constraintEnd_toStartOf="@+id/textView15"
+                app:layout_constraintTop_toTopOf="@+id/loaded_miles" />
+
+            <EditText
+                android:id="@+id/loaded_miles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="4"
+                android:gravity="center"
+                android:hint="@string/loaded"
+                android:inputType="number"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/cost" />
+
+            <EditText
+                android:id="@+id/optional_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:gravity="top|left"
+                android:hint="@string/include_any_additional_notes_you_would_like_to_add_here"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:padding="@dimen/common_margin"
+                android:layout_marginBottom="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="@dimen/medium_text_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+            <EditText
+                android:id="@+id/odometer_reading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/custom_edit_text"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/reading"
+                android:inputType="number"
+                android:padding="@dimen/common_margin"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="@+id/textView16"
+                app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+            <LinearLayout
+                android:id="@+id/startLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/rounded_border_filled"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/common_margin"
+                android:paddingBottom="@dimen/common_margin"
+                app:layout_constraintEnd_toStartOf="@+id/textView8"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/weekView">
+
+                <TextView
+                    android:id="@+id/startView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="@color/colorText"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="@dimen/largest_icon_size"
+                    android:layout_height="@dimen/largest_icon_size"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/calendar" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/colorText"
+                    android:textSize="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/stopLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/rounded_border_filled"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/common_margin"
+                android:paddingBottom="@dimen/common_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView8"
+                app:layout_constraintTop_toTopOf="@id/weekView">
+
+                <TextView
+                    android:id="@+id/stopView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="@color/colorText"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="@dimen/largest_icon_size"
+                    android:layout_height="@dimen/largest_icon_size"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/calendar" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|center_horizontal"
+                    android:textColor="@color/colorText"
+                    android:textSize="10dp" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="8dp"
+                android:max="52"
+                android:progress="21"
+                android:progressTint="@color/colorPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView17"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/optional_note"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/odometer_reading" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/current_odometer"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cost" />
+
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/e"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toBottomOf="@+id/empty_miles"
+                app:layout_constraintEnd_toStartOf="@+id/empty_miles"
+                app:layout_constraintTop_toTopOf="@+id/empty_miles" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/agreed_rate"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/location_b" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/mileage"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toTopOf="@+id/loaded_miles"
+                app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
+                app:layout_constraintStart_toStartOf="@+id/textView14" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/delivery_location"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/location" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/thru"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="@+id/stopLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/stopLayout" />
+
+            <TextView
+                android:id="@+id/thisYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:text="@string/_2018"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="12dp"
+                app:layout_constraintStart_toStartOf="@+id/progressBar"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+            <TextView
+                android:id="@+id/nextYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:text="@string/_2020"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="12dp"
+                app:layout_constraintEnd_toEndOf="@+id/progressBar"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+            <TextView
+                android:id="@+id/weekView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/colorTextBlack"
+                android:textSize="@dimen/small_text_size"
+                app:layout_constraintEnd_toEndOf="@+id/weekView"
+                app:layout_constraintStart_toStartOf="@+id/weekView"
+                app:layout_constraintTop_toBottomOf="@+id/weekView" />
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/pick_up_location"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/startLayout" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/l"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toBottomOf="@+id/loaded_miles"
+                app:layout_constraintEnd_toStartOf="@+id/loaded_miles"
+                app:layout_constraintTop_toTopOf="@+id/loaded_miles" />
+
+            <ImageView
+                android:id="@+id/gpsA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/location"
+                app:layout_constraintBottom_toBottomOf="@+id/location"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/location" />
+
+            <ImageView
+                android:id="@+id/gpsB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/location"
+                app:layout_constraintBottom_toBottomOf="@+id/location_b"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/location_b" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/large_margin"
+            android:layout_weight="1"
+            android:background="@drawable/square_border"
+            android:gravity="center"
+            android:padding="@dimen/common_margin"
+            android:text="@string/cancel"
+            android:textColor="@color/colorText"
+            android:textSize="22dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/finish"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/large_margin"
+            android:layout_weight="1"
+            android:background="@drawable/square_border"
+            android:gravity="center"
+            android:padding="@dimen/common_margin"
+            android:text="@string/finish"
+            android:textColor="@color/colorText"
+            android:textSize="22dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</RelativeLayout>

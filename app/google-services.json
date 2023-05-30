@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "27076318093",
+    "firebase_url": "https://payroll-8c07a.firebaseio.com",
+    "project_id": "payroll-8c07a",
+    "storage_bucket": "payroll-8c07a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27076318093:android:97705d9716ae9f7b",
+        "android_client_info": {
+          "package_name": "com.glass.payroll"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "27076318093-37qtoalgbu0c71hrhd3rq2gpm7v4m5ok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.glass.payroll",
+            "certificate_hash": "97a2bb745065d821171b94739b1f0b60bdb78b54"
+          }
+        },
+        {
+          "client_id": "27076318093-fvt1n1p76qme50i1kuou3kib98j5fv91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.glass.payroll",
+            "certificate_hash": "ac641b3e0c820fbb7c20220d0403366afbc9491a"
+          }
+        },
+        {
+          "client_id": "27076318093-l0qruq0ef034mjv1e70salthoj8gu8pb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.glass.payroll",
+            "certificate_hash": "2b8bf861030111abbb580b9ca344917b00e2ba6d"
+          }
+        },
+        {
+          "client_id": "27076318093-b9sjev7ge7bmch803mkhilsvj2m2jlrv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChAydH3_OeNI6uI_s-PRa3I2TYxUd9OHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "27076318093-b9sjev7ge7bmch803mkhilsvj2m2jlrv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

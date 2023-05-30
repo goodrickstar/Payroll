@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryLight">#888</color>
+    <color name="colorAccent">#420C09</color>
+    <color name="borderColor">#fff</color>
+    <color name="colorText">#fff</color>
+    <color name="colorTextBlack">#000</color>
+    <color name="swipeBackground">#000</color>
+    <color name="colorGrey">#D3D3D3</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="clearBlue">#700f</color>
+</resources>
