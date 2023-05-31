@@ -71,8 +71,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -104,8 +102,10 @@ public class MainActivity extends AppCompatActivity implements MI {
     private SharedPreferences preferences;
     private FrameLayout content_frame;
     private boolean update = false;
-    static ExecutorService executor = Executors.newFixedThreadPool(4);
-    static Records records;
+
+    static Truck truck;
+
+    static Trailer trailer;
 
     private MainViewModel model;
 
@@ -256,7 +256,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         setContentView(R.layout.activity_main);
         model = new ViewModelProvider(this).get(MainViewModel.class);
         FirebaseApp.initializeApp(this);
-        records = Records.getDatabase(getApplicationContext());
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -427,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         final SharedPreferences system = getSharedPreferences("system", MODE_PRIVATE);
         if (system.getInt("peeked", 0) < 2) {
             drawerLayout.openDrawer(GravityCompat.START);
-            executor.execute(() -> {
+            model.executor().execute(() -> {
                 try {
                     Thread.sleep(1800);
                 } catch (InterruptedException e) {

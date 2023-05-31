@@ -1,22 +1,23 @@
 package com.glass.payroll;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.glass.payroll.databinding.FragmentOverviewBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.NumberFormat;
@@ -27,113 +28,90 @@ import java.util.Locale;
 public class FragmentOverview extends Fragment implements View.OnClickListener, View.OnLongClickListener {
     private Context context;
     private MI MI;
-    private final RecyclerView.Adapter recyclerAdapter = new RecycleAdapter();
     private final ArrayList<Item> items = new ArrayList<>();
-    private TextView dates, odometer, weekView, thisYear, nextYear;
-    private ProgressBar progressBar;
-    private ImageView prev, next;
+    private FragmentOverviewBinding binding;
+    private MainViewModel model;
+    private Settlement settlement;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
+    }
 
     public FragmentOverview() {
     }
 
-    public void onDataChanged() {
-        calculate();
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_overview, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentOverviewBinding.inflate(inflater);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        RecyclerView recyclerView = v.findViewById(R.id.recycler);
-        recyclerView.setHasFixedSize(true);
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
-        else recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
-        recyclerView.setAdapter(recyclerAdapter);
-        weekView = v.findViewById(R.id.weekView);
-        thisYear = v.findViewById(R.id.thisYear);
-        nextYear = v.findViewById(R.id.nextYear);
-        progressBar = v.findViewById(R.id.progressBar);
-        dates = v.findViewById(R.id.dates);
-        odometer = v.findViewById(R.id.odomter);
-        prev = v.findViewById(R.id.previous);
-        next = v.findViewById(R.id.next);
-        prev.setOnClickListener(this);
-        prev.setOnLongClickListener(this);
-        next.setOnClickListener(this);
-        next.setOnLongClickListener(this);
-        odometer.setOnClickListener(view -> {
+        final RecycleAdapter recyclerAdapter = new RecycleAdapter();
+        binding.recycler.setHasFixedSize(true);
+        binding.recycler.setLayoutManager(new GridLayoutManager(context, 2));
+        binding.recycler.setAdapter(recyclerAdapter);
+        binding.previous.setOnClickListener(this);
+        binding.previous.setOnLongClickListener(this);
+        binding.next.setOnClickListener(this);
+        binding.next.setOnLongClickListener(this);
+        binding.odomter.setOnClickListener(view -> {
             if (MI != null) {
                 MI.vibrate();
                 MI.updateOdometer();
             }
+        });
+        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> {
+            FragmentOverview.this.settlement = settlement;
+            items.clear();
+            Item item = new Item("Loads", 2);
+            item.setTotal(settlement.getGross());
+            item.setTotal2(settlement.getEmptyMiles() + settlement.getLoadedMiles());
+            items.add(item);
+            item = new Item("Fuel", 3);
+            item.setTotal(settlement.getFuelCost() + settlement.getDefCost());
+            item.setTotal2(settlement.getDefGallons() + settlement.getDieselGallons());
+            items.add(item);
+            item = new Item("Fixed", 4);
+            item.setTotal(settlement.getFixedCost());
+            items.add(item);
+            item = new Item("Misc", 5);
+            item.setTotal(settlement.getMiscCost());
+            items.add(item);
+            item = new Item("Payout", 6);
+            item.setTotal(settlement.getPayoutCost());
+            items.add(item);
+            item = new Item("Maintenance", 6);
+            item.setTotal(settlement.getMaintenanceCost());
+            items.add(item);
+            recyclerAdapter.notifyDataSetChanged();
+            binding.dates.setText(Utils.toShortDateSpelled(settlement.getStart()) + " - " + Utils.toShortDateSpelled(settlement.getStop()));
+            if (MainActivity.truck != null) binding.odomter.setText("Latest Odometer: " + Utils.formatInt(MainActivity.truck.getOdometer()));
+            setWeek(settlement.getStart());
         });
     }
 
     private void setWeek(long start) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(start);
-        weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
-        progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
-        thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+        binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
+        binding.progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
+        binding.thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         calendar.add(Calendar.YEAR, 1);
-        nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-    }
-
-    private void calculate() {
-        items.clear();
-        Item item = new Item("Loads", 2);
-        for (Load load : MainActivity.settlement.getLoads()) {
-            item.setTotal(item.getTotal() + load.getRate());
-        }
-        item.setTotal2(MainActivity.settlement.getMiles());
-        items.add(item);
-        item = new Item("Fuel", 3);
-        for (Fuel fuel : MainActivity.settlement.getFuel()) {
-            item.setTotal(item.getTotal() + fuel.getCost());
-            item.setTotal2(item.getTotal2() + fuel.getGallons());
-        }
-        items.add(item);
-        item = new Item("Fixed", 4);
-        for (Cost cost : MainActivity.settlement.getFixed()) {
-            item.setTotal(item.getTotal() + cost.getCost());
-        }
-        items.add(item);
-        item = new Item("Misc", 5);
-        for (Cost cost : MainActivity.settlement.getMiscellaneous()) {
-            item.setTotal(item.getTotal() + cost.getCost());
-        }
-        items.add(item);
-        item = new Item("Payout", 6);
-        item.setTotal((MainActivity.settlement.getMiles() * MainActivity.settlement.getPayout().getPCpm()) / 100);
-        item.setTotal(item.getTotal() + ((items.get(0).getTotal() * MainActivity.settlement.getPayout().getPPercent()) / 100));
-        items.add(item);
-        item = new Item("Maintenance", 6);
-        item.setTotal((MainActivity.settlement.getMiles() * MainActivity.settlement.getPayout().getMCpm()) / 100);
-        item.setTotal(item.getTotal() + ((items.get(0).getTotal() * MainActivity.settlement.getPayout().getMPercent()) / 100));
-        items.add(item);
-        recyclerAdapter.notifyDataSetChanged();
-        dates.setText(Utils.toShortDateSpelled(MainActivity.settlement.getStart()) + " - " + Utils.toShortDateSpelled(MainActivity.settlement.getStop()));
-        odometer.setText("Latest Odometer: " + Utils.formatInt(MainActivity.settlement.getOdometer() + MainActivity.settlement.getMiles()) + " ");
-        setWeek(MainActivity.settlement.getStart());
+        binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
         MI = (MI) getActivity();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        calculate();
-    }
 
     @Override
     public void onDetach() {
@@ -149,47 +127,51 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     public void onClick(View view) {
         if (MI != null) {
             MI.vibrate();
+            //TODO: switch settlements
+         /*
             int index;
             switch (view.getId()) {
                 case R.id.previous:
-                    index = MI.indexSettlement(MainActivity.settlement.getId());
-                    if (index + 1 == MainActivity.settlements.size()) {
+                    index = MI.indexSettlement(settlement.getId());
+                    if (index + 1 == settlements.size()) {
                         MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
                         prev.setOnClickListener(null);
                         prev.setOnLongClickListener(null);
                         return;
                     }
-                    MainActivity.settlement = MainActivity.settlements.get(index + 1);
+                    settlement = settlements.get(index + 1);
                     next.setOnClickListener(this);
                     next.setOnLongClickListener(this);
                     break;
                 case R.id.next:
-                    index = MI.indexSettlement(MainActivity.settlement.getId());
+                    index = MI.indexSettlement(settlement.getId());
                     if (index == 0) {
                         MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
                         next.setOnClickListener(null);
                         next.setOnLongClickListener(null);
                         return;
                     }
-                    MainActivity.settlement = MainActivity.settlements.get(index - 1);
+                    settlement = settlements.get(index - 1);
                     prev.setOnClickListener(this);
                     prev.setOnLongClickListener(this);
                     break;
             }
             calculate();
             MI.calculate();
+          */
         }
     }
 
     @Override
     public boolean onLongClick(View view) {
-        if (MainActivity.settlements.isEmpty()) return false;
+       /*
+        if (settlements.isEmpty()) return false;
         if (MI != null) {
             MI.vibrate();
             switch (view.getId()) {
                 case R.id.previous:
                     MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
-                    MainActivity.settlement = MainActivity.settlements.get(MainActivity.settlements.size() - 1);
+                    settlement = settlements.get(settlements.size() - 1);
                     prev.setOnClickListener(null);
                     prev.setOnLongClickListener(null);
                     next.setOnClickListener(this);
@@ -197,7 +179,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
                     break;
                 case R.id.next:
                     MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
-                    MainActivity.settlement = MainActivity.settlements.get(0);
+                    settlement = settlements.get(0);
                     next.setOnClickListener(null);
                     next.setOnLongClickListener(null);
                     prev.setOnClickListener(this);
@@ -207,6 +189,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             calculate();
             MI.calculate();
         }
+        */
         return false;
     }
 
