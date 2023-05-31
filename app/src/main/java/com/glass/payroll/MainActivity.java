@@ -66,6 +66,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                 model.settlement().observe(this, settlement -> {
                     if (settlement != null){
                         MainActivity.this.settlement = settlement;
-                        if (MainActivity.this.settlement != null) balance.setText("Bal: " + Utils.formatValueToCurrency(settlement.getBalance()));
+                        if (MainActivity.this.settlement != null) balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
                         if (firstLoad){
                             handleGrouping();
                             handleSettlementData();
@@ -188,9 +189,12 @@ public class MainActivity extends AppCompatActivity implements MI {
                         if (data.getBoolean("available")) {
                             ArrayList<Settlement> x = Utils.returnSettlementArray(data.getJSONArray("settlement").toString());
                             ArrayList<Settlement> settlements = new ArrayList<>();
+                            long stamp = Instant.now().getEpochSecond();
                             for (int i = 0; i < x.size(); i++) {
                                 Settlement work = Utils.calculate(x.get(i));
                                 work.setUserId(user.getUid());
+                                work.setStamp(stamp);
+                                stamp++;
                                 settlements.add(work);
                             }
                             model.add(settlements);
@@ -242,13 +246,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, getMainLooper());

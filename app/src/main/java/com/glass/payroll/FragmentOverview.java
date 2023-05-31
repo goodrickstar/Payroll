@@ -2,6 +2,7 @@ package com.glass.payroll;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,15 +13,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentOverviewBinding;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import java.text.NumberFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class FragmentOverview extends Fragment implements View.OnClickListener, View.OnLongClickListener {
@@ -29,6 +35,8 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     private final ArrayList<Item> items = new ArrayList<>();
     private FragmentOverviewBinding binding;
     private MainViewModel model;
+    private List<Long> keys;
+    private Settlement settlement;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             }
         });
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
+            FragmentOverview.this.settlement = settlement;
             items.clear();
             Item item = new Item("Loads", 3);
             item.setTotal(settlement.getGross());
@@ -95,7 +104,12 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         });
         model.truck().observe(getViewLifecycleOwner(), truck -> {
-            if (truck != null) binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
+            if (truck != null)
+                binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
+        });
+        model.keys().observe(getViewLifecycleOwner(), keys -> {
+            FragmentOverview.this.keys = keys;
+            Log.i("ROOM", new Gson().toJson(keys));
         });
     }
 
@@ -118,41 +132,36 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
 
     @Override
     public void onClick(View view) {
-        if (MI != null) {
+        if (MI != null)
             MI.vibrate();
-            //TODO: switch settlements
-         /*
-            int index;
-            switch (view.getId()) {
-                case R.id.previous:
-                    index = MI.indexSettlement(settlement.getId());
-                    if (index + 1 == settlements.size()) {
-                        MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
-                        prev.setOnClickListener(null);
-                        prev.setOnLongClickListener(null);
-                        return;
-                    }
-                    settlement = settlements.get(index + 1);
-                    next.setOnClickListener(this);
-                    next.setOnLongClickListener(this);
-                    break;
-                case R.id.next:
-                    index = MI.indexSettlement(settlement.getId());
-                    if (index == 0) {
-                        MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
-                        next.setOnClickListener(null);
-                        next.setOnLongClickListener(null);
-                        return;
-                    }
-                    settlement = settlements.get(index - 1);
-                    prev.setOnClickListener(this);
-                    prev.setOnLongClickListener(this);
-                    break;
-            }
-            calculate();
-            MI.calculate();
-          */
+        int index = keys.indexOf(settlement.getId());
+        Log.i("ROOM", "index is " + index);
+        switch (view.getId()) {
+            case R.id.previous:
+                if (index + 1 == keys.size()) {
+                    MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
+                    binding.previous.setOnClickListener(null);
+                    binding.previous.setOnLongClickListener(null);
+                    return;
+                }
+                binding.next.setOnClickListener(this);
+                binding.next.setOnLongClickListener(this);
+                model.setStampOnSettlement(keys.get(index + 1), Instant.now().getEpochSecond());
+                Log.i("ROOM", "setting " + keys.get(index + 1) + " to " + Instant.now().getEpochSecond());
+                break;
+            case R.id.next:
+                if (index == 0) {
+                    MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
+                    binding.next.setOnClickListener(null);
+                    binding.next.setOnLongClickListener(null);
+                    return;
+                }
+                binding.previous.setOnClickListener(this);
+                binding.previous.setOnLongClickListener(this);
+                model.setStampOnSettlement(keys.get(index - 1), Instant.now().getEpochSecond());
+                break;
         }
+
     }
 
     @Override

@@ -46,7 +46,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
             settlement.getFixed().remove(index);
             settlement.getFixed().add(index, cost);
         }
-        model.add(Utils.sortFixed(settlement, Utils.getOrder(getContext(), "fixed"), Utils.getSort(getContext(), "fixed")));
+        model.add(Utils.sortFixed(Utils.calculate(settlement), Utils.getOrder(getContext(), "fixed"), Utils.getSort(getContext(), "fixed")));
         this.dismiss();
     }
 

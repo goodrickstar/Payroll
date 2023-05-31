@@ -1,5 +1,7 @@
 package com.glass.payroll;
 
+import static java.lang.Math.round;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -29,58 +31,70 @@ import java.util.Locale;
 
 class Utils {
 
-    static Settlement calculate(@NonNull Settlement x) {
-        x.setGross(0);
-        x.setFuelCost(0);
-        x.setDefCost(0);
-        x.setPayoutCost(0);
-        x.setMaintenanceCost(0);
-        x.setMiscCost(0);
-        x.setFixedCost(0);
-        x.setDefGallons(0);
-        x.setDieselGallons(0);
-        x.setEmptyMiles(0);
-        x.setLoadedMiles(0);
-        for (Load load : x.getLoads()) {
-            x.setGross(x.getGross() + load.getRate());
-            x.setEmptyMiles(x.getEmptyMiles() + load.getEmpty());
-            x.setLoadedMiles(x.getLoadedMiles() + load.getLoaded());
+    static Settlement calculate(@NonNull Settlement settlement) {
+        settlement.setGross(0);
+        settlement.setFuelCost(0);
+        settlement.setDefCost(0);
+        settlement.setPayoutCost(0);
+        settlement.setMaintenanceCost(0);
+        settlement.setMiscCost(0);
+        settlement.setFixedCost(0);
+        settlement.setDefGallons(0);
+        settlement.setDieselGallons(0);
+        settlement.setEmptyMiles(0);
+        settlement.setLoadedMiles(0);
+        for (Load load : settlement.getLoads()) {
+            settlement.setGross(settlement.getGross() + load.getRate());
+            settlement.setEmptyMiles(settlement.getEmptyMiles() + load.getEmpty());
+            settlement.setLoadedMiles(settlement.getLoadedMiles() + load.getLoaded());
         }
-        if (x.getPayout().getPPercent() != 0) {
-            x.setPayoutCost(x.getGross() * ((double) x.getPayout().getPPercent() / 100));
+        if (settlement.getPayout().getPPercent() != 0) {
+            settlement.setPayoutCost(settlement.getGross() * ((double) settlement.getPayout().getPPercent() / 100));
         }
-        if (x.getPayout().getMPercent() != 0) {
-            x.setMaintenanceCost(x.getGross() * ((double) x.getPayout().getMPercent() / 100));
+        if (settlement.getPayout().getMPercent() != 0) {
+            settlement.setMaintenanceCost(settlement.getGross() * ((double) settlement.getPayout().getMPercent() / 100));
         }
-        if (x.getPayout().getPCpm() != 0) {
-            x.setPayoutCost(x.getPayoutCost() + ((double) (x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
+        if (settlement.getPayout().getPCpm() != 0) {
+            settlement.setPayoutCost(settlement.getPayoutCost() + ((double) (settlement.getEmptyMiles() + settlement.getLoadedMiles()) * settlement.getPayout().getMCpm()) / 100);
         }
-        if (x.getPayout().getMCpm() != 0) {
-            x.setMaintenanceCost(x.getMaintenanceCost() + ((double) (x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
+        if (settlement.getPayout().getMCpm() != 0) {
+            settlement.setMaintenanceCost(settlement.getMaintenanceCost() + ((double) (settlement.getEmptyMiles() + settlement.getLoadedMiles()) * settlement.getPayout().getMCpm()) / 100);
         }
 
-        for (Fuel fuel : x.getFuel()) {
+        for (Fuel fuel : settlement.getFuel()) {
             if (!fuel.getDef()) {
-                x.setFuelCost(x.getFuelCost() + fuel.getCost());
-                x.setDieselGallons(x.getDieselGallons() + fuel.getGallons());
+                settlement.setFuelCost(settlement.getFuelCost() + fuel.getCost());
+                settlement.setDieselGallons(settlement.getDieselGallons() + fuel.getGallons());
             } else {
-                x.setDefCost(x.getDefCost() + fuel.getCost());
-                x.setDefGallons(x.getDefGallons() + fuel.getGallons());
+                settlement.setDefCost(settlement.getDefCost() + fuel.getCost());
+                settlement.setDefGallons(settlement.getDefGallons() + fuel.getGallons());
             }
         }
-        for (Cost cost : x.getFixed()) {
-            x.setFixedCost(x.getFixedCost() + cost.getCost());
+        for (Cost cost : settlement.getFixed()) {
+            settlement.setFixedCost(settlement.getFixedCost() + cost.getCost());
         }
-        for (Cost cost : x.getMiscellaneous()) {
-            x.setMiscCost(x.getMiscCost() + cost.getCost());
+        for (Cost cost : settlement.getMiscellaneous()) {
+            settlement.setMiscCost(settlement.getMiscCost() + cost.getCost());
         }
-        x.setBalance(x.getGross() - (x.getPayoutCost() + x.getMaintenanceCost() + x.getFixedCost() + x.getMiscCost() + x.getFuelCost() + x.getDefCost()));
-        x.setBalance(formatDouble(x.getBalance()));
-        x.setFuelCost(formatDouble(x.getFuelCost()));
-        x.setDefCost(formatDouble(x.getDefCost()));
-        x.setMaintenanceCost(formatDouble(x.getMaintenanceCost()));
-        x.setPayoutCost(formatDouble(x.getPayoutCost()));
+        settlement.setBalance(settlement.getGross() - (settlement.getPayoutCost() + settlement.getMaintenanceCost() + settlement.getFixedCost() + settlement.getMiscCost() + settlement.getFuelCost() + settlement.getDefCost()));
+        settlement.setBalance(formatDouble(settlement.getBalance()));
+        settlement.setFuelCost(formatDouble(settlement.getFuelCost()));
+        settlement.setDefCost(formatDouble(settlement.getDefCost()));
+        settlement.setMaintenanceCost(formatDouble(settlement.getMaintenanceCost()));
+        settlement.setPayoutCost(formatDouble(settlement.getPayoutCost()));
+        return settlement;
+    }
+
+    static int miles(Settlement settlement) {
+        int x = 0;
+        for (Load load : settlement.getLoads()) {
+            x += load.getEmpty() + load.getLoaded();
+        }
         return x;
+    }
+
+    static int miles(Load load) {
+        return load.getEmpty() + load.getLoaded();
     }
 
     static void gotoPlayStore(@NonNull Activity activity) {
@@ -244,8 +258,12 @@ class Utils {
         return formatter.format(value);
     }
 
+    static String formatValueToCurrencyWhole(double value) {
+        return "$"+formatInt((int) round(value));
+    }
+
     static double formatDouble(double value) {
-        return Double.parseDouble(new DecimalFormat("#.00").format(value));
+        return Double.parseDouble(new DecimalFormat("#.##").format(value));
 
     }
 

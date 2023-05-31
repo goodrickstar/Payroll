@@ -45,7 +45,7 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
             settlement.getMiscellaneous().add(cost);
         else
             settlement.getMiscellaneous().set(index, cost);
-        model.add(Utils.sortMiscellaneous(settlement, Utils.getOrder(getContext(), "miscellaneous"), Utils.getSort(getContext(), "miscellaneous")));
+        model.add(Utils.sortMiscellaneous(Utils.calculate(settlement), Utils.getOrder(getContext(), "miscellaneous"), Utils.getSort(getContext(), "miscellaneous")));
         dismiss();
     }
 

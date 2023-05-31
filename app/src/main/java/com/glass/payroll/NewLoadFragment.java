@@ -129,7 +129,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
             settlement.getLoads().remove(index);
             settlement.getLoads().add(index, load);
         }
-        model.add(Utils.sortLoads(settlement, Utils.getOrder(getContext(), "loads"), Utils.getSort(getContext(), "loads")));
+        model.add(Utils.sortLoads(Utils.calculate(settlement), Utils.getOrder(getContext(), "loads"), Utils.getSort(getContext(), "loads")));
         dismiss();
     }
 

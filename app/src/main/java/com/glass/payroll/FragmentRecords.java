@@ -1,6 +1,5 @@
 package com.glass.payroll;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,13 +11,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentRecordsBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -28,6 +27,9 @@ public class FragmentRecords extends Fragment {
     private final Calendar calendar = Calendar.getInstance();
     private FragmentRecordsBinding binding;
     private MainViewModel model;
+    private List<Settlement> settlements = new ArrayList<>();
+
+    private Settlement settlement = new Settlement();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,9 +49,16 @@ public class FragmentRecords extends Fragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
-            binding.recycler.setAdapter(new RecycleAdapter(settlements));
+        RecycleAdapter adapter = new RecycleAdapter();
+        binding.recycler.setAdapter(adapter);
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> {
+            FragmentRecords.this.settlement = settlement;
+            model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
+                FragmentRecords.this.settlements = settlements;
+                adapter.notifyDataSetChanged();
+            });
         });
+
     }
 
     @Override
@@ -63,12 +72,8 @@ public class FragmentRecords extends Fragment {
         super.onDetach();
         MI = null;
     }
-    private class RecycleAdapter extends BaseExpandableListAdapter implements View.OnClickListener {
-        List<Settlement> settlements;
 
-        public RecycleAdapter(List<Settlement> settlements) {
-            this.settlements = settlements;
-        }
+    private class RecycleAdapter extends BaseExpandableListAdapter implements View.OnClickListener {
 
         @Override
         public int getGroupCount() {
@@ -116,13 +121,13 @@ public class FragmentRecords extends Fragment {
                 holder = (GroupViewHolder) view.getTag();
             }
             Settlement settlement = getGroup(i);
-            if (settlement.getId() == (settlement.getId()))
-                holder.average.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR) + " (current)");
-            else
-                holder.average.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
+            String weekString = "Week " + settlement.getWeek();
+            if (settlement.getId() == (FragmentRecords.this.settlement.getId()))
+                weekString = weekString + " (current)";
+            holder.average.setText(weekString);
             holder.date.setText(Utils.range(settlement.getStart(), settlement.getStop()));
             holder.miles.setText(Utils.formatInt(settlement.getEmptyMiles() + settlement.getLoadedMiles()) + "m");
-            holder.balance.setText(Utils.formatValueToCurrency((double) settlement.getBalance()).replace(".00", ""));
+            holder.balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
             calendar.setTimeInMillis(settlement.getStart());
             //holder.average.setText(Utils.formatDoubleToCurrency((double) settlement.getBalance() / settlement.getMiles()) + " cpm");
             return view;
@@ -175,7 +180,9 @@ public class FragmentRecords extends Fragment {
                     MI.showSnack("Settlement Permanently Deleted", Snackbar.LENGTH_SHORT);
                     break;
                 case R.id.edit:
-                    //TODO: load and edit settlement
+                    settlement.setStamp(Instant.now().getEpochSecond());
+                    model.add(settlement);
+                    MI.navigate(2);
                     break;
             }
         }

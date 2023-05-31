@@ -26,16 +26,21 @@ public interface DaoSettlements {
     @Query("DELETE FROM settlement_records WHERE userId = :userId")
     void emptyRecords(String userId);
 
-    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 10")
+    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 10")
     List<Settlement> getSettlements(String uid);
 
     @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC")
     LiveData<List<Settlement>> getAllSettlements(String uid);
 
-    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 1")
+    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Settlement> getSettlement(String uid);
 
-    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 1")
+    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     Settlement getCurrentSettlement(String uid);
 
+    @Query("SELECT id FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 10")
+    LiveData<List<Long>> getSettlementKeys(String uid);
+
+    @Query("UPDATE settlement_records SET stamp = :stamp WHERE id = :settlementId")
+    void setStamp(long settlementId, long stamp);
 }

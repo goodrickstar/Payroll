@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.glass.payroll.databinding.FragmentNewFuelBinding;
 import com.google.gson.Gson;
 
+import java.time.Instant;
 import java.util.Calendar;
 
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
@@ -48,7 +49,8 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (TextUtils.isEmpty(binding.odometerReading.getText()))
             error = setError(binding.odometerReading);
         if (error) return;
-        fuel.setOdometer(parseInt(binding.odometerReading.getText()));
+        int odometer = parseInt(binding.odometerReading.getText());
+        fuel.setOdometer(odometer);
         fuel.setCost(parseDouble(binding.cost.getText()));
         fuel.setGallons(parseDouble(binding.gallons.getText()));
         fuel.setLocation(binding.location.getText().toString().trim());
@@ -58,7 +60,12 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         } else {
             settlement.getFuel().set(index, fuel);
         }
-        model.add(Utils.sortFuel(settlement, Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
+        model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
+        if (MainActivity.truck != null){
+            MainActivity.truck.setStamp(Instant.now().getEpochSecond());
+            MainActivity.truck.setOdometer(odometer);
+            model.add(MainActivity.truck);
+        }
         dismiss();
     }
 
@@ -138,7 +145,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             binding.optionalNote.setText(fuel.getNote());
             def.setChecked(fuel.getDef());
         } else {
-            //TODO: binding.odometerReading.setText(String.valueOf(settlement.getOdometer() + settlement.getMiles()));
+            if (MainActivity.truck != null) binding.odometerReading.setText(String.valueOf(MainActivity.truck.getOdometer()));
             if (MI != null) {
                 if (MI.locationPermission()) {
                     if (!MI.returnLocation().isEmpty())

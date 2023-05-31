@@ -15,7 +15,7 @@
         android:background="@drawable/rounded_border_filled"
         android:gravity="center"
         android:padding="@dimen/common_margin"
-        android:text="@string/settlement_records"
+        android:text="@string/statistics"
         android:textColor="@color/colorText"
         android:textSize="@dimen/title_text_size"
         android:textStyle="bold"

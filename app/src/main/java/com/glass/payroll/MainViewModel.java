@@ -16,6 +16,7 @@ public class MainViewModel extends AndroidViewModel {
     private String userId;
     private LiveData<Settlement> settlement;
     private LiveData<List<Settlement>> settlements;
+    private LiveData<List<Long>> keys;
     private LiveData<Truck> truck;
     private LiveData<Trailer> trailer;
 
@@ -31,6 +32,7 @@ public class MainViewModel extends AndroidViewModel {
         settlements = database.daoSettlements().getAllSettlements(this.userId);
         truck = database.daoTruck().getTruck(this.userId);
         trailer = database.daoTrailer().getTrailer(this.userId);
+        keys = database.daoSettlements().getSettlementKeys(userId);
     }
 
     public Executor executor() {
@@ -77,6 +79,14 @@ public class MainViewModel extends AndroidViewModel {
 
     public void delete(Settlement settlement) {
         executor.execute(() -> database.daoSettlements().deleteSettlement(settlement.getId()));
+    }
+
+    public LiveData<List<Long>> keys(){
+        return keys;
+    }
+
+    public void setStampOnSettlement(long settlementId, long stamp){
+        executor.execute(() -> database.daoSettlements().setStamp(settlementId, stamp));
     }
 
 }
