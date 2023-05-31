@@ -32,12 +32,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
 
     private void checkEntries() {
         if (MI != null) {
-            boolean error = false;
-            if (TextUtils.isEmpty(binding.truck.getText())) error = setError(binding.truck);
-            if (TextUtils.isEmpty(binding.trailer.getText())) error = setError(binding.trailer);
-            if (error) return;
-            settlement.setTruck(binding.truck.getText().toString().trim());
-            settlement.setTrailer(binding.trailer.getText().toString().trim());
             MI.newSettlement(settlement, binding.checkBox.isChecked());
             NewSettlementFragment.this.dismiss();
         }
@@ -74,10 +68,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
         binding.stopLayout.setOnClickListener(this);
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
-        if (settlement.getFixed().size() == 0) {
-            binding.checkBox.setChecked(false);
-            binding.checkBox.setVisibility(View.GONE);
-        }
         if (settlement.getStart() != 0) {
             calendar.setTimeInMillis(settlement.getStart());
             int startOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -88,8 +78,8 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
             calendar.add(Calendar.DAY_OF_YEAR, 6);
             setCalendarToDayEdge(calendar, false);
             settlement.setStop(calendar.getTimeInMillis());
-            binding.truck.setText(settlement.getTruck());
-            binding.trailer.setText(settlement.getTrailer());
+            if (MainActivity.truck != null) binding.truck.setText(MainActivity.truck.getId());
+            if (MainActivity.trailer != null) binding.trailer.setText(MainActivity.trailer.getId());
         } else {
             calendar.setTimeInMillis(System.currentTimeMillis());
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -101,7 +91,7 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
             calendar.setTimeInMillis(System.currentTimeMillis());
         }
         updateUi();
-        if (settlement.getTruck().equals("")) Utils.showKeyboard(getContext(), binding.truck);
+        //if (settlement.getTruck().equals("")) Utils.showKeyboard(getContext(), binding.truck);
     }
 
     private void setCalendarToDayEdge(Calendar calendar, boolean beginning) {

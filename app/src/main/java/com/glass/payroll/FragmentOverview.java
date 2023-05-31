@@ -64,24 +64,24 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         });
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             items.clear();
-            Item item = new Item("Loads", 2);
+            Item item = new Item("Loads", 3);
             item.setTotal(settlement.getGross());
             item.setTotal2(settlement.getEmptyMiles() + settlement.getLoadedMiles());
             items.add(item);
-            item = new Item("Fuel", 3);
+            item = new Item("Fuel", 4);
             item.setTotal(settlement.getFuelCost() + settlement.getDefCost());
             item.setTotal2(settlement.getDefGallons() + settlement.getDieselGallons());
             items.add(item);
-            item = new Item("Fixed", 4);
+            item = new Item("Fixed", 5);
             item.setTotal(settlement.getFixedCost());
             items.add(item);
-            item = new Item("Misc", 5);
+            item = new Item("Misc", 6);
             item.setTotal(settlement.getMiscCost());
             items.add(item);
-            item = new Item("Payout", 6);
+            item = new Item("Payout", 7);
             item.setTotal(settlement.getPayoutCost());
             items.add(item);
-            item = new Item("Maintenance", 6);
+            item = new Item("Maintenance", 7);
             item.setTotal(settlement.getMaintenanceCost());
             items.add(item);
             recyclerAdapter.notifyDataSetChanged();
@@ -94,7 +94,9 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             calendar.add(Calendar.YEAR, 1);
             binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         });
-        model.truck().observe(getViewLifecycleOwner(), truck -> binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer())));
+        model.truck().observe(getViewLifecycleOwner(), truck -> {
+            if (truck != null) binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
+        });
     }
 
     @Override
@@ -196,27 +198,27 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             final Item item = items.get(position);
             holder.title.setText(item.getLabel());
             switch (item.getIcon()) {
-                case 2:
+                case 3:
                     holder.icon.setImageResource(R.drawable.overview_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText(formatDouble(item.getTotal2(), "", " M"));
                     break;
-                case 3:
+                case 4:
                     holder.icon.setImageResource(R.drawable.fuel_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText(formatDouble(item.getTotal2(), "", " G"));
                     break;
-                case 4:
+                case 5:
                     holder.icon.setImageResource(R.drawable.fixed_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText("");
                     break;
-                case 5:
+                case 6:
                     holder.icon.setImageResource(R.drawable.miscellaneous_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText("");
                     break;
-                case 6:
+                case 7:
                     if (item.getLabel().contains("Maintenance")) {
                         holder.icon.setImageResource(R.drawable.maintenance_w);
                     } else {

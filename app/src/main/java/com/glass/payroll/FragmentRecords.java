@@ -1,7 +1,5 @@
 package com.glass.payroll;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -9,57 +7,49 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.glass.payroll.databinding.FragmentRecordsBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class FragmentRecords extends Fragment {
-    private final RecycleAdapter recyclerAdapter = new RecycleAdapter();
     private MI MI;
     private final Calendar calendar = Calendar.getInstance();
+    private FragmentRecordsBinding binding;
+    private MainViewModel model;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
+    }
 
     public FragmentRecords() {
     }
 
-    private void deleteSettlement(Long id) {
-        if (MI != null) {
-            MainActivity.executor.execute(() -> {
-                MainActivity.records.daoData().deleteDataRecord(id);
-                getActivity().runOnUiThread(() -> {
-                    boolean reload = MainActivity.settlements.get(MI.indexSettlement(id)).getId() == (MainActivity.settlement.getId());
-                    MainActivity.settlements.remove(MI.indexSettlement(id));
-                    recyclerAdapter.notifyDataSetChanged();
-                    MI.showSnack("Settlement Permanently Deleted", Snackbar.LENGTH_SHORT);
-                    if (reload && !MainActivity.settlements.isEmpty()) {
-                        MainActivity.settlement = MainActivity.settlements.get(0);
-                    }
-                    MI.calculate();
-                    getContext().getSharedPreferences("settings", MODE_PRIVATE).edit().putString(MainActivity.user.getUid(), MainActivity.gson.toJson(MainActivity.settlements)).apply();
-                });
-            });
-
-
-        }
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_records, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentRecordsBinding.inflate(inflater);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        ExpandableListView RecordsList = v.findViewById(R.id.recycler);
-        RecordsList.setAdapter(recyclerAdapter);
+        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
+            binding.recycler.setAdapter(new RecycleAdapter(settlements));
+        });
     }
 
     @Override
@@ -73,13 +63,16 @@ public class FragmentRecords extends Fragment {
         super.onDetach();
         MI = null;
     }
-
     private class RecycleAdapter extends BaseExpandableListAdapter implements View.OnClickListener {
+        List<Settlement> settlements;
 
+        public RecycleAdapter(List<Settlement> settlements) {
+            this.settlements = settlements;
+        }
 
         @Override
         public int getGroupCount() {
-            return MainActivity.settlements.size();
+            return settlements.size();
         }
 
         @Override
@@ -89,22 +82,22 @@ public class FragmentRecords extends Fragment {
 
         @Override
         public Settlement getGroup(int i) {
-            return MainActivity.settlements.get(i);
+            return settlements.get(i);
         }
 
         @Override
         public Settlement getChild(int i, int i1) {
-            return MainActivity.settlements.get(i);
+            return settlements.get(i);
         }
 
         @Override
         public long getGroupId(int i) {
-            return MainActivity.settlements.get(i).getId();
+            return settlements.get(i).getId();
         }
 
         @Override
         public long getChildId(int i, int i1) {
-            return MainActivity.settlements.get(i).getId();
+            return settlements.get(i).getId();
         }
 
         @Override
@@ -123,12 +116,12 @@ public class FragmentRecords extends Fragment {
                 holder = (GroupViewHolder) view.getTag();
             }
             Settlement settlement = getGroup(i);
-            if (settlement.getId() == (MainActivity.settlement.getId()))
+            if (settlement.getId() == (settlement.getId()))
                 holder.average.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR) + " (current)");
             else
                 holder.average.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
             holder.date.setText(Utils.range(settlement.getStart(), settlement.getStop()));
-            holder.miles.setText(Utils.formatInt(settlement.getMiles()) + "m");
+            holder.miles.setText(Utils.formatInt(settlement.getEmptyMiles() + settlement.getLoadedMiles()) + "m");
             holder.balance.setText(Utils.formatValueToCurrency((double) settlement.getBalance()).replace(".00", ""));
             calendar.setTimeInMillis(settlement.getStart());
             //holder.average.setText(Utils.formatDoubleToCurrency((double) settlement.getBalance() / settlement.getMiles()) + " cpm");
@@ -162,7 +155,7 @@ public class FragmentRecords extends Fragment {
             holder.loadedMiles.setText("Loaded Miles: " + Utils.formatInt(loadedMiles));
             holder.emptyMiles.setText("Empty Miles: " + Utils.formatInt(emptyMiles));
             holder.loadedRate.setText("Loaded Rate: " + Utils.formatValueToCurrency((double) grossRevenue / loadedMiles));
-            holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency((double) settlement.getBalance() / settlement.getMiles()));
+            holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency((double) settlement.getBalance() / (settlement.getEmptyMiles() + settlement.getLoadedMiles())));
             holder.loads.setText("Loads: " + Utils.formatInt(settlement.getLoads().size()));
             return view;
         }
@@ -172,19 +165,17 @@ public class FragmentRecords extends Fragment {
             return false;
         }
 
-        @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(View view) {
             Settlement settlement = (Settlement) view.getTag();
-            if (MI == null) return;
             MI.vibrate();
             switch (view.getId()) {
                 case R.id.delete:
-                    deleteSettlement(settlement.getId());
+                    model.delete(settlement);
+                    MI.showSnack("Settlement Permanently Deleted", Snackbar.LENGTH_SHORT);
                     break;
                 case R.id.edit:
-                    MainActivity.settlement = settlement;
-                    MI.navigate(1);
+                    //TODO: load and edit settlement
                     break;
             }
         }

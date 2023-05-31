@@ -1,5 +1,6 @@
 package com.glass.payroll;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -7,7 +8,12 @@ import java.time.Instant;
 
 @Entity(tableName = "trailer_records")
 public class Trailer {
+
+    public Trailer() {
+    }
+
     @PrimaryKey
+            @NonNull
     String id = "";
     String userId = "";
 

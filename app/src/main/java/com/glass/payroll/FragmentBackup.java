@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentBackupBinding;
@@ -73,13 +74,10 @@ public class FragmentBackup extends Fragment {
     }
 
     private void backupDatabaseToStorage() {
-        MainActivity.executor.execute(() -> {
-            List<Settlement> records = model.getAllSettlements();
-            UploadTask uploadTask = ref.putStream(new ByteArrayInputStream(new Gson().toJson(records).getBytes()));
+        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
+            UploadTask uploadTask = ref.putStream(new ByteArrayInputStream(new Gson().toJson(settlements).getBytes()));
             uploadTask.addOnFailureListener(exception -> MI.showSnack(exception.getMessage(), Snackbar.LENGTH_INDEFINITE)).addOnSuccessListener(taskSnapshot -> MI.showSnack("Backup Complete!", Snackbar.LENGTH_INDEFINITE));
         });
-
-
     }
 
     private void restoreDatabaseFromStorage() {

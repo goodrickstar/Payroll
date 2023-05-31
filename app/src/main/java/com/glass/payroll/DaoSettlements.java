@@ -27,12 +27,15 @@ public interface DaoSettlements {
     void emptyRecords(String userId);
 
     @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 10")
-    List<String> getSettlements(String uid);
+    List<Settlement> getSettlements(String uid);
 
     @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC")
-    List<Settlement> getAllSettlements(String uid);
+    LiveData<List<Settlement>> getAllSettlements(String uid);
 
     @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 1")
     LiveData<Settlement> getSettlement(String uid);
+
+    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC LIMIT 1")
+    Settlement getCurrentSettlement(String uid);
 
 }

@@ -66,7 +66,7 @@
 
             <EditText
                 android:id="@+id/truck"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/custom_edit_text"
@@ -75,38 +75,23 @@
                 android:inputType="textAutoCorrect"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
+                app:layout_constraintEnd_toEndOf="@+id/startLayout"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
             <EditText
                 android:id="@+id/trailer"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
                 android:background="@drawable/custom_edit_text"
                 android:ems="10"
                 android:hint="@string/identification"
                 android:inputType="textAutoCorrect"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView10" />
-
-            <EditText
-                android:id="@+id/odometer_reading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/custom_edit_text"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/reading"
-                android:inputType="number"
-                android:padding="@dimen/common_margin"
-                android:textColor="@color/colorTextBlack"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView16" />
+                app:layout_constraintEnd_toEndOf="@+id/stopLayout"
+                app:layout_constraintStart_toStartOf="@+id/stopLayout"
+                app:layout_constraintTop_toTopOf="@+id/truck" />
 
             <LinearLayout
                 android:id="@+id/startLayout"
@@ -230,6 +215,8 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/truck"
                 android:textColor="@color/colorTextBlack"
+                app:layout_constraintEnd_toEndOf="@+id/truck"
+                app:layout_constraintHorizontal_bias="0.25"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/startLayout" />
 
@@ -244,26 +231,15 @@
                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
             <TextView
-                android:id="@+id/textView16"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/current_odometer"
-                android:textColor="@color/colorTextBlack"
-                app:layout_constraintEnd_toEndOf="@+id/odometer_reading"
-                app:layout_constraintStart_toStartOf="@+id/odometer_reading"
-                app:layout_constraintTop_toBottomOf="@+id/stopLayout" />
-
-            <TextView
                 android:id="@+id/textView10"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/trailer"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/truck" />
+                app:layout_constraintEnd_toEndOf="@+id/stopLayout"
+                app:layout_constraintHorizontal_bias="0.75"
+                app:layout_constraintStart_toStartOf="@+id/trailer"
+                app:layout_constraintTop_toTopOf="@+id/textView9" />
 
             <TextView
                 android:id="@+id/thisYear"

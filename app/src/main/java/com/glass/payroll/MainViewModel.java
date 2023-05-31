@@ -15,6 +15,7 @@ public class MainViewModel extends AndroidViewModel {
     private final Records database;
     private String userId;
     private LiveData<Settlement> settlement;
+    private LiveData<List<Settlement>> settlements;
     private LiveData<Truck> truck;
     private LiveData<Trailer> trailer;
 
@@ -27,6 +28,7 @@ public class MainViewModel extends AndroidViewModel {
     public void setUserId(String userId) {
         this.userId = userId;
         settlement = database.daoSettlements().getSettlement(this.userId);
+        settlements = database.daoSettlements().getAllSettlements(this.userId);
         truck = database.daoTruck().getTruck(this.userId);
         trailer = database.daoTrailer().getTrailer(this.userId);
     }
@@ -53,6 +55,11 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoSettlements().addSettlements(settlements));
     }
 
+
+    public void add(Truck truck) {
+        executor.execute(() -> database.daoTruck().addTruck(truck));
+    }
+
     public void restore(List<Settlement> settlements) {
         executor.execute(() -> {
             database.daoSettlements().emptyRecords(userId);
@@ -60,9 +67,16 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public List<Settlement> getAllSettlements() {
-        return database.daoSettlements().getAllSettlements(userId);
+    public LiveData<List<Settlement>> getAllSettlements() {
+        return settlements;
     }
 
+    public Settlement getSettlement() {
+        return database.daoSettlements().getCurrentSettlement(userId);
+    }
+
+    public void delete(Settlement settlement) {
+        executor.execute(() -> database.daoSettlements().deleteSettlement(settlement.getId()));
+    }
 
 }

@@ -15,8 +15,6 @@ public class Settlement {
     private long id = 0L;
 
     private String userId = "";
-    private String truck = "";
-    private String trailer = "";
     private long start = 0;
     private long stop = 0;
     private int emptyMiles = 0;
@@ -25,8 +23,8 @@ public class Settlement {
     private int month = 1;
     private int quarter = 1;
     private int year = 23;
-    private double dieselGallons = 23;
-    private double defGallons = 23;
+    private double dieselGallons = 0;
+    private double defGallons = 0;
     private double gross = 0.0;
     private double balance = 0.0;
     private double fuelCost = 0.0;
@@ -82,22 +80,6 @@ public class Settlement {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getTruck() {
-        return truck;
-    }
-
-    public void setTruck(String truck) {
-        this.truck = truck;
-    }
-
-    public String getTrailer() {
-        return trailer;
-    }
-
-    public void setTrailer(String trailer) {
-        this.trailer = trailer;
     }
 
     public long getStart() {

@@ -33,6 +33,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -103,14 +104,19 @@ public class MainActivity extends AppCompatActivity implements MI {
     private FrameLayout content_frame;
     private boolean update = false;
     private MainViewModel model;
+    static Truck truck;
+    static Trailer trailer;
 
+    private boolean firstLoad = true;
 
     @Override
-    public void newSettlement(final Settlement settlement, final boolean transfer) {
+    public void newSettlement(final Settlement settlement, boolean transfer) {
+        settlement.setUserId(user.getUid());
         if (transfer) {
-            settlement.setPayout(MainActivity.this.settlement.getPayout());
-            settlement.setFixed(MainActivity.this.settlement.getFixed());
-        }
+            Log.i("ROOM", "transferred");
+            settlement.setPayout(this.settlement.getPayout());
+            settlement.setFixed(this.settlement.getFixed());
+        }else Log.i("ROOM", "no transfer");
         model.add(Utils.calculate(settlement));
         FragmentOverview fragmentOverview = (FragmentOverview) fragmentManager.findFragmentByTag("overview");
         if (fragmentOverview == null)
@@ -119,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     void handleSettlementData() {
-        if (settlement.getId() == 0) {
+        if (settlement.getId() == 0 || truck == null) {
             handleMenuNavigation(null, false, false);
         } else {
-            handleMenuNavigation(navigationView.getMenu().getItem(1), false, false);
+            handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
         }
 
     }
@@ -130,15 +136,27 @@ public class MainActivity extends AppCompatActivity implements MI {
     private void signInSheet() {
         user = mAuth.getCurrentUser();
         if (user != null) {
-            model.setUserId(user.getUid());
-            model.settlement().observe(this, settlement -> {
-                MainActivity.this.settlement = settlement;
-                balance.setText("Bal: $" + settlement.getBalance());
-            });
             if (preferences.getBoolean("migrate", true)) {
                 returnSettlement();
             } else {
-                handleSettlementData();
+                model.setUserId(user.getUid());
+                model.settlement().observe(this, settlement -> {
+                    if (settlement != null){
+                        MainActivity.this.settlement = settlement;
+                        if (MainActivity.this.settlement != null) balance.setText("Bal: " + Utils.formatValueToCurrency(settlement.getBalance()));
+                        if (firstLoad){
+                            handleGrouping();
+                            handleSettlementData();
+                            firstLoad = false;
+                        }
+                    }
+                });
+                model.truck().observe(this, truck -> {
+                    MainActivity.truck = truck;
+                    handleGrouping();
+                    handleSettlementData();
+                });
+                model.trailer().observe(this, trailer -> MainActivity.trailer = trailer);
             }
         } else {
             handleMenuNavigation(null, false, false);
@@ -161,30 +179,26 @@ public class MainActivity extends AppCompatActivity implements MI {
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response){
                 if (response.isSuccessful()) {
                     try {
                         String dataString = response.body().string();
                         final JSONObject data = new JSONObject(dataString);
-                        runOnUiThread(() -> {
-                            try {
-                                preferences.edit().putBoolean("migrate", false).apply();
-                                if (data.getBoolean("available")) {
-                                    ArrayList<Settlement> x = Utils.returnSettlementArray(data.getJSONArray("settlement").toString());
-                                    model.add(x);
-                                    signInSheet();
-                                }
-                            } catch (JSONException e) {
-                                Log.e("onResponse()", e.getMessage());
+                        preferences.edit().putBoolean("migrate", false).apply();
+                        if (data.getBoolean("available")) {
+                            ArrayList<Settlement> x = Utils.returnSettlementArray(data.getJSONArray("settlement").toString());
+                            ArrayList<Settlement> settlements = new ArrayList<>();
+                            for (int i = 0; i < x.size(); i++) {
+                                Settlement work = Utils.calculate(x.get(i));
+                                work.setUserId(user.getUid());
+                                settlements.add(work);
                             }
-                        });
-                    } catch (JSONException e) {
-                        Log.e("JSONException", e.getMessage());
-                    } finally {
-                        response.close();
+                            model.add(settlements);
+                            runOnUiThread(() -> signInSheet());
+                        }
+                    } catch (JSONException | IOException e) {
+                        Log.e("onResponse()", e.getMessage());
                     }
-                } else {
-                    runOnUiThread(() -> showSnack("Offline Mode", Snackbar.LENGTH_INDEFINITE));
                 }
             }
         });
@@ -295,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public void handleMenuNavigation(MenuItem menuItem, boolean close, boolean physical) {
         if (physical) vibrate();
@@ -335,6 +348,10 @@ public class MainActivity extends AppCompatActivity implements MI {
                 case R.id.backup:
                     transaction.replace(R.id.content_frame, new FragmentBackup(), "backup");
                     break;
+                case R.id.equipment:
+                    model.add(new Truck(user.getUid(), "1946", 473496));
+                    handleGrouping();
+                    break;
             }
         } else {
             if (navigationView.getCheckedItem() != null)
@@ -343,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                 balance.setText("Welcome to Payroll");
                 transaction.replace(R.id.content_frame, new FragmentWelcome(), "welcome");
             } else {
-                if (settlement.getId() == 0) {
+                if (settlement.getId() == 0 || truck == null) {
                     balance.setText("Getting Started");
                     transaction.replace(R.id.content_frame, new FragmentIntro(), "intro");
                 } else {
@@ -354,28 +371,31 @@ public class MainActivity extends AppCompatActivity implements MI {
         if (!isFinishing()) transaction.commit();
         handleGrouping();
     }
-
     private void handleGrouping() {
         if (user == null) {
             balance.setText("Welcome to Payroll");
             navigationView.getMenu().setGroupEnabled(R.id.settlement_group, false);
             navigationView.getMenu().setGroupEnabled(R.id.navigation_group, false);
+            navigationView.getMenu().setGroupEnabled(R.id.equipment_group, false);
             navigationView.getMenu().setGroupEnabled(R.id.record_group, false);
+            navigationView.getMenu().setGroupEnabled(R.id.backup_group, false);
         } else {
-            if (settlement.getId() == 0) {
+            if (settlement.getId() == 0 || truck == null) {
                 balance.setText("Getting Started");
-                if (!update) navigationView.getMenu().setGroupEnabled(R.id.settlement_group, true);
+                navigationView.getMenu().setGroupEnabled(R.id.settlement_group, truck != null);
+                navigationView.getMenu().setGroupEnabled(R.id.equipment_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.navigation_group, false);
                 navigationView.getMenu().setGroupEnabled(R.id.record_group, false);
+                navigationView.getMenu().setGroupEnabled(R.id.backup_group, false);
             } else {
-                if (!update) navigationView.getMenu().setGroupEnabled(R.id.settlement_group, true);
+                navigationView.getMenu().setGroupEnabled(R.id.settlement_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.navigation_group, true);
+                navigationView.getMenu().setGroupEnabled(R.id.equipment_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.record_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.backup_group, true);
             }
         }
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) drawerLayout.openDrawer(GravityCompat.START);
@@ -388,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             drawerLayout.closeDrawer(Gravity.LEFT);
             return;
         }
-        if (navigationView.getCheckedItem() == null || user == null) {
+        if (user == null) {
             super.onBackPressed();
             return;
         }
@@ -397,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             return;
         }
         if (settlement.getId() != 0)
-            handleMenuNavigation(navigationView.getMenu().getItem(1), false, false);
+            handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
         else super.onBackPressed();
     }
 

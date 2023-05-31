@@ -30,30 +30,40 @@ import java.util.Locale;
 class Utils {
 
     static Settlement calculate(@NonNull Settlement x) {
+        x.setGross(0);
+        x.setFuelCost(0);
+        x.setDefCost(0);
+        x.setPayoutCost(0);
+        x.setMaintenanceCost(0);
+        x.setMiscCost(0);
+        x.setFixedCost(0);
+        x.setDefGallons(0);
+        x.setDieselGallons(0);
+        x.setEmptyMiles(0);
+        x.setLoadedMiles(0);
         for (Load load : x.getLoads()) {
             x.setGross(x.getGross() + load.getRate());
             x.setEmptyMiles(x.getEmptyMiles() + load.getEmpty());
             x.setLoadedMiles(x.getLoadedMiles() + load.getLoaded());
         }
-        if (x.getPayout() != null) {
-            if (x.getPayout().getPPercent() != 0) {
-                x.setPayoutCost((x.getGross() * (100 - x.getPayout().getPPercent())) / 100);
-            }
-            if (x.getPayout().getPCpm() != 0) {
-                x.setPayoutCost(x.getPayoutCost() + ((x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
-            }
-            if (x.getPayout().getMPercent() != 0) {
-                x.setMaintenanceCost((x.getGross() * (100 - x.getPayout().getMPercent())) / 100);
-            }
-            if (x.getPayout().getMCpm() != 0) {
-                x.setMaintenanceCost(x.getMaintenanceCost() + ((x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
-            }
+        if (x.getPayout().getPPercent() != 0) {
+            x.setPayoutCost(x.getGross() * ((double) x.getPayout().getPPercent() / 100));
         }
+        if (x.getPayout().getMPercent() != 0) {
+            x.setMaintenanceCost(x.getGross() * ((double) x.getPayout().getMPercent() / 100));
+        }
+        if (x.getPayout().getPCpm() != 0) {
+            x.setPayoutCost(x.getPayoutCost() + ((double) (x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
+        }
+        if (x.getPayout().getMCpm() != 0) {
+            x.setMaintenanceCost(x.getMaintenanceCost() + ((double) (x.getEmptyMiles() + x.getLoadedMiles()) * x.getPayout().getMCpm()) / 100);
+        }
+
         for (Fuel fuel : x.getFuel()) {
             if (!fuel.getDef()) {
                 x.setFuelCost(x.getFuelCost() + fuel.getCost());
                 x.setDieselGallons(x.getDieselGallons() + fuel.getGallons());
-            }else{
+            } else {
                 x.setDefCost(x.getDefCost() + fuel.getCost());
                 x.setDefGallons(x.getDefGallons() + fuel.getGallons());
             }
@@ -64,7 +74,12 @@ class Utils {
         for (Cost cost : x.getMiscellaneous()) {
             x.setMiscCost(x.getMiscCost() + cost.getCost());
         }
-        x.setBalance(x.getGross() - (x.getPayoutCost() +  x.getMaintenanceCost() + x.getFixedCost() + x.getMiscCost() + x.getFuelCost() + x.getDefCost()));
+        x.setBalance(x.getGross() - (x.getPayoutCost() + x.getMaintenanceCost() + x.getFixedCost() + x.getMiscCost() + x.getFuelCost() + x.getDefCost()));
+        x.setBalance(formatDouble(x.getBalance()));
+        x.setFuelCost(formatDouble(x.getFuelCost()));
+        x.setDefCost(formatDouble(x.getDefCost()));
+        x.setMaintenanceCost(formatDouble(x.getMaintenanceCost()));
+        x.setPayoutCost(formatDouble(x.getPayoutCost()));
         return x;
     }
 
