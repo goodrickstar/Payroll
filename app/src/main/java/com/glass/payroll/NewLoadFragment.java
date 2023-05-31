@@ -100,7 +100,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 }
             }
         }
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
     }
 
     @Override

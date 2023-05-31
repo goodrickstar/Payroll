@@ -12,13 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentOverviewBinding;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -31,7 +29,6 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     private final ArrayList<Item> items = new ArrayList<>();
     private FragmentOverviewBinding binding;
     private MainViewModel model;
-    private Settlement settlement;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,8 +62,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
                 MI.updateOdometer();
             }
         });
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> {
-            FragmentOverview.this.settlement = settlement;
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             items.clear();
             Item item = new Item("Loads", 2);
             item.setTotal(settlement.getGross());
@@ -90,19 +86,15 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             items.add(item);
             recyclerAdapter.notifyDataSetChanged();
             binding.dates.setText(Utils.toShortDateSpelled(settlement.getStart()) + " - " + Utils.toShortDateSpelled(settlement.getStop()));
-            if (MainActivity.truck != null) binding.odomter.setText("Latest Odometer: " + Utils.formatInt(MainActivity.truck.getOdometer()));
-            setWeek(settlement.getStart());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(settlement.getStart());
+            binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
+            binding.progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
+            binding.thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+            calendar.add(Calendar.YEAR, 1);
+            binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         });
-    }
-
-    private void setWeek(long start) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(start);
-        binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
-        binding.progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
-        binding.thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-        calendar.add(Calendar.YEAR, 1);
-        binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+        model.truck().observe(getViewLifecycleOwner(), truck -> binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer())));
     }
 
     @Override
@@ -111,7 +103,6 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         this.context = context;
         MI = (MI) getActivity();
     }
-
 
     @Override
     public void onDetach() {

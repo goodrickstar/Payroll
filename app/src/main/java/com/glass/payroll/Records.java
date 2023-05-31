@@ -6,9 +6,11 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {Settlement.class}, version = 1)
+@Database(entities = {Settlement.class, Truck.class, Trailer.class}, version = 1)
 abstract public class Records extends RoomDatabase {
     public abstract DaoSettlements daoSettlements();
+    public abstract DaoTrailer daoTrailer();
+    public abstract DaoTruck daoTruck();
 
 
     private static volatile Records INSTANCE;

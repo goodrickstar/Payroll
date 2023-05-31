@@ -183,7 +183,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         binding.cost.setOnEditorActionListener(actionListener);
         binding.gallons.setOnEditorActionListener(actionListener);
         binding.odometerReading.setOnEditorActionListener(actionListener);
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
     }
 
     @Override

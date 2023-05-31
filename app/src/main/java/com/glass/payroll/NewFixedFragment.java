@@ -108,7 +108,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
         calendar.add(Calendar.YEAR, 1);
         binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         Utils.showKeyboard(getContext(), binding.label);
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> NewFixedFragment.this.settlement = settlement);
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFixedFragment.this.settlement = settlement);
     }
 
     @Override

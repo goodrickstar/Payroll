@@ -97,7 +97,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         else order.setText(getString(R.string.desc));
         if (!sort.isChecked()) sortView.setText(getString(R.string.date));
         else sortView.setText(getString(R.string.revenue));
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> {
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             FragmentLoads.this.settlement = settlement;
             recyclerAdapter.notifyDataSetChanged();
             calculate();

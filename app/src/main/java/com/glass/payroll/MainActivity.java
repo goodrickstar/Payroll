@@ -102,11 +102,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     private SharedPreferences preferences;
     private FrameLayout content_frame;
     private boolean update = false;
-
-    static Truck truck;
-
-    static Trailer trailer;
-
     private MainViewModel model;
 
 
@@ -136,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         user = mAuth.getCurrentUser();
         if (user != null) {
             model.setUserId(user.getUid());
-            model.settlementLiveData().observe(this, settlement -> {
+            model.settlement().observe(this, settlement -> {
                 MainActivity.this.settlement = settlement;
                 balance.setText("Bal: $" + settlement.getBalance());
             });

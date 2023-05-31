@@ -3,6 +3,8 @@ package com.glass.payroll;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.time.Instant;
+
 @Entity(tableName = "truck_records")
 public class Truck {
     @PrimaryKey
@@ -10,6 +12,16 @@ public class Truck {
     String userId = "";
     int odometer = 0;
     int startingOdometer = 0;
+
+    long stamp = Instant.now().getEpochSecond();
+
+    public long getStamp() {
+        return stamp;
+    }
+
+    public void setStamp(long stamp) {
+        this.stamp = stamp;
+    }
 
     public String getId() {
         return id;

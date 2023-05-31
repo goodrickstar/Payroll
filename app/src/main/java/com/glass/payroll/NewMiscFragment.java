@@ -109,7 +109,7 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         calendar.add(Calendar.YEAR, 1);
         binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         Utils.showKeyboard(getContext(), binding.label);
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> NewMiscFragment.this.settlement = settlement);
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewMiscFragment.this.settlement = settlement);
     }
 
     @Override

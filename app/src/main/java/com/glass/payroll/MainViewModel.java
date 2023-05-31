@@ -14,7 +14,9 @@ public class MainViewModel extends AndroidViewModel {
     private final Executor executor;
     private final Records database;
     private String userId;
-    private LiveData<Settlement> settlementLiveData;
+    private LiveData<Settlement> settlement;
+    private LiveData<Truck> truck;
+    private LiveData<Trailer> trailer;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -24,15 +26,23 @@ public class MainViewModel extends AndroidViewModel {
 
     public void setUserId(String userId) {
         this.userId = userId;
-        settlementLiveData = database.daoSettlements().getSettlement(this.userId);
+        settlement = database.daoSettlements().getSettlement(this.userId);
+        truck = database.daoTruck().getTruck(this.userId);
+        trailer = database.daoTrailer().getTrailer(this.userId);
     }
 
     public Executor executor() {
         return executor;
     }
 
-    public LiveData<Settlement> settlementLiveData() {
-        return settlementLiveData;
+    public LiveData<Settlement> settlement() {
+        return settlement;
+    }
+    public LiveData<Truck> truck() {
+        return truck;
+    }
+    public LiveData<Trailer> trailer() {
+        return trailer;
     }
 
     public void add(Settlement settlement) {

@@ -91,7 +91,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         else binding.order.setText(getString(R.string.desc));
         if (!binding.sort.isChecked()) binding.sortView.setText(getString(R.string.date));
         else binding.sortView.setText(getString(R.string.amount));
-        model.settlementLiveData().observe(getViewLifecycleOwner(), settlement -> {
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             FragmentMiscellaneous.this.settlement = settlement;
             recyclerAdapter.notifyDataSetChanged();
             calculate();
