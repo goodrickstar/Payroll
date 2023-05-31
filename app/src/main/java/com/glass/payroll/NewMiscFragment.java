@@ -27,11 +27,9 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
     private FragmentNewMiscBinding binding;
     private Settlement settlement;
     private MainViewModel model;
-
     public NewMiscFragment() {
         // Required empty public constructor
     }
-
     private void checkEntries() {
         boolean error = false;
         if (TextUtils.isEmpty(binding.cost.getText())) error = setError(binding.cost);
@@ -48,12 +46,10 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         model.add(Utils.sortMiscellaneous(Utils.calculate(settlement), Utils.getOrder(getContext(), "miscellaneous"), Utils.getSort(getContext(), "miscellaneous")));
         dismiss();
     }
-
     private boolean setError(EditText view) {
         view.setError("Required");
         return true;
     }
-
     private int parseInt(Editable editable) {
         try {
             return Integer.parseInt(editable.toString().trim());

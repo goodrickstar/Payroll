@@ -25,8 +25,7 @@ import java.util.List;
 
 public class FragmentStatistics extends Fragment {
     private Context context;
-
-    FragmentStatisticsBinding binding;
+    private FragmentStatisticsBinding binding;
     private MainViewModel model;
     public FragmentStatistics() {
     }
@@ -36,7 +35,6 @@ public class FragmentStatistics extends Fragment {
         super.onAttach(context);
         this.context = context;
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

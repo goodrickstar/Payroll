@@ -20,7 +20,6 @@ import java.util.ArrayList;
 public class FragmentIntro extends Fragment {
     private final ArrayList<String> tips = new ArrayList<>();
     private Context context;
-
     public FragmentIntro() {
     }
 
@@ -49,7 +48,7 @@ public class FragmentIntro extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
     }

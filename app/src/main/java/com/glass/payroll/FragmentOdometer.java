@@ -18,15 +18,13 @@ public class FragmentOdometer extends DialogFragment implements View.OnClickList
     private EditText odometer_reading;
     private MI MI;
     private int odometer = 0;
-
     private MainViewModel model;
-
     public FragmentOdometer() {
     }
-
     private void checkEntries() {
 
         //TODO: Truck Odometer
+
         /*
         if (MI != null) {
             if (!TextUtils.isEmpty(odometer_reading.getText())) {

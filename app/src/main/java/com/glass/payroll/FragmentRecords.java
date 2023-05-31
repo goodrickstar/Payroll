@@ -28,7 +28,6 @@ public class FragmentRecords extends Fragment {
     private FragmentRecordsBinding binding;
     private MainViewModel model;
     private List<Settlement> settlements = new ArrayList<>();
-
     private Settlement settlement = new Settlement();
 
     @Override

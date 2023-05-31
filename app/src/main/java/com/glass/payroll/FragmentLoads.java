@@ -34,7 +34,6 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
     private MI MI;
     private FragmentLoadsBinding binding;
     private Settlement settlement;
-
     private MainViewModel model;
 
     @Override

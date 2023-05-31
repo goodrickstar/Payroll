@@ -24,8 +24,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     private MI MI;
     private final Settlement settlement = new Settlement();
     private FragmentNewSettlementBinding binding;
-
-
     public NewSettlementFragment() {
         // Required empty public constructor
     }

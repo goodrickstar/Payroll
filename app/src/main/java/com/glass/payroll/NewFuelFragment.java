@@ -35,8 +35,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
     private Settlement settlement;
     private MainViewModel model;
     private FragmentNewFuelBinding binding;
-
-
     public NewFuelFragment() {
         // Required empty public constructor
     }

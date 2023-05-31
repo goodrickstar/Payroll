@@ -26,9 +26,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     private int index = 0;
     private FragmentNewMiscBinding binding;
     private Settlement settlement;
-
     private MainViewModel model;
-
     public NewFixedFragment() {
         // Required empty public constructor
     }

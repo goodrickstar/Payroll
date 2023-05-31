@@ -30,10 +30,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     private Load load = new Load();
     private boolean editing = false;
     private int index = 0;
-
     private FragmentNewLoadBinding binding;
     private Settlement settlement;
-
     private MainViewModel model;
 
     public NewLoadFragment() {

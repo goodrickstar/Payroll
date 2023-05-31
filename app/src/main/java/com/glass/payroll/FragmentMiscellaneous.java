@@ -32,7 +32,6 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
     private MI MI;
     private FragmentMiscellaneousBinding binding;
     private Settlement settlement;
-
     private MainViewModel model;
 
     @Override
