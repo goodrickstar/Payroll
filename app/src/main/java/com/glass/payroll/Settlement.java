@@ -25,14 +25,16 @@ public class Settlement {
     private int month = 1;
     private int quarter = 1;
     private int year = 23;
-    private int dieselGallons = 23;
-    private int defGallons = 23;
+    private double dieselGallons = 23;
+    private double defGallons = 23;
     private double gross = 0.0;
     private double balance = 0.0;
     private double fuelCost = 0.0;
     private double defCost = 0.0;
     private double fixedCost = 0.0;
     private double miscCost = 0.0;
+    private double payoutCost = 0.0;
+    private double maintenanceCost = 0.0;
     private Payout payout = new Payout();
     private ArrayList<Load> loads = new ArrayList<>();
     private ArrayList<Fuel> fuel = new ArrayList<>();
@@ -40,6 +42,30 @@ public class Settlement {
     private ArrayList<Cost> miscellaneous = new ArrayList<>();
 
     public Settlement() {
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public double getPayoutCost() {
+        return payoutCost;
+    }
+
+    public void setPayoutCost(double payoutCost) {
+        this.payoutCost = payoutCost;
+    }
+
+    public double getMaintenanceCost() {
+        return maintenanceCost;
+    }
+
+    public void setMaintenanceCost(double maintenanceCost) {
+        this.maintenanceCost = maintenanceCost;
     }
 
     public long getStamp() {
@@ -138,19 +164,19 @@ public class Settlement {
         this.year = year;
     }
 
-    public int getDieselGallons() {
+    public double getDieselGallons() {
         return dieselGallons;
     }
 
-    public void setDieselGallons(int dieselGallons) {
+    public void setDieselGallons(double dieselGallons) {
         this.dieselGallons = dieselGallons;
     }
 
-    public int getDefGallons() {
+    public double getDefGallons() {
         return defGallons;
     }
 
-    public void setDefGallons(int defGallons) {
+    public void setDefGallons(double defGallons) {
         this.defGallons = defGallons;
     }
 

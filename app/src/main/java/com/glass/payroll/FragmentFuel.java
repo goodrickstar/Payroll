@@ -198,7 +198,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
                                 MI.vibrate();
                                 settlement.getFuel().add(position, fuel);
                                 calculate();
-                                model.add(settlement);
+                                model.add(Utils.calculate(settlement));
                             }
                         });
                         View v = snackbar.getView();
@@ -208,7 +208,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
                         snackbar.setActionTextColor(Color.WHITE);
                         snackbar.show();
                         calculate();
-                        model.add(settlement);
+                        model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT: //edit
                         MI.newFuel(fuel, position);

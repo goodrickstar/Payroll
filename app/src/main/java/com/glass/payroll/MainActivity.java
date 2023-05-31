@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             settlement.setPayout(MainActivity.this.settlement.getPayout());
             settlement.setFixed(MainActivity.this.settlement.getFixed());
         }
-        model.add(settlement);
+        model.add(Utils.calculate(settlement));
         FragmentOverview fragmentOverview = (FragmentOverview) fragmentManager.findFragmentByTag("overview");
         if (fragmentOverview == null)
             handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
@@ -194,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements MI {
             }
         });
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {

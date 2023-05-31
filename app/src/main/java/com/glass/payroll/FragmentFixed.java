@@ -189,7 +189,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                                 MI.vibrate();
                                 settlement.getFixed().add(position, cost);
                                 calculate();
-                                model.add(settlement);
+                                model.add(Utils.calculate(settlement));
                             }
                         });
                         View v = snackbar.getView();
@@ -199,7 +199,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                         snackbar.setActionTextColor(Color.WHITE);
                         snackbar.show();
                         calculate();
-                        model.add(settlement);
+                        model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:
                         MI.newFixed(cost, position);

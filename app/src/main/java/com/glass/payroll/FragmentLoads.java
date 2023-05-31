@@ -202,7 +202,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                                 MI.vibrate();
                                 settlement.getLoads().add(position, load);
                                 calculate();
-                                model.add(settlement);
+                                model.add(Utils.calculate(settlement));
                             }
                         });
                         View v = snackbar.getView();
@@ -212,7 +212,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                         snackbar.setActionTextColor(Color.WHITE);
                         snackbar.show();
                         calculate();
-                        model.add(settlement);
+                        model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:
                         MI.newLoad(load, position);

@@ -188,7 +188,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                         snackbar.setAction("UNDO", view -> {
                             settlement.getMiscellaneous().add(position, cost);
                             calculate();
-                            model.add(settlement);
+                            model.add(Utils.calculate(settlement));
                             MI.vibrate();
                         });
                         View v = snackbar.getView();
@@ -198,7 +198,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                         snackbar.setActionTextColor(Color.WHITE);
                         snackbar.show();
                         calculate();
-                        model.add(settlement);
+                        model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:
                         MI.newMisc(cost, position);
