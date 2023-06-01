@@ -27,7 +27,7 @@ public interface DaoTruck {
     void emptyRecords(String userId);
 
     @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC")
-    List<Truck> getAllTrucks(String uid);
+    LiveData<List<Truck>> getAllTrucks(String uid);
 
     @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Truck> getTruck(String uid);

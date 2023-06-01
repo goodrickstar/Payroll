@@ -23,11 +23,17 @@ public class Truck {
     long stamp = Instant.now().getEpochSecond();
 
     @Ignore
-    public Truck(String userId, String truckId, int odometer) {
+    public Truck(String userId, @NonNull String truckId, int odometer) {
         this.userId = userId;
         this.id = truckId;
         this.startingOdometer = odometer;
         this.odometer = odometer;
+    }
+
+    @Ignore
+    public Truck(String userId, @NonNull String truckId) {
+        this.userId = userId;
+        this.id = truckId;
     }
 
     public long getStamp() {

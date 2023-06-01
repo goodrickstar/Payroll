@@ -9,10 +9,15 @@
             android:icon="@drawable/new_settlement"
             android:title="@string/new_settlement" />
     </group>
-    <group android:id="@+id/equipment_group">
+    <group
+        android:id="@+id/equipment_group"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/equipment"
-            android:title="Equipment" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/equipment_icon"
+            android:title="@string/equipment" />
     </group>
     <group
         android:id="@+id/navigation_group"

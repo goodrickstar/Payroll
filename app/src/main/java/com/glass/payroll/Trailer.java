@@ -2,6 +2,7 @@ package com.glass.payroll;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.time.Instant;
@@ -12,8 +13,14 @@ public class Trailer {
     public Trailer() {
     }
 
+    @Ignore
+    public Trailer(String userId, @NonNull String id) {
+        this.id = id;
+        this.userId = userId;
+    }
+
     @PrimaryKey
-            @NonNull
+    @NonNull
     String id = "";
     String userId = "";
 

@@ -21,6 +21,9 @@ public class MainViewModel extends AndroidViewModel {
     private LiveData<Truck> truck;
     private LiveData<Trailer> trailer;
 
+    private LiveData<List<Truck>> trucks;
+    private LiveData<List<Trailer>> trailers;
+
     public MainViewModel(@NonNull Application application) {
         super(application);
         database = Records.getDatabase(application);
@@ -31,8 +34,10 @@ public class MainViewModel extends AndroidViewModel {
         this.userId = userId;
         settlement = database.daoSettlements().getSettlement(this.userId);
         settlements = database.daoSettlements().getAllSettlements(this.userId);
-        truck = database.daoTruck().getTruck(this.userId);
-        trailer = database.daoTrailer().getTrailer(this.userId);
+        truck = database.daoTruck().getTruck(userId);
+        trailer = database.daoTrailer().getTrailer(userId);
+        trucks = database.daoTruck().getAllTrucks(userId);
+        trailers = database.daoTrailer().getAllTrailers(userId);
         keys = database.daoSettlements().getSettlementKeys(userId);
     }
 
@@ -43,9 +48,11 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<Settlement> settlement() {
         return settlement;
     }
+
     public LiveData<Truck> truck() {
         return truck;
     }
+
     public LiveData<Trailer> trailer() {
         return trailer;
     }
@@ -81,6 +88,14 @@ public class MainViewModel extends AndroidViewModel {
         return settlements;
     }
 
+    public LiveData<List<Truck>> trucks() {
+        return trucks;
+    }
+
+    public LiveData<List<Trailer>> trailers() {
+        return trailers;
+    }
+
     public Settlement getSettlement() {
         return database.daoSettlements().getCurrentSettlement(userId);
     }
@@ -89,11 +104,11 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoSettlements().deleteSettlement(settlement.getId()));
     }
 
-    public LiveData<List<Long>> keys(){
+    public LiveData<List<Long>> keys() {
         return keys;
     }
 
-    public void setStampOnSettlement(long settlementId, long stamp){
+    public void setStampOnSettlement(long settlementId, long stamp) {
         executor.execute(() -> database.daoSettlements().setStamp(settlementId, stamp));
     }
 

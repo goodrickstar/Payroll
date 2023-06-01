@@ -9,6 +9,8 @@ interface MI {
 
     boolean locationPermission();
 
+    void handleGrouping();
+
     String returnLocation();
 
     void showSnack(String message, int length);

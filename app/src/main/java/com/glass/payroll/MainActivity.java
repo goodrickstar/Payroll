@@ -1,7 +1,6 @@
 package com.glass.payroll;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -117,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             Log.i("ROOM", "transferred");
             settlement.setPayout(this.settlement.getPayout());
             settlement.setFixed(this.settlement.getFixed());
-        }else Log.i("ROOM", "no transfer");
+        } else Log.i("ROOM", "no transfer");
         model.add(Utils.calculate(settlement));
         FragmentOverview fragmentOverview = (FragmentOverview) fragmentManager.findFragmentByTag("overview");
         if (fragmentOverview == null)
@@ -142,10 +140,11 @@ public class MainActivity extends AppCompatActivity implements MI {
             } else {
                 model.setUserId(user.getUid());
                 model.settlement().observe(this, settlement -> {
-                    if (settlement != null){
+                    if (settlement != null) {
                         MainActivity.this.settlement = settlement;
-                        if (MainActivity.this.settlement != null) balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
-                        if (firstLoad){
+                        if (MainActivity.this.settlement != null)
+                            balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
+                        if (firstLoad) {
                             handleGrouping();
                             handleSettlementData();
                             firstLoad = false;
@@ -180,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response){
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.isSuccessful()) {
                     try {
                         String dataString = response.body().string();
@@ -346,8 +345,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                     transaction.replace(R.id.content_frame, new FragmentBackup(), "backup");
                     break;
                 case R.id.equipment:
-                    model.add(new Truck(user.getUid(), "1946", 473496));
-                    handleGrouping();
+                    transaction.replace(R.id.content_frame, new FragmentEquipment(), "equipment");
                     break;
             }
         } else {
@@ -368,7 +366,9 @@ public class MainActivity extends AppCompatActivity implements MI {
         if (!isFinishing()) transaction.commit();
         handleGrouping();
     }
-    private void handleGrouping() {
+
+    @Override
+    public void handleGrouping() {
         if (user == null) {
             balance.setText("Welcome to Payroll");
             navigationView.getMenu().setGroupEnabled(R.id.settlement_group, false);
@@ -393,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements MI {
             }
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) drawerLayout.openDrawer(GravityCompat.START);

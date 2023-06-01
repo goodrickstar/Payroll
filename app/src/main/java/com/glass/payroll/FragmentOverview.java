@@ -109,7 +109,6 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         });
         model.keys().observe(getViewLifecycleOwner(), keys -> {
             FragmentOverview.this.keys = keys;
-            Log.i("ROOM", new Gson().toJson(keys));
         });
     }
 

@@ -76,4 +76,5 @@
     <string name="calculated_averages">Calculated Averages</string>
     <string name="backup_and_restore"><![CDATA[Backup & Restore]]></string>
     <string name="backup_description">Back up your database to Payroll servers. Useful when switching to a new phone for example, or simply for peace of mind. There will be a one time small fee for unlimited use.</string>
+    <string name="equipment">Equipment</string>
 </resources>
