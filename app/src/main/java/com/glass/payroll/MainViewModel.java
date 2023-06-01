@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -50,6 +51,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void add(Settlement settlement) {
+        settlement.setStamp(Instant.now().getEpochSecond());
         executor.execute(() -> database.daoSettlements().addSettlement(settlement));
     }
 
@@ -59,7 +61,13 @@ public class MainViewModel extends AndroidViewModel {
 
 
     public void add(Truck truck) {
+        truck.setStamp(Instant.now().getEpochSecond());
         executor.execute(() -> database.daoTruck().addTruck(truck));
+    }
+
+    public void add(Trailer trailer) {
+        trailer.setStamp(Instant.now().getEpochSecond());
+        executor.execute(() -> database.daoTrailer().addTrailer(trailer));
     }
 
     public void restore(List<Settlement> settlements) {

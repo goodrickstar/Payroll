@@ -60,7 +60,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         }
         model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
         if (MainActivity.truck != null){
-            MainActivity.truck.setStamp(Instant.now().getEpochSecond());
             MainActivity.truck.setOdometer(odometer);
             model.add(MainActivity.truck);
         }

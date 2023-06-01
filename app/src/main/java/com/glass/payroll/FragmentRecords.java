@@ -179,7 +179,6 @@ public class FragmentRecords extends Fragment {
                     MI.showSnack("Settlement Permanently Deleted", Snackbar.LENGTH_SHORT);
                     break;
                 case R.id.edit:
-                    settlement.setStamp(Instant.now().getEpochSecond());
                     model.add(settlement);
                     MI.navigate(2);
                     break;
