@@ -129,8 +129,8 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         cancel.setOnClickListener(this);
         finish.setOnClickListener(this);
         gps.setOnClickListener(this);
-        binding.fuelPrice.setFilters(new InputFilter[]{new DecimalFilter(2)});
-        binding.gallons.setFilters(new InputFilter[]{new DecimalFilter(2)});
+        binding.fuelPrice.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(1, 2, 10)});
+        binding.gallons.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 2, 300)});
         binding.odometer.setFilters(Utils.inputFilter());
         if (editing) {
             title.setText("Edit Fuel Entry");

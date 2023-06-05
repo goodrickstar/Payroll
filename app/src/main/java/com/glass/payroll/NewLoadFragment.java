@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,7 +77,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.cost.setFilters(Utils.inputFilter());
         binding.emptyMiles.setFilters(Utils.inputFilter());
         binding.loadedMiles.setFilters(Utils.inputFilter());
-        binding.weight.setFilters(Utils.inputFilter());
+        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 2, 200)});
         if (editing) {
             binding.title.setText("Edit Load");
             binding.finish.setText("Update");
@@ -85,11 +86,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
             binding.cost.setText(String.valueOf(load.getRate()));
             binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
             binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-            Log.i("ROOM", new Gson().toJson(load));
-            if (load.getWeight() != 0) {
-                Log.i("ROOM", "setting value "+ load.getWeight());
-                binding.weight.setText(String.valueOf(load.getWeight()));
-            }
+            binding.weight.setText(String.valueOf(load.getWeight()));
             binding.optionalNote.setText(load.getNote());
         } else {
             if (MI != null) {
