@@ -58,6 +58,7 @@
                 android:ems="10"
                 android:hint="@string/location_a"
                 android:inputType="textAutoCorrect|textCapWords"
+                android:nextFocusDown="@id/location_b"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toStartOf="@+id/gpsA"
@@ -75,6 +76,7 @@
                 android:ems="10"
                 android:hint="@string/location_b"
                 android:inputType="textAutoCorrect|textCapWords"
+                android:nextFocusDown="@id/cost"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toStartOf="@+id/gpsB"
@@ -88,10 +90,11 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/custom_edit_text"
-                android:ems="5"
+                android:ems="4"
                 android:gravity="center"
                 android:hint="@string/dollar_signs"
                 android:inputType="number"
+                android:nextFocusDown="@id/empty_miles"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="@+id/textView12"
@@ -107,6 +110,7 @@
                 android:ems="4"
                 android:gravity="center"
                 android:hint="@string/empty"
+                android:nextFocusDown="@id/loaded_miles"
                 android:inputType="number"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
@@ -125,6 +129,7 @@
                 android:gravity="center"
                 android:hint="@string/loaded"
                 android:inputType="number"
+                android:nextFocusDown="@id/weight"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -136,13 +141,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginBottom="@dimen/common_margin"
                 android:background="@drawable/custom_edit_text"
                 android:gravity="top|left"
                 android:hint="@string/include_any_additional_notes_you_would_like_to_add_here"
                 android:inputType="textMultiLine"
                 android:minLines="3"
                 android:padding="@dimen/common_margin"
-                android:layout_marginBottom="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 android:textSize="@dimen/medium_text_size"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -150,19 +155,21 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView17" />
 
             <EditText
-                android:id="@+id/odometer_reading"
+                android:id="@+id/weight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginStart="8dp"
                 android:background="@drawable/custom_edit_text"
-                android:ems="7"
+                android:ems="4"
                 android:gravity="center"
-                android:hint="@string/reading"
+                android:hint="@string/_44_5"
                 android:inputType="number"
+                android:nextFocusDown="@id/optional_note"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="@+id/textView16"
+                app:layout_constraintEnd_toEndOf="@+id/cost"
+                app:layout_constraintHorizontal_bias="0.13"
+                app:layout_constraintStart_toStartOf="@+id/cost"
                 app:layout_constraintTop_toBottomOf="@+id/textView16" />
 
             <LinearLayout
@@ -267,18 +274,28 @@
                 android:text="@string/optional_note"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/odometer_reading" />
+                app:layout_constraintTop_toBottomOf="@+id/weight" />
 
             <TextView
                 android:id="@+id/textView16"
                 android:layout_width="wrap_content"
                 android:layout_height="19dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/current_odometer"
+                android:hint="44.5k"
+                android:text="Weight"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/textView12"
                 app:layout_constraintTop_toBottomOf="@+id/cost" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:text=" k lbs"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toBottomOf="@+id/weight"
+                app:layout_constraintStart_toEndOf="@+id/weight"
+                app:layout_constraintTop_toTopOf="@+id/weight" />
 
             <TextView
                 android:id="@+id/textView14"

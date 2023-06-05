@@ -24,7 +24,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.glass.payroll.databinding.FragmentNewFuelBinding;
 import com.google.gson.Gson;
 
-import java.time.Instant;
 import java.util.Calendar;
 
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
@@ -177,7 +176,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
                     }
                     break;
                 case EditorInfo.IME_ACTION_DONE:
-                    if (textView.getId() == R.id.odometer_reading)
+                    if (textView.getId() == R.id.weight)
                         binding.location.setText(MI.returnLocation());
                     break;
 

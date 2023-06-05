@@ -58,7 +58,7 @@ public class FragmentOdometer extends DialogFragment implements View.OnClickList
         super.onViewCreated(v, savedInstanceState);
         TextView finish = v.findViewById(R.id.finish);
         finish.setOnClickListener(this);
-        odometer_reading = v.findViewById(R.id.odometer_reading);
+        odometer_reading = v.findViewById(R.id.weight);
         InputFilter intFilter = (source, start, end, dest, dstart, dend) -> {
             for (int i = start; i < end; i++) {
                 if (!Character.isDigit(source.charAt(i))) {

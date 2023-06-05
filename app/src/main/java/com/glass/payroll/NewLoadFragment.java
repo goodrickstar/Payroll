@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +24,6 @@ import java.util.Calendar;
 public class NewLoadFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
     private int mode = 0;
-    private ProgressBar progressBar;
     private MI MI;
     private Load load = new Load();
     private boolean editing = false;
@@ -67,7 +65,6 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
         binding.date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
-        progressBar = v.findViewById(R.id.progressBar);
         binding.gpsA.setOnClickListener(this);
         binding.gpsB.setOnClickListener(this);
         binding.startLayout.setOnClickListener(this);
@@ -190,7 +187,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.startView.setText(Utils.toShortDateSpelled(load.getStart()));
         binding.stopView.setText(Utils.toShortDateSpelled(load.getStop()));
         binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
-        progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
+        binding.progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
         binding.thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         calendar.add(Calendar.YEAR, 1);
         binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
