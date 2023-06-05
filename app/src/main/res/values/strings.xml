@@ -78,4 +78,8 @@
     <string name="backup_description">Back up your database to Payroll servers. Useful when switching to a new phone for example, or simply for peace of mind. There will be a one time small fee for unlimited use.</string>
     <string name="equipment">Equipment</string>
     <string name="_44_5">44.5</string>
+    <string name="_555_55">$555.55</string>
+    <string name="fuel_price">Fuel Price</string>
+    <string name="_123_45">123.45</string>
+    <string name="_3_23">$3.23</string>
 </resources>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +76,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.cost.setFilters(Utils.inputFilter());
         binding.emptyMiles.setFilters(Utils.inputFilter());
         binding.loadedMiles.setFilters(Utils.inputFilter());
+        binding.weight.setFilters(Utils.inputFilter());
         if (editing) {
             binding.title.setText("Edit Load");
             binding.finish.setText("Update");
@@ -83,6 +85,11 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
             binding.cost.setText(String.valueOf(load.getRate()));
             binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
             binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
+            Log.i("ROOM", new Gson().toJson(load));
+            if (load.getWeight() != 0) {
+                Log.i("ROOM", "setting value "+ load.getWeight());
+                binding.weight.setText(String.valueOf(load.getWeight()));
+            }
             binding.optionalNote.setText(load.getNote());
         } else {
             if (MI != null) {
@@ -115,6 +122,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         load.setRate(parseInt(binding.cost.getText()));
         load.setEmpty(parseInt(binding.emptyMiles.getText()));
         load.setLoaded(parseInt(binding.loadedMiles.getText()));
+        load.setWeight(parseDouble(binding.weight.getText()));
         load.setFrom(binding.location.getText().toString().trim());
         load.setTo(binding.locationB.getText().toString().trim());
         load.setNote(binding.optionalNote.getText().toString().trim());
@@ -136,6 +144,14 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     private int parseInt(Editable editable) {
         try {
             return Integer.parseInt(editable.toString().trim());
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+    private double parseDouble(Editable editable) {
+        try {
+            return Double.parseDouble(editable.toString().trim());
         } catch (NumberFormatException nfe) {
             return 0;
         }

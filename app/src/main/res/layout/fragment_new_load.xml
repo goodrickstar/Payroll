@@ -158,17 +158,15 @@
                 android:id="@+id/weight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:background="@drawable/custom_edit_text"
                 android:ems="4"
                 android:gravity="center"
                 android:hint="@string/_44_5"
-                android:inputType="number"
+                android:inputType="number|numberDecimal"
                 android:nextFocusDown="@id/optional_note"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toEndOf="@+id/cost"
-                app:layout_constraintHorizontal_bias="0.13"
                 app:layout_constraintStart_toStartOf="@+id/cost"
                 app:layout_constraintTop_toBottomOf="@+id/textView16" />
 

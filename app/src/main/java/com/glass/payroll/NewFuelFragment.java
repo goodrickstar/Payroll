@@ -41,15 +41,16 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
     private void checkEntries() {
         boolean error = false;
         if (TextUtils.isEmpty(binding.location.getText())) error = setError(binding.location);
-        if (TextUtils.isEmpty(binding.cost.getText())) error = setError(binding.cost);
+        if (TextUtils.isEmpty(binding.fuelPrice.getText())) error = setError(binding.fuelPrice);
         if (TextUtils.isEmpty(binding.gallons.getText())) error = setError(binding.gallons);
-        if (TextUtils.isEmpty(binding.odometerReading.getText()))
-            error = setError(binding.odometerReading);
+        if (TextUtils.isEmpty(binding.odometer.getText()))
+            error = setError(binding.odometer);
         if (error) return;
-        int odometer = parseInt(binding.odometerReading.getText());
+        int odometer = parseInt(binding.odometer.getText());
         fuel.setOdometer(odometer);
-        fuel.setCost(parseDouble(binding.cost.getText()));
+        fuel.setFuelPrice(parseDouble(binding.fuelPrice.getText()));
         fuel.setGallons(parseDouble(binding.gallons.getText()));
+        fuel.setTotal(fuel.getFuelPrice() * fuel.getGallons());
         fuel.setLocation(binding.location.getText().toString().trim());
         fuel.setNote(binding.optionalNote.getText().toString().trim());
         if (!editing) {
@@ -128,20 +129,22 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         cancel.setOnClickListener(this);
         finish.setOnClickListener(this);
         gps.setOnClickListener(this);
-        binding.cost.setFilters(new InputFilter[]{new DecimalFilter(2)});
+        binding.fuelPrice.setFilters(new InputFilter[]{new DecimalFilter(2)});
         binding.gallons.setFilters(new InputFilter[]{new DecimalFilter(2)});
-        binding.odometerReading.setFilters(Utils.inputFilter());
+        binding.odometer.setFilters(Utils.inputFilter());
         if (editing) {
             title.setText("Edit Fuel Entry");
             finish.setText("Update");
+            binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getTotal(), true));
             binding.location.setText(fuel.getLocation());
-            binding.cost.setText(String.valueOf(fuel.getCost()));
-            binding.odometerReading.setText(String.valueOf(fuel.getOdometer()));
-            binding.gallons.setText(String.valueOf(fuel.getGallons()));
+            binding.fuelPrice.setText(Utils.formatValueToCurrency(fuel.getFuelPrice(), false));
+            binding.gallons.setText(Utils.formatValueToCurrency(fuel.getGallons(), false));
+            binding.odometer.setText(String.valueOf(fuel.getOdometer()));
+            binding.odometer.setText(String.valueOf(fuel.getOdometer()));
             binding.optionalNote.setText(fuel.getNote());
             def.setChecked(fuel.getDef());
         } else {
-            if (MainActivity.truck != null) binding.odometerReading.setText(String.valueOf(MainActivity.truck.getOdometer()));
+            if (MainActivity.truck != null) binding.odometer.setText(String.valueOf(MainActivity.truck.getOdometer()));
             if (MI != null) {
                 if (MI.locationPermission()) {
                     if (!MI.returnLocation().isEmpty())
@@ -162,30 +165,28 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         });
         if (fuel.getDef()) info.setVisibility(View.VISIBLE);
         else info.setVisibility(View.GONE);
-        Utils.showKeyboard(getContext(), binding.cost);
+        Utils.showKeyboard(getContext(), binding.fuelPrice);
         EditText.OnEditorActionListener actionListener = (textView, actionId, keyEvent) -> {
             switch (actionId) {
                 case EditorInfo.IME_ACTION_NEXT:
-                    switch (textView.getId()) {
-                        case R.id.cost:
-                            binding.gallons.requestFocus();
-                            break;
-                        case R.id.gallons:
-                            binding.odometerReading.requestFocus();
-                            break;
+                    double fuelPrice = parseDouble(binding.fuelPrice.getText());
+                    double gallons = parseDouble(binding.gallons.getText());
+                    if (fuelPrice !=0 && gallons != 0){
+                        binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(gallons * fuelPrice, true));
                     }
                     break;
                 case EditorInfo.IME_ACTION_DONE:
-                    if (textView.getId() == R.id.weight)
+                    if (textView.getId() == R.id.location)
                         binding.location.setText(MI.returnLocation());
                     break;
 
             }
             return false;
         };
-        binding.cost.setOnEditorActionListener(actionListener);
+        binding.fuelPrice.setOnEditorActionListener(actionListener);
         binding.gallons.setOnEditorActionListener(actionListener);
-        binding.odometerReading.setOnEditorActionListener(actionListener);
+        binding.odometer.setOnEditorActionListener(actionListener);
+        binding.location.setOnEditorActionListener(actionListener);
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
     }
 

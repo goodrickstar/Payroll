@@ -49,9 +49,9 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         int defCost = 0;
         for (Fuel x : settlement.getFuel()) {
             if (!x.getDef()) {
-                totalCost += x.getCost();
+                totalCost += x.getTotal();
                 totalGallons += x.getGallons();
-            } else defCost += x.getCost();
+            } else defCost += x.getTotal();
         }
         if (totalCost != 0)
             binding.total.setText("Fuel $" + formatInt(totalCost) + " (" + formatInt(totalGallons) + " gal @ " + Utils.formatValueToCurrency((double) totalCost / totalGallons) + ")");
@@ -71,7 +71,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.recycler);
+        new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter)).attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "fuel"));
         binding.sort.setChecked(Utils.getSort(context, "fuel"));
@@ -134,14 +134,14 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
 
         @Override
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
-            Fuel row = settlement.getFuel().get(position);
-            holder.date.setText(Utils.toShortDateSpelledWithTime(row.getStamp()));
-            if (!row.getDef()) holder.cost.setText(Utils.formatValueToCurrency(row.getCost()));
-            else holder.cost.setText(Utils.formatValueToCurrency(row.getCost()));
-            holder.location.setText(row.getLocation());
-            holder.gallons.setText(Utils.formatDouble(row.getGallons()) + " gal @ " + Utils.formatValueToCurrency(row.getCost() / row.getGallons()));
-            holder.note.setText(row.getNote());
-            if (row.getNote().equals("")) holder.note.setVisibility(View.GONE);
+            Fuel fuel = settlement.getFuel().get(position);
+            holder.date.setText(Utils.toShortDateSpelledWithTime(fuel.getStamp()));
+            if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getTotal()));
+            else holder.cost.setText(Utils.formatValueToCurrency(fuel.getTotal()));
+            holder.location.setText(fuel.getLocation());
+            holder.gallons.setText(Utils.formatDouble(fuel.getGallons()) + " gal @ " + Utils.formatValueToCurrency(fuel.getTotal() / fuel.getGallons()));
+            holder.note.setText(fuel.getNote());
+            if (fuel.getNote().equals("")) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);
         }
 
@@ -169,13 +169,13 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
     }
 
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
-        //private final ColorDrawable background;
+        private final RecycleAdapter adapter;
         private Drawable icon;
 
-        SwipeToDeleteCallback() {
+        SwipeToDeleteCallback(RecycleAdapter adapter) {
             super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+            this.adapter = adapter;
             icon = ContextCompat.getDrawable(context, R.drawable.delete);
-            //background = new ColorDrawable(getResources().getColor(R.color.swipeBackground));
         }
 
         @Override
@@ -212,6 +212,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
                         break;
                     case ItemTouchHelper.RIGHT: //edit
                         MI.newFuel(fuel, position);
+                        adapter.notifyItemChanged(position);
                         break;
                 }
             }
@@ -221,9 +222,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         public void onChildDraw(@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             View itemView = viewHolder.itemView;
-            //int backgroundCornerOffset = 0;
-            if (dX > 0) { // Swiping stop the right
-                //background = new ColorDrawable(Color.BLUE);
+            if (dX > 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.edit);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
@@ -231,9 +230,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
                 if (iconRight > dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX) + backgroundCornerOffset, itemView.getBottom());
-            } else if (dX < 0) { // Swiping stop the left
-                //background = new ColorDrawable(Color.RED);
+            } else if (dX < 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.delete);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
@@ -242,12 +239,9 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
                 if (-iconWidth < dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-            } else { // view is unSwiped
-                //background.setBounds(0, 0, 0, 0);
+           } else {
                 icon.setBounds(0, 0, 0, 0);
             }
-            //background.draw(c);
             icon.draw(c);
         }
     }

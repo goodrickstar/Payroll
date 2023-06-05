@@ -63,10 +63,10 @@ class Utils {
 
         for (Fuel fuel : settlement.getFuel()) {
             if (!fuel.getDef()) {
-                settlement.setFuelCost(settlement.getFuelCost() + fuel.getCost());
+                settlement.setFuelCost(settlement.getFuelCost() + fuel.getTotal());
                 settlement.setDieselGallons(settlement.getDieselGallons() + fuel.getGallons());
             } else {
-                settlement.setDefCost(settlement.getDefCost() + fuel.getCost());
+                settlement.setDefCost(settlement.getDefCost() + fuel.getTotal());
                 settlement.setDefGallons(settlement.getDefGallons() + fuel.getGallons());
             }
         }
@@ -185,8 +185,8 @@ class Utils {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
                 else return Long.compare(two.getStamp(), one.getStamp());
             } else {
-                if (!order) return Double.compare(one.getCost(), two.getCost());
-                else return Double.compare(two.getCost(), one.getCost());
+                if (!order) return Double.compare(one.getTotal(), two.getTotal());
+                else return Double.compare(two.getTotal(), one.getTotal());
             }
         });
         return settlement;
@@ -257,9 +257,18 @@ class Utils {
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         return formatter.format(value);
     }
+    static String formatValueToCurrency(double value, boolean dollarSign) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        if (!dollarSign) return formatter.format(value).replace("$", "");
+        else return formatter.format(value);
+    }
 
     static String formatValueToCurrencyWhole(double value) {
         return "$"+formatInt((int) round(value));
+    }
+
+    static String formatDoubleWhole(double value) {
+        return formatInt((int) round(value));
     }
 
     static double formatDouble(double value) {

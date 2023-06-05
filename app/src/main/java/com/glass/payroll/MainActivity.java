@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                         if (MainActivity.this.settlement != null)
                             balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
                         if (firstLoad) {
+                            Log.i("ROOM", "first load");
                             handleGrouping();
                             handleSettlementData();
                             firstLoad = false;
@@ -153,8 +154,8 @@ public class MainActivity extends AppCompatActivity implements MI {
                 });
                 model.truck().observe(this, truck -> {
                     MainActivity.truck = truck;
-                    handleGrouping();
-                    handleSettlementData();
+                    //handleGrouping();
+                    //handleSettlementData();
                 });
                 model.trailer().observe(this, trailer -> MainActivity.trailer = trailer);
             }

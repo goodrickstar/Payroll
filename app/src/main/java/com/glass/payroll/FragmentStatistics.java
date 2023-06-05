@@ -70,7 +70,7 @@ public class FragmentStatistics extends Fragment {
                 statistic.setMiles((settlement.getEmptyMiles() + settlement.getLoadedMiles()));
                 for (Fuel fuel : settlement.getFuel()) {
                     if (!fuel.getDef()) {
-                        statistic.setFuelCost(statistic.getFuelCost() + fuel.getCost());
+                        statistic.setFuelCost(statistic.getFuelCost() + fuel.getTotal());
                         statistic.setGallons(statistic.getGallons() + fuel.getGallons());
                     }
                 }

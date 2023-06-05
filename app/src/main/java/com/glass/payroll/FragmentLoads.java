@@ -70,7 +70,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback());
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter));
         itemTouchHelper.attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         SwitchCompat order = v.findViewById(R.id.order);
@@ -137,14 +137,17 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
 
         @Override
         public void onBindViewHolder(@NonNull viewHolder holder, int position) {
-            Load row = settlement.getLoads().get(position);
-            holder.location.setText(row.getFrom() + " - " + row.getTo());
-            holder.rate.setText("$" + row.getRate());
-            holder.from.setText(Utils.range(row.getStart(), row.getStop()));
-            int miles = row.getEmpty() + row.getLoaded();
-            holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) row.getRate() / miles));
-            holder.note.setText(row.getNote());
-            if (TextUtils.isEmpty(row.getNote())) holder.note.setVisibility(View.GONE);
+            Load load = settlement.getLoads().get(position);
+            holder.location.setText(load.getFrom() + " - " + load.getTo());
+            holder.rate.setText("$" + load.getRate());
+            holder.from.setText(Utils.range(load.getStart(), load.getStop()));
+            int miles = load.getEmpty() + load.getLoaded();
+            if (load.getWeight() != 0)
+                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles) + "  | " + Utils.formatDoubleWhole(load.getWeight()) + "k lbs");
+            else
+                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles));
+            holder.note.setText(load.getNote());
+            if (TextUtils.isEmpty(load.getNote())) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);
         }
 
@@ -173,11 +176,11 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
 
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private Drawable icon;
-        //private final ColorDrawable background;
+        private final RecycleAdapter adapter;
 
-        SwipeToDeleteCallback() {
+        public SwipeToDeleteCallback(RecycleAdapter adapter) {
             super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            //background = new ColorDrawable(getResources().getColor(R.color.swipeBackground));
+            this.adapter = adapter;
             icon = ContextCompat.getDrawable(context, R.drawable.edit);
         }
 
@@ -215,6 +218,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                         break;
                     case ItemTouchHelper.RIGHT:
                         MI.newLoad(load, position);
+                        adapter.notifyItemChanged(position);
                         break;
                 }
             }
@@ -224,9 +228,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         public void onChildDraw(@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             View itemView = viewHolder.itemView;
-            //int backgroundCornerOffset = 0;
-            if (dX > 0) { // Swiping to the right
-                //background = new ColorDrawable(Color.BLUE);
+            if (dX > 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.edit);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
@@ -234,9 +236,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                 if (iconRight > dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX) + backgroundCornerOffset, itemView.getBottom());
-            } else if (dX < 0) { // Swiping to the left
-                //background = new ColorDrawable(Color.RED);
+            } else if (dX < 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.delete);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
@@ -245,12 +245,9 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                 if (-iconWidth < dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-            } else { // view is unSwiped
-                //background.setBounds(0, 0, 0, 0);
+            } else {
                 icon.setBounds(0, 0, 0, 0);
             }
-            //background.draw(c);
             icon.draw(c);
         }
     }
