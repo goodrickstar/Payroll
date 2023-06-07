@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements MI {
                         if (MainActivity.this.settlement != null)
                             balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
                         if (firstLoad) {
-                            Log.i("ROOM", "first load");
                             handleGrouping();
                             handleSettlementData();
                             firstLoad = false;
@@ -154,8 +153,10 @@ public class MainActivity extends AppCompatActivity implements MI {
                 });
                 model.truck().observe(this, truck -> {
                     MainActivity.truck = truck;
-                    //handleGrouping();
-                    //handleSettlementData();
+                    if (firstLoad) {
+                        handleMenuNavigation(null, false, false);
+                        firstLoad = false;
+                    }
                 });
                 model.trailer().observe(this, trailer -> MainActivity.trailer = trailer);
             }
@@ -378,19 +379,18 @@ public class MainActivity extends AppCompatActivity implements MI {
             navigationView.getMenu().setGroupEnabled(R.id.record_group, false);
             navigationView.getMenu().setGroupEnabled(R.id.backup_group, false);
         } else {
+            navigationView.getMenu().setGroupEnabled(R.id.backup_group, true);
             if (settlement.getId() == 0 || truck == null) {
                 balance.setText("Getting Started");
                 navigationView.getMenu().setGroupEnabled(R.id.settlement_group, truck != null);
                 navigationView.getMenu().setGroupEnabled(R.id.equipment_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.navigation_group, false);
                 navigationView.getMenu().setGroupEnabled(R.id.record_group, false);
-                navigationView.getMenu().setGroupEnabled(R.id.backup_group, false);
             } else {
                 navigationView.getMenu().setGroupEnabled(R.id.settlement_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.navigation_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.equipment_group, true);
                 navigationView.getMenu().setGroupEnabled(R.id.record_group, true);
-                navigationView.getMenu().setGroupEnabled(R.id.backup_group, true);
             }
         }
     }

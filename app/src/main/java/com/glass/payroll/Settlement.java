@@ -1,14 +1,13 @@
 package com.glass.payroll;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.util.ArrayList;
 
-@Entity(tableName = "settlement_records")
+@Entity(tableName = "settlement_records", indices = {@Index(value = {"userId", "stamp"})})
 public class Settlement {
-
-
     private long stamp = System.currentTimeMillis();
 
     @PrimaryKey(autoGenerate = true)
