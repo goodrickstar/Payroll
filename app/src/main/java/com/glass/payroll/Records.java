@@ -21,7 +21,7 @@ abstract public class Records extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (Records.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), Records.class, "word_database").build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), Records.class, "payroll_database").build();
                 }
             }
         }

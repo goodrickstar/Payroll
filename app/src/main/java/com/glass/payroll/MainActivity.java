@@ -106,8 +106,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     static Truck truck;
     static Trailer trailer;
 
-    private boolean firstLoad = true;
-
     @Override
     public void newSettlement(final Settlement settlement, boolean transfer) {
         settlement.setUserId(user.getUid());
@@ -141,22 +139,19 @@ public class MainActivity extends AppCompatActivity implements MI {
                 model.setUserId(user.getUid());
                 model.settlement().observe(this, settlement -> {
                     if (settlement != null) {
+                        boolean handle = MainActivity.this.settlement.getId() == 0;
                         MainActivity.this.settlement = settlement;
                         if (MainActivity.this.settlement != null)
                             balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
-                        if (firstLoad) {
-                            handleGrouping();
+                        if (handle)
                             handleSettlementData();
-                            firstLoad = false;
-                        }
                     }
                 });
                 model.truck().observe(this, truck -> {
+                    boolean handle = MainActivity.truck == null;
                     MainActivity.truck = truck;
-                    if (firstLoad) {
-                        handleMenuNavigation(null, false, false);
-                        firstLoad = false;
-                    }
+                    if (handle)
+                        handleGrouping();
                 });
                 model.trailer().observe(this, trailer -> MainActivity.trailer = trailer);
             }
@@ -415,9 +410,13 @@ public class MainActivity extends AppCompatActivity implements MI {
             super.onBackPressed();
             return;
         }
-        if (settlement.getId() != 0)
-            handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
-        else super.onBackPressed();
+        if (navigationView.getCheckedItem() != navigationView.getMenu().findItem(R.id.overview)) {
+            if (settlement.getId() != 0)
+                handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
+            else handleMenuNavigation(null, false, false);
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
