@@ -49,9 +49,9 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         int defCost = 0;
         for (Fuel x : settlement.getFuel()) {
             if (!x.getDef()) {
-                totalCost += x.getTotal();
+                totalCost += x.getCost();
                 totalGallons += x.getGallons();
-            } else defCost += x.getTotal();
+            } else defCost += x.getCost();
         }
         if (totalCost != 0)
             binding.total.setText("Fuel $" + formatInt(totalCost) + " (" + formatInt(totalGallons) + " gal @ " + Utils.formatValueToCurrency((double) totalCost / totalGallons) + ")");
@@ -136,10 +136,10 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
             Fuel fuel = settlement.getFuel().get(position);
             holder.date.setText(Utils.toShortDateSpelledWithTime(fuel.getStamp()));
-            if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getTotal()));
-            else holder.cost.setText(Utils.formatValueToCurrency(fuel.getTotal()));
+            if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
+            else holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
             holder.location.setText(fuel.getLocation());
-            holder.gallons.setText(Utils.formatDouble(fuel.getGallons()) + " gal @ " + Utils.formatValueToCurrency(fuel.getTotal() / fuel.getGallons()));
+            holder.gallons.setText(Utils.formatDouble(fuel.getGallons()) + " gal @ " + Utils.formatValueToCurrency(fuel.getCost() / fuel.getGallons()));
             holder.note.setText(fuel.getNote());
             if (fuel.getNote().equals("")) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);

@@ -28,12 +28,12 @@
         android:layout_width="@dimen/large_icon_size"
         android:layout_height="@dimen/large_icon_size"
         android:layout_marginStart="16dp"
-        android:src="@drawable/loads_w"
+        android:contentDescription="@string/settlement_records"
+        android:padding="3dp"
         app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintStart_toStartOf="@+id/title"
         app:layout_constraintTop_toTopOf="@+id/title"
-        app:srcCompat="@drawable/records_w"
-        android:contentDescription="@string/settlement_records" />
+        app:srcCompat="@drawable/records_white" />
 
     <ExpandableListView
         android:id="@+id/recycler"

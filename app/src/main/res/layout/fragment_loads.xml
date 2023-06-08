@@ -57,6 +57,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:gravity="clip_vertical"
         android:textColor="@color/colorText"
         android:textSize="@dimen/large_text_size"
         android:textStyle="bold"
@@ -64,6 +65,21 @@
         app:layout_constraintHorizontal_bias="0.888"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
+
+    <TextView
+        android:id="@+id/total2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="clip_vertical"
+        android:textColor="@color/colorText"
+        android:textSize="@dimen/large_text_size"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@+id/add_button"
+        app:layout_constraintHorizontal_bias="0.888"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/total" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"

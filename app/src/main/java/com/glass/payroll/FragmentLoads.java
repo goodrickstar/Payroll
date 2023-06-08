@@ -45,18 +45,6 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
     public FragmentLoads() {
     }
 
-    private void calculate() {
-        int miles = 0;
-        int totalCost = 0;
-        for (Load x : settlement.getLoads()) {
-            totalCost += x.getRate();
-            miles += x.getEmpty();
-            miles += x.getLoaded();
-        }
-        if (totalCost != 0)
-            binding.total.setText("Total: $" + formatInt(totalCost) + " (" + formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) totalCost / miles) + ")");
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLoadsBinding.inflate(inflater);
@@ -99,7 +87,9 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             FragmentLoads.this.settlement = settlement;
             recyclerAdapter.notifyDataSetChanged();
-            calculate();
+            if (settlement.getGross() != 0)
+                binding.total.setText("Total: " + Utils.formatValueToCurrencyWhole(settlement.getGross()) + " (" + formatInt(Utils.miles(settlement)) + " miles @ " + Utils.formatValueToCurrency((double) settlement.getGross() / Utils.miles(settlement)) + ")");
+            binding.total2.setText("Loaded Rate: " + Utils.formatValueToCurrency(settlement.getGross() / settlement.getLoadedMiles(), true));
         });
     }
 
@@ -203,7 +193,6 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                             if (MI != null) {
                                 MI.vibrate();
                                 settlement.getLoads().add(position, load);
-                                calculate();
                                 model.add(Utils.calculate(settlement));
                             }
                         });
@@ -213,7 +202,6 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                         textView.setTextColor(Color.WHITE);
                         snackbar.setActionTextColor(Color.WHITE);
                         snackbar.show();
-                        calculate();
                         model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:

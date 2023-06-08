@@ -40,7 +40,7 @@ public class FragmentPayouts extends Fragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
         model.executor().execute(() -> {
-            FragmentPayouts.this.settlement = model.getSettlement();
+            FragmentPayouts.this.settlement = model.settlement().getValue();
             getActivity().runOnUiThread(() -> {
                 binding.pPercentSeekbar.setProgress(settlement.getPayout().getPPercent());
                 binding.mPercentSeekbar.setProgress(settlement.getPayout().getMPercent());

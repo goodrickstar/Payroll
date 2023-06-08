@@ -10,33 +10,26 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentBackupBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.google.gson.Gson;
 
-import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class FragmentBackup extends Fragment {
     private MI MI;
     private FragmentBackupBinding binding;
     private MainViewModel model;
-
+    final StorageReference ref = FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid());
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
     }
-
-    StorageReference ref = FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid()).child(MainActivity.user.getUid() + ".txt");
 
     public FragmentBackup() {
     }
@@ -59,7 +52,10 @@ public class FragmentBackup extends Fragment {
         checkUserBackups();
         binding.backupButton.setOnClickListener(view -> {
             MI.vibrate();
-            backupDatabaseToStorage();
+            FragmentUpload upload = (FragmentUpload) getParentFragmentManager().findFragmentByTag("upload");
+            if (upload != null) return;
+            upload = new FragmentUpload();
+            upload.show(getParentFragmentManager(), "upload");
         });
         binding.restoreButton.setOnClickListener(view -> {
             MI.vibrate();
@@ -73,20 +69,23 @@ public class FragmentBackup extends Fragment {
         MI = null;
     }
 
-    private void backupDatabaseToStorage() {
-        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
-            UploadTask uploadTask = ref.putStream(new ByteArrayInputStream(new Gson().toJson(settlements).getBytes()));
-            uploadTask.addOnFailureListener(exception -> MI.showSnack(exception.getMessage(), Snackbar.LENGTH_INDEFINITE)).addOnSuccessListener(taskSnapshot -> MI.showSnack("Backup Complete!", Snackbar.LENGTH_INDEFINITE));
-        });
-    }
-
     private void restoreDatabaseFromStorage() {
         final long ONE_MEGABYTE = 1024 * 1024;
-        ref.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
-            model.restore(Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8)));
-            MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
-            checkUserBackups();
-        }).addOnFailureListener(exception -> MI.showSnack(exception.getMessage(), Snackbar.LENGTH_INDEFINITE));
+        ref.child("settlements.txt").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+            model.emptyTables();
+            model.add(Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8)));
+            ref.child("trucks.txt").getBytes(ONE_MEGABYTE)
+                    .addOnSuccessListener(trucks -> {
+                        model.addTrucks(Utils.returnTruckArray(new String(trucks, StandardCharsets.UTF_8)));
+                        ref.child("trailers.txt").getBytes(ONE_MEGABYTE)
+                                .addOnSuccessListener(trailers -> {
+                                    model.addTrailers(Utils.returnTrailerArray(new String(trailers, StandardCharsets.UTF_8)));
+                                    MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
+                                    MI.vibrate();
+                                    MI.navigate(R.id.overview);
+                                });
+                    });
+        });
     }
 
     private void checkUserBackups() {
@@ -99,6 +98,5 @@ public class FragmentBackup extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.i("testing", e.getMessage()));
     }
-
 
 }

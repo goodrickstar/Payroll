@@ -32,4 +32,7 @@ public interface DaoTruck {
     @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Truck> getTruck(String uid);
 
+    @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC")
+    List<Truck> getTrucks(String uid);
+
 }

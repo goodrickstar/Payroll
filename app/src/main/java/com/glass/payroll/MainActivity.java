@@ -137,6 +137,16 @@ public class MainActivity extends AppCompatActivity implements MI {
                 returnSettlement();
             } else {
                 model.setUserId(user.getUid());
+                final SharedPreferences preferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+                final String settlementData = preferences.getString("zero", null);
+                final String truckData = preferences.getString("truck", null);
+                final String trailerData = preferences.getString("trailer", null);
+                if (settlementData != null && truckData != null) {
+                    settlement = gson.fromJson(settlementData, Settlement.class);
+                    truck = gson.fromJson(truckData, Truck.class);
+                    trailer = gson.fromJson(trailerData, Trailer.class);
+                    handleSettlementData();
+                }
                 model.settlement().observe(this, settlement -> {
                     if (settlement != null) {
                         boolean handle = MainActivity.this.settlement.getId() == 0;
@@ -145,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                             balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
                         if (handle)
                             handleSettlementData();
+                        preferences.edit().putString("zero", gson.toJson(settlement)).apply();
                     }
                 });
                 model.truck().observe(this, truck -> {
@@ -152,8 +163,12 @@ public class MainActivity extends AppCompatActivity implements MI {
                     MainActivity.truck = truck;
                     if (handle)
                         handleGrouping();
+                    preferences.edit().putString("truck", gson.toJson(truck)).apply();
                 });
-                model.trailer().observe(this, trailer -> MainActivity.trailer = trailer);
+                model.trailer().observe(this, trailer -> {
+                    MainActivity.trailer = trailer;
+                    preferences.edit().putString("trailer", gson.toJson(trailer)).apply();
+                });
             }
         } else {
             handleMenuNavigation(null, false, false);
@@ -398,25 +413,13 @@ public class MainActivity extends AppCompatActivity implements MI {
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-            drawerLayout.closeDrawer(Gravity.LEFT);
-            return;
-        }
-        if (user == null) {
-            super.onBackPressed();
-            return;
-        }
         if (navigationView.getCheckedItem().getItemId() == R.id.overview) {
             super.onBackPressed();
-            return;
-        }
-        if (navigationView.getCheckedItem() != navigationView.getMenu().findItem(R.id.overview)) {
+        } else {
             if (settlement.getId() != 0)
                 handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
             else handleMenuNavigation(null, false, false);
-            return;
         }
-        super.onBackPressed();
     }
 
     @Override
@@ -596,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements MI {
 
     @Override
     public void navigate(int i) {
-        handleMenuNavigation(navigationView.getMenu().getItem(i), false, false);
+        handleMenuNavigation(navigationView.getMenu().findItem(i), false, false);
     }
 
     @Override

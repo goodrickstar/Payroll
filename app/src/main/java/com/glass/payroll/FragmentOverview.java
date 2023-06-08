@@ -1,6 +1,7 @@
 package com.glass.payroll;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,24 +73,24 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             FragmentOverview.this.settlement = settlement;
             items.clear();
-            Item item = new Item("Loads", 3);
+            Item item = new Item("Loads", R.id.loads);
             item.setTotal(settlement.getGross());
             item.setTotal2(settlement.getEmptyMiles() + settlement.getLoadedMiles());
             items.add(item);
-            item = new Item("Fuel", 4);
+            item = new Item("Fuel", R.id.fuel);
             item.setTotal(settlement.getFuelCost() + settlement.getDefCost());
             item.setTotal2(settlement.getDefGallons() + settlement.getDieselGallons());
             items.add(item);
-            item = new Item("Fixed", 5);
+            item = new Item("Fixed", R.id.fixed);
             item.setTotal(settlement.getFixedCost());
             items.add(item);
-            item = new Item("Misc", 6);
+            item = new Item("Misc", R.id.miscellaneous);
             item.setTotal(settlement.getMiscCost());
             items.add(item);
-            item = new Item("Payout", 7);
+            item = new Item("Payout", R.id.payout);
             item.setTotal(settlement.getPayoutCost());
             items.add(item);
-            item = new Item("Maintenance", 7);
+            item = new Item("Maintenance", R.id.payout);
             item.setTotal(settlement.getMaintenanceCost());
             items.add(item);
             recyclerAdapter.notifyDataSetChanged();
@@ -205,33 +205,31 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         public void onBindViewHolder(viewHolder holder, int position) {
             final Item item = items.get(position);
             holder.title.setText(item.getLabel());
-            switch (item.getIcon()) {
-                case 3:
+            switch (item.getMenuId()) {
+                case R.id.loads:
                     holder.icon.setImageResource(R.drawable.overview_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText(formatDouble(item.getTotal2(), "", " M"));
                     break;
-                case 4:
+                case R.id.fuel:
                     holder.icon.setImageResource(R.drawable.fuel_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText(formatDouble(item.getTotal2(), "", " G"));
                     break;
-                case 5:
+                case R.id.fixed:
                     holder.icon.setImageResource(R.drawable.fixed_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText("");
                     break;
-                case 6:
+                case R.id.miscellaneous:
                     holder.icon.setImageResource(R.drawable.miscellaneous_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText("");
                     break;
-                case 7:
-                    if (item.getLabel().contains("Maintenance")) {
-                        holder.icon.setImageResource(R.drawable.maintenance_w);
-                    } else {
+                case R.id.payout:
+                    if (item.getLabel().equals("Payout"))
                         holder.icon.setImageResource(R.drawable.payout_w);
-                    }
+                    else holder.icon.setImageResource(R.drawable.maintenance_w);
                     holder.labelOne.setText(formatDouble(item.getTotal(), "$", ""));
                     holder.labelTwo.setText("");
                     break;
@@ -239,7 +237,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             holder.container.setOnClickListener(view -> {
                 if (MI != null) {
                     MI.vibrate();
-                    MI.navigate(item.getIcon());
+                    MI.navigate(item.getMenuId());
                 }
             });
         }

@@ -32,4 +32,6 @@ public interface DaoTrailer {
     @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Trailer> getTrailer(String uid);
 
+    @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY stamp DESC")
+    List<Trailer> getTrailers(String uid);
 }

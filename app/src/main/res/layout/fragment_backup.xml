@@ -29,7 +29,7 @@
         android:layout_height="@dimen/large_icon_size"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/statistics"
-        android:src="@drawable/statistics_w"
+        android:padding="3dp"
         app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintStart_toStartOf="@+id/title"
         app:layout_constraintTop_toTopOf="@+id/title"

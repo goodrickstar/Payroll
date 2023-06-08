@@ -50,7 +50,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         fuel.setOdometer(odometer);
         fuel.setFuelPrice(parseDouble(binding.fuelPrice.getText()));
         fuel.setGallons(parseDouble(binding.gallons.getText()));
-        fuel.setTotal(fuel.getFuelPrice() * fuel.getGallons());
+        fuel.setCost(fuel.getFuelPrice() * fuel.getGallons());
         fuel.setLocation(binding.location.getText().toString().trim());
         fuel.setNote(binding.optionalNote.getText().toString().trim());
         if (!editing) {
@@ -135,7 +135,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (editing) {
             title.setText("Edit Fuel Entry");
             finish.setText("Update");
-            binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getTotal(), true));
+            binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getCost(), true));
             binding.location.setText(fuel.getLocation());
             binding.fuelPrice.setText(Utils.formatValueToCurrency(fuel.getFuelPrice(), false));
             binding.gallons.setText(Utils.formatValueToCurrency(fuel.getGallons(), false));

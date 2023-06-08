@@ -66,6 +66,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
+        updateUi();
         binding.date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
         binding.gpsA.setOnClickListener(this);
         binding.gpsB.setOnClickListener(this);
@@ -73,11 +74,10 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.stopLayout.setOnClickListener(this);
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
-        updateUi();
         binding.cost.setFilters(Utils.inputFilter());
         binding.emptyMiles.setFilters(Utils.inputFilter());
         binding.loadedMiles.setFilters(Utils.inputFilter());
-        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 2, 200)});
+        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
         if (editing) {
             binding.title.setText("Edit Load");
             binding.finish.setText("Update");
@@ -86,7 +86,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
             binding.cost.setText(String.valueOf(load.getRate()));
             binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
             binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-            binding.weight.setText(String.valueOf(load.getWeight()));
+            if (load.getWeight() != 0) binding.weight.setText(String.valueOf(load.getWeight()));
             binding.optionalNote.setText(load.getNote());
         } else {
             if (MI != null) {

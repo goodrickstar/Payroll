@@ -66,6 +66,14 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoSettlements().addSettlements(settlements));
     }
 
+    public void addTrucks(List<Truck> trucks) {
+        executor.execute(() -> database.daoTruck().addTrucks(trucks));
+    }
+
+    public void addTrailers(List<Trailer> trailers) {
+        executor.execute(() -> database.daoTrailer().addTrailers(trailers));
+    }
+
 
     public void add(Truck truck) {
         truck.setStamp(Instant.now().getEpochSecond());
@@ -77,13 +85,13 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoTrailer().addTrailer(trailer));
     }
 
-    public void restore(List<Settlement> settlements) {
+    public void emptyTables() {
         executor.execute(() -> {
             database.daoSettlements().emptyRecords(userId);
-            database.daoSettlements().addSettlements(settlements);
+            database.daoTruck().emptyRecords(userId);
+            database.daoTrailer().emptyRecords(userId);
         });
     }
-
     public LiveData<List<Settlement>> getAllSettlements() {
         return settlements;
     }
@@ -98,6 +106,16 @@ public class MainViewModel extends AndroidViewModel {
 
     public Settlement getSettlement() {
         return database.daoSettlements().getCurrentSettlement(userId);
+    }
+
+    public List<Settlement> getSettlements() {
+        return database.daoSettlements().getSettlements(userId);
+    }
+    public List<Truck> getTrucks() {
+        return database.daoTruck().getTrucks(userId);
+    }
+    public List<Trailer> getTrailers() {
+        return database.daoTrailer().getTrailers(userId);
     }
 
     public void delete(Settlement settlement) {
