@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -83,6 +84,39 @@ class Utils {
         settlement.setMaintenanceCost(formatDouble(settlement.getMaintenanceCost()));
         settlement.setPayoutCost(formatDouble(settlement.getPayoutCost()));
         return settlement;
+    }
+
+    static Settlement setQuarters(Settlement settlement) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(settlement.getStop());
+        int week = calendar.get(Calendar.WEEK_OF_YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int quarter = getQuarter(month);
+        int year = calendar.get(Calendar.YEAR);
+        settlement.setWeek(week);
+        settlement.setMonth(month);
+        settlement.setQuarter(quarter);
+        settlement.setYear(year);
+        return settlement;
+    }
+
+    static int getQuarter(int month) {
+        switch (month) {
+            case 1:
+            case 2:
+            case 3:
+                return 1;
+            case 4:
+            case 5:
+            case 6:
+                return 2;
+            case 7:
+            case 8:
+            case 9:
+                return 3;
+            default:
+                return 4;
+        }
     }
 
     static int miles(Settlement settlement) {
@@ -253,6 +287,7 @@ class Utils {
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         return formatter.format(value);
     }
+
     static String formatValueToCurrency(double value, boolean dollarSign) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         if (!dollarSign) return formatter.format(value).replace("$", "");
@@ -260,7 +295,7 @@ class Utils {
     }
 
     static String formatValueToCurrencyWhole(double value) {
-        return "$"+formatInt((int) round(value));
+        return "$" + formatInt((int) round(value));
     }
 
     static String formatDoubleWhole(double value) {

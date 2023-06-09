@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements MI {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private ImageView profileView;
-    private TextView profileName, balance, date;
+    private TextView profileName, balance, date, email;
     private FragmentManager fragmentManager;
     private SharedPreferences preferences;
     private FrameLayout content_frame;
@@ -107,13 +107,13 @@ public class MainActivity extends AppCompatActivity implements MI {
     static Trailer trailer;
 
     @Override
-    public void newSettlement(final Settlement settlement, boolean transfer) {
+    public void newSettlement(Settlement settlement, boolean transfer) {
         settlement.setUserId(user.getUid());
+        settlement = Utils.setQuarters(settlement);
         if (transfer) {
-            Log.i("ROOM", "transferred");
             settlement.setPayout(this.settlement.getPayout());
             settlement.setFixed(this.settlement.getFixed());
-        } else Log.i("ROOM", "no transfer");
+        }
         model.add(Utils.calculate(settlement));
         FragmentOverview fragmentOverview = (FragmentOverview) fragmentManager.findFragmentByTag("overview");
         if (fragmentOverview == null)
@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                             long stamp = Instant.now().getEpochSecond();
                             for (int i = 0; i < x.size(); i++) {
                                 Settlement work = Utils.calculate(x.get(i));
+                                work = Utils.setQuarters(work);
                                 work.setUserId(user.getUid());
                                 work.setStamp(stamp);
                                 stamp++;
@@ -292,13 +293,13 @@ public class MainActivity extends AppCompatActivity implements MI {
         navigationView = findViewById(R.id.nav_view);
         content_frame = findViewById(R.id.content_frame);
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header);
+        headerLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
         profileView = headerLayout.findViewById(R.id.profile_photo);
         profileName = headerLayout.findViewById(R.id.profile_name);
+        email = headerLayout.findViewById(R.id.email_tv);
         profileView.setOnClickListener(view -> {
             vibrate();
             if (mAuth.getCurrentUser() != null) {
-                preferences.edit().putString(user.getUid(), null).apply();
-                getSharedPreferences("stamps", MODE_PRIVATE).edit().clear().apply();
                 signOut();
             } else signIn();
         });
@@ -502,9 +503,11 @@ public class MainActivity extends AppCompatActivity implements MI {
     private void updateUserInfoAndDisplay(FirebaseUser user) {
         if (user != null) {
             profileName.setText(user.getDisplayName());
+            email.setText(user.getEmail());
             Glide.with(MainActivity.this).load(Objects.requireNonNull(user.getPhotoUrl()).toString().replace("96", "400")).circleCrop().into(profileView);
         } else {
             profileName.setText(getString(R.string.log_in_or_out_text));
+            email.setText("");
             profileView.setImageResource(R.drawable.fingerprint);
         }
     }
