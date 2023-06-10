@@ -4,9 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,6 +98,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
             }
         }
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
+        model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber.setText(String.valueOf(truck.getId())));
+        model.trailer().observe(getViewLifecycleOwner(), trailer -> binding.trailerNumber.setText(String.valueOf(trailer.getId())));
     }
 
     @Override
