@@ -9,4 +9,5 @@ class Fuel {
     var location = ""
     var note = ""
     var def = false
+    var truck = ""
 }

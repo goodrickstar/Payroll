@@ -3,8 +3,6 @@ package com.glass.payroll;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +51,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         fuel.setCost(fuel.getFuelPrice() * fuel.getGallons());
         fuel.setLocation(binding.location.getText().toString().trim());
         fuel.setNote(binding.optionalNote.getText().toString().trim());
+        fuel.setTruck(binding.truckNumber2.getText().toString());
         if (!editing) {
             settlement.getFuel().add(fuel);
         } else {
@@ -188,6 +187,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         binding.odometer.setOnEditorActionListener(actionListener);
         binding.location.setOnEditorActionListener(actionListener);
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
+        model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber2.setText(String.valueOf(truck.getId())));
     }
 
     @Override
@@ -215,39 +215,4 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         }
     }
 
-    public static class DecimalFilter implements InputFilter {
-
-        private final int decimalDigits;
-
-        public DecimalFilter(int decimalDigits) {
-            this.decimalDigits = decimalDigits;
-        }
-
-        @Override
-        public CharSequence filter(CharSequence source, int i, int i2, Spanned spanned, int i3, int i4) {
-            int dotPos = -1;
-            int len = spanned.length();
-            for (int decimalsI = 0; decimalsI < len; decimalsI++) {
-                char c = spanned.charAt(decimalsI);
-                if (c == '.' || c == ',') {
-                    dotPos = decimalsI;
-                    break;
-                }
-            }
-            if (dotPos >= 0) {
-
-                if (source.equals(".") || source.equals(",")) {
-                    return "";
-                }
-                if (i4 <= dotPos) {
-                    return null;
-                }
-                if (len - dotPos > decimalDigits) {
-                    return "";
-                }
-            }
-
-            return null;
-        }
-    }
 }
