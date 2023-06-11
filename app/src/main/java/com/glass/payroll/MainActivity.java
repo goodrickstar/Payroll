@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
                 signInSheet();
+                drawerLayout.close();
             } else {
                 Log.i("AUTH", "CODE: " + response.getError().getErrorCode());
                 Log.i("AUTH", response.getError().getLocalizedMessage());
@@ -139,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements MI {
     private void signInSheet() {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
+            profileName.setText(user.getDisplayName());
+            email.setText(user.getEmail());
+            Glide.with(MainActivity.this).load(Objects.requireNonNull(user.getPhotoUrl()).toString().replace("96", "400")).circleCrop().into(profileView);
             if (preferences.getBoolean("migrate", true)) {
                 returnSettlement();
             } else {
@@ -177,9 +181,11 @@ public class MainActivity extends AppCompatActivity implements MI {
                 });
             }
         } else {
+            profileName.setText(getString(R.string.log_in_or_out_text));
+            email.setText("");
+            profileView.setImageResource(R.drawable.fingerprint);
             handleMenuNavigation(null, false, false);
         }
-        updateUserInfoAndDisplay(user);
     }
 
     private void returnSettlement() {
@@ -481,23 +487,10 @@ public class MainActivity extends AppCompatActivity implements MI {
                 .signOut(this)
                 .addOnCompleteListener(task -> {
                     preferences.edit().clear().apply();
-                    user = null;
                     settlement = new Settlement();
-                    handleMenuNavigation(null, false, false);
+                    signInSheet();
                     showSnack("Sign Out Successful", Snackbar.LENGTH_LONG);
                 });
-    }
-
-    private void updateUserInfoAndDisplay(FirebaseUser user) {
-        if (user != null) {
-            profileName.setText(user.getDisplayName());
-            email.setText(user.getEmail());
-            Glide.with(MainActivity.this).load(Objects.requireNonNull(user.getPhotoUrl()).toString().replace("96", "400")).circleCrop().into(profileView);
-        } else {
-            profileName.setText(getString(R.string.log_in_or_out_text));
-            email.setText("");
-            profileView.setImageResource(R.drawable.fingerprint);
-        }
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentEquipmentBinding;
-import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +61,6 @@ public class FragmentEquipment extends Fragment implements View.OnClickListener 
             truckAdapter.notifyDataSetChanged();
         });
         model.trailers().observe(getViewLifecycleOwner(), trailers -> {
-            Log.i("ROOM", new Gson().toJson(trailers));
             FragmentEquipment.this.trailers = trailers;
             trailerAdapter.notifyDataSetChanged();
         });

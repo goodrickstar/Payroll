@@ -1,7 +1,6 @@
 package com.glass.payroll;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -132,7 +131,6 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         if (MI != null)
             MI.vibrate(view);
         int index = keys.indexOf(settlement.getId());
-        Log.i("ROOM", "index is " + index);
         switch (view.getId()) {
             case R.id.previous:
                 if (index + 1 == keys.size()) {
@@ -144,7 +142,6 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
                 binding.next.setOnClickListener(this);
                 binding.next.setOnLongClickListener(this);
                 model.setStampOnSettlement(keys.get(index + 1), Instant.now().getEpochSecond());
-                Log.i("ROOM", "setting " + keys.get(index + 1) + " to " + Instant.now().getEpochSecond());
                 break;
             case R.id.next:
                 if (index == 0) {
