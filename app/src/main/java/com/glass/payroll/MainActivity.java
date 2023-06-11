@@ -99,20 +99,19 @@ public class MainActivity extends AppCompatActivity implements MI {
     static Truck truck;
     static Trailer trailer;
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(new FirebaseAuthUIActivityResultContract(), new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
-                @Override
-                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                    IdpResponse response = result.getIdpResponse();
-                    if (result.getResultCode() == RESULT_OK) {
-                        user = FirebaseAuth.getInstance().getCurrentUser();
-                        showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
-                        signInSheet();
-                    } else {
-                        Log.i("AUTH", "CODE: " + response.getError().getErrorCode());
-                        Log.i("AUTH", response.getError().getLocalizedMessage());
-                    }
-                }
+        @Override
+        public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+            IdpResponse response = result.getIdpResponse();
+            if (result.getResultCode() == RESULT_OK) {
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
+                signInSheet();
+            } else {
+                Log.i("AUTH", "CODE: " + response.getError().getErrorCode());
+                Log.i("AUTH", response.getError().getLocalizedMessage());
             }
-    );
+        }
+    });
 
     @Override
     public void newSettlement(Settlement settlement, boolean transfer) {
