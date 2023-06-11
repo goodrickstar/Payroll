@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,7 +22,6 @@ import com.glass.payroll.databinding.FragmentNewFuelBinding;
 import com.google.gson.Gson;
 
 import java.util.Calendar;
-
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
     private MI MI;
     private Fuel fuel = new Fuel();
@@ -32,6 +30,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
     private Settlement settlement;
     private MainViewModel model;
     private FragmentNewFuelBinding binding;
+
     public NewFuelFragment() {
         // Required empty public constructor
     }
@@ -58,10 +57,8 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             settlement.getFuel().set(index, fuel);
         }
         model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
-        if (MainActivity.truck != null){
-            MainActivity.truck.setOdometer(odometer);
+        if (MainActivity.truck != null && !editing)
             model.add(MainActivity.truck);
-        }
         dismiss();
     }
 
@@ -134,16 +131,24 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (editing) {
             title.setText("Edit Fuel Entry");
             finish.setText("Update");
-            binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getCost(), true));
             binding.location.setText(fuel.getLocation());
-            binding.fuelPrice.setText(Utils.formatValueToCurrency(fuel.getFuelPrice(), false));
-            binding.gallons.setText(Utils.formatValueToCurrency(fuel.getGallons(), false));
-            binding.odometer.setText(String.valueOf(fuel.getOdometer()));
-            binding.odometer.setText(String.valueOf(fuel.getOdometer()));
-            binding.optionalNote.setText(fuel.getNote());
+            if (fuel.getCost() != 0)
+                binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getCost(), true));
+            if (fuel.getFuelPrice() != 0)
+                binding.fuelPrice.setText(Utils.formatValueToCurrency(fuel.getFuelPrice(), false));
+            if (fuel.getGallons() != 0)
+                binding.gallons.setText(Utils.formatValueToCurrency(fuel.getGallons(), false));
+            if (fuel.getOdometer() != 0)
+                binding.odometer.setText(String.valueOf(fuel.getOdometer()));
+            if (!fuel.getNote().isEmpty()) binding.optionalNote.setText(fuel.getNote());
             def.setChecked(fuel.getDef());
+            binding.odometer.setText(String.valueOf(fuel.getOdometer()));
+            binding.truckNumber2.setText(fuel.getTruck());
         } else {
-            if (MainActivity.truck != null) binding.odometer.setText(String.valueOf(MainActivity.truck.getOdometer()));
+            if (MainActivity.truck != null) {
+                binding.odometer.setText(String.valueOf(MainActivity.truck.getOdometer()));
+                binding.truckNumber2.setText(String.valueOf(MainActivity.truck.getId()));
+            }
             if (MI != null) {
                 if (MI.locationPermission()) {
                     if (!MI.returnLocation().isEmpty())
@@ -170,7 +175,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
                 case EditorInfo.IME_ACTION_NEXT:
                     double fuelPrice = parseDouble(binding.fuelPrice.getText());
                     double gallons = parseDouble(binding.gallons.getText());
-                    if (fuelPrice !=0 && gallons != 0){
+                    if (fuelPrice != 0 && gallons != 0) {
                         binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(gallons * fuelPrice, true));
                     }
                     break;
@@ -178,7 +183,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
                     if (textView.getId() == R.id.location)
                         binding.location.setText(MI.returnLocation());
                     break;
-
             }
             return false;
         };
@@ -187,7 +191,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         binding.odometer.setOnEditorActionListener(actionListener);
         binding.location.setOnEditorActionListener(actionListener);
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
-        model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber2.setText(String.valueOf(truck.getId())));
     }
 
     @Override
@@ -214,5 +217,4 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             }
         }
     }
-
 }

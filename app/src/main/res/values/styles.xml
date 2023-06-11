@@ -1,7 +1,5 @@
 <resources>
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.Design.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -26,36 +24,4 @@
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
-    <style name="graphStyle">
-        <item name="android:background">@color/colorBlack</item>
-        <item name="backgroundColor">@color/colorBlack</item>
-        <item name="graphBackgroundColor">@color/colorBlack</item>
-        <item name="gridBackgroundColor">@color/colorBlack</item>
-        <item name="domainLineColor">@color/off_white</item>
-        <item name="rangeLineColor">@color/off_white</item>
-        <item name="domainOriginLineColor">@color/off_white</item>
-        <item name="rangeOriginLineColor">@color/off_white</item>
-        <item name="titleTextColor">@color/ap_white</item>
-        <item name="domainTitleTextColor">@color/ap_white</item>
-        <item name="rangeTitleTextColor">@color/ap_white</item>
-        <item name="gridInsetTop">0dp</item>
-        <item name="graphPaddingRight">0dp</item>
-        <item name="graphPaddingLeft">0dp</item>
-        <item name="graphPaddingTop">0dp</item>
-        <item name="graphPaddingBottom">0dp</item>
-        <item name="gridInsetLeft">0dp</item>
-        <item name="gridInsetRight">0dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="domainLineExtension">0dp</item>
-        <item name="rangeLineExtension">0dp</item>
-        <item name="graphMarginTop">0dp</item>
-        <item name="graphMarginBottom">0dp</item>
-        <item name="graphMarginLeft">0dp</item>
-        <item name="graphMarginRight">0dp</item>
-        <item name="graphHeightMode">fill</item>
-        <item name="graphWidthMode">fill</item>
-        <item name="lineLabels">none</item>
-        <item name="borderColor">@color/colorBlack</item>
-    </style>
 </resources>

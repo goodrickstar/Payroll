@@ -88,7 +88,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             FragmentLoads.this.settlement = settlement;
             recyclerAdapter.notifyDataSetChanged();
             if (settlement.getGross() != 0)
-                binding.total.setText("Total: " + Utils.formatValueToCurrencyWhole(settlement.getGross()) + " (" + formatInt(Utils.miles(settlement)) + " miles @ " + Utils.formatValueToCurrency((double) settlement.getGross() / Utils.miles(settlement)) + ")");
+                binding.total.setText("Total: " + Utils.formatValueToCurrencyWhole(settlement.getGross()) + " (" + formatInt(Utils.miles(settlement)) + " miles @ " + Utils.formatValueToCurrency(settlement.getGross() / Utils.miles(settlement)) + ")");
             binding.total2.setText("Loaded Rate: " + Utils.formatValueToCurrency(settlement.getGross() / settlement.getLoadedMiles(), true));
         });
     }

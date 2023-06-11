@@ -1,14 +1,11 @@
 package com.glass.payroll;
-
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,13 +16,12 @@ import com.glass.payroll.databinding.FragmentNewSettlementBinding;
 import java.util.Calendar;
 
 public class NewSettlementFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
-    private int mode = 0;
     private final Calendar calendar = Calendar.getInstance();
-    private MI MI;
     private final Settlement settlement = new Settlement();
+    private int mode = 0;
+    private MI MI;
     private FragmentNewSettlementBinding binding;
     public NewSettlementFragment() {
-        // Required empty public constructor
     }
 
     private void checkEntries() {
@@ -35,20 +31,10 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
         }
     }
 
-    private boolean setError(EditText view) {
-        view.setError("Required");
-        return true;
-    }
-
-    @Override
-    public int getTheme() {
-        return R.style.AppTheme_NoActionBar_FullScreenDialog;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
+        //setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
     }
 
     @Nullable
@@ -76,8 +62,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
             calendar.add(Calendar.DAY_OF_YEAR, 6);
             setCalendarToDayEdge(calendar, false);
             settlement.setStop(calendar.getTimeInMillis());
-            if (MainActivity.truck != null) binding.truck.setText(MainActivity.truck.getId());
-            if (MainActivity.trailer != null) binding.trailer.setText(MainActivity.trailer.getId());
         } else {
             calendar.setTimeInMillis(System.currentTimeMillis());
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -89,7 +73,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
             calendar.setTimeInMillis(System.currentTimeMillis());
         }
         updateUi();
-        //if (settlement.getTruck().equals("")) Utils.showKeyboard(getContext(), binding.truck);
     }
 
     private void setCalendarToDayEdge(Calendar calendar, boolean beginning) {

@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glass.payroll.databinding.FragmentRecordsBinding;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -159,7 +157,7 @@ public class FragmentRecords extends Fragment {
             holder.loadedMiles.setText("Loaded Miles: " + Utils.formatInt(loadedMiles));
             holder.emptyMiles.setText("Empty Miles: " + Utils.formatInt(emptyMiles));
             holder.loadedRate.setText("Loaded Rate: " + Utils.formatValueToCurrency((double) grossRevenue / loadedMiles));
-            holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency((double) settlement.getBalance() / (settlement.getEmptyMiles() + settlement.getLoadedMiles())));
+            holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency(settlement.getBalance() / (settlement.getEmptyMiles() + settlement.getLoadedMiles())));
             holder.loads.setText("Loads: " + Utils.formatInt(settlement.getLoads().size()));
             return view;
         }

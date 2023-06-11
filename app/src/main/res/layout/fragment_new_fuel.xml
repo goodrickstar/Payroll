@@ -59,8 +59,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/rounded_truck_b"
                 app:layout_constraintBottom_toBottomOf="@+id/weight"
-                app:layout_constraintEnd_toEndOf="@+id/gallons"
-                app:layout_constraintStart_toStartOf="@+id/gallons"
+                app:layout_constraintStart_toEndOf="@+id/textView4"
                 app:layout_constraintTop_toTopOf="@+id/textView7" />
 
             <TextView

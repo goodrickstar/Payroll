@@ -55,6 +55,7 @@ public class FragmentBackup extends Fragment {
             FragmentUpload upload = (FragmentUpload) getParentFragmentManager().findFragmentByTag("upload");
             if (upload != null) return;
             upload = new FragmentUpload();
+            upload.setCancelable(false);
             upload.show(getParentFragmentManager(), "upload");
         });
         binding.restoreButton.setOnClickListener(view -> {

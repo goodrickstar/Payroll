@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -328,7 +329,9 @@ public class MainActivity extends AppCompatActivity implements MI {
             if (menuItem.getItemId() != R.id.new_settlement) menuItem.setChecked(true);
             switch (menuItem.getItemId()) {
                 case R.id.new_settlement:
-                    new NewSettlementFragment().show(fragmentManager, "newSettlement");
+                   NewSettlementFragment fragment =  new NewSettlementFragment();
+                   fragment.setStyle(DialogFragment.STYLE_NO_FRAME, R.style.AppTheme_NoActionBar_FullScreenDialog);
+                   fragment.show(fragmentManager, "newSettlement");
                     break;
                 case R.id.overview:
                     transaction.replace(R.id.content_frame, new FragmentOverview(), "overview");
