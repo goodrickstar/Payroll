@@ -174,7 +174,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        if (MI != null) MI.vibrate();
+        if (MI != null) MI.vibrate(datePicker.getRootView());
         calendar.set(year, month, day);
         switch (mode) {
             case 1:
@@ -220,7 +220,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     @Override
     public void onClick(View view) {
         if (MI != null) {
-            MI.vibrate();
+            MI.vibrate(view);
             MI.hideKeyboard(view);
         }
         calendar.setTimeInMillis(System.currentTimeMillis());

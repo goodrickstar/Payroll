@@ -74,7 +74,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         binding.order.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) button.setText(getString(R.string.asc));
             else button.setText(getString(R.string.desc));
-            MI.vibrate();
+            MI.vibrate(button);
             model.add(Utils.sortMiscellaneous(settlement, binding.order.isChecked(), binding.sort.isChecked()));
             Utils.setOrder(context, "miscellaneous", checked);
         });
@@ -82,7 +82,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         binding.sort.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) binding.sortView.setText(getString(R.string.date));
             else binding.sortView.setText(getString(R.string.amount));
-            MI.vibrate();
+            MI.vibrate(button);
             model.add(Utils.sortMiscellaneous(settlement, binding.order.isChecked(), binding.sort.isChecked()));
             Utils.setSort(context, "miscellaneous", checked);
         });
@@ -114,7 +114,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
     public void onClick(View view) {
         if (view.getId() == R.id.add_button && MI != null) {
             MI.newMisc(null, 0);
-            MI.vibrate();
+            MI.vibrate(view);
         }
     }
 
@@ -177,7 +177,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             if (MI != null) {
-                MI.vibrate();
+                MI.vibrate(viewHolder.itemView);
                 final int position = viewHolder.getAdapterPosition();
                 final Cost cost = settlement.getMiscellaneous().get(position);
                 switch (direction) {
@@ -188,7 +188,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                             settlement.getMiscellaneous().add(position, cost);
                             calculate();
                             model.add(Utils.calculate(settlement));
-                            MI.vibrate();
+                            MI.vibrate(viewHolder.itemView);
                         });
                         View v = snackbar.getView();
                         v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));

@@ -51,7 +51,7 @@ public class FragmentBackup extends Fragment {
         super.onViewCreated(v, savedInstanceState);
         checkUserBackups();
         binding.backupButton.setOnClickListener(view -> {
-            MI.vibrate();
+            MI.vibrate(view);
             FragmentUpload upload = (FragmentUpload) getParentFragmentManager().findFragmentByTag("upload");
             if (upload != null) return;
             upload = new FragmentUpload();
@@ -59,7 +59,7 @@ public class FragmentBackup extends Fragment {
             upload.show(getParentFragmentManager(), "upload");
         });
         binding.restoreButton.setOnClickListener(view -> {
-            MI.vibrate();
+            MI.vibrate(view);
             restoreDatabaseFromStorage();
         });
     }
@@ -82,7 +82,6 @@ public class FragmentBackup extends Fragment {
                                 .addOnSuccessListener(trailers -> {
                                     model.addTrailers(Utils.returnTrailerArray(new String(trailers, StandardCharsets.UTF_8)));
                                     MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
-                                    MI.vibrate();
                                     MI.navigate(R.id.overview);
                                 });
                     });

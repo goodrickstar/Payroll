@@ -56,7 +56,7 @@ public class FragmentOdometer extends DialogFragment implements View.OnClickList
     @Override
     public void onClick(View view) {
         if (MI != null) {
-            MI.vibrate();
+            MI.vibrate(view);
             MI.hideKeyboard(view);
             final Truck truck = (Truck) binding.odometer.getTag();
             if (view.getId() == R.id.finish && truck != null) {

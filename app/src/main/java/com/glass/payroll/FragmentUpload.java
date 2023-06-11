@@ -1,8 +1,6 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +51,7 @@ public class FragmentUpload extends DialogFragment {
         super.onViewCreated(v, savedInstanceState);
         binding.finish.setText("Start Upload");
         binding.finish.setOnClickListener(view -> {
-            MI.vibrate();
+            MI.vibrate(view);
             dismiss();
         });
         binding.finish.setText("Hide");

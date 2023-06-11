@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -12,9 +11,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -46,6 +45,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -79,15 +79,12 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
 public class MainActivity extends AppCompatActivity implements MI {
     static final String SITE_URL = "http://23.111.159.2/~payroll/";
     static final OkHttpClient client = new OkHttpClient();
     static final Gson gson = new Gson();
     private Settlement settlement = new Settlement();
     static FirebaseUser user;
-
-    //testing
     private static String location = "";
     private final int RC_SIGN_IN = 9002;
     private final Map<String, String> STATE_MAP = new HashMap<>();
@@ -102,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     private FragmentManager fragmentManager;
     private SharedPreferences preferences;
     private FrameLayout content_frame;
-    private boolean update = false;
     private MainViewModel model;
     static Truck truck;
     static Trailer trailer;
@@ -128,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         } else {
             handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
         }
-
     }
 
     private void signInSheet() {
@@ -254,14 +249,15 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     private void requestLocationUpdates() {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(60000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 60000)
+                .setWaitForAccurateLocation(true)
+                .setMinUpdateIntervalMillis(10000)
+                .setMaxUpdateDelayMillis(10000)
+                .build();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, getMainLooper());
+        mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, getMainLooper());
     }
 
     private boolean locationGranted() {
@@ -299,13 +295,13 @@ public class MainActivity extends AppCompatActivity implements MI {
         profileName = headerLayout.findViewById(R.id.profile_name);
         email = headerLayout.findViewById(R.id.email_tv);
         profileView.setOnClickListener(view -> {
-            vibrate();
+            vibrate(profileView);
             if (mAuth.getCurrentUser() != null) {
                 signOut();
             } else signIn();
         });
         navigationView.setNavigationItemSelectedListener(menuItem -> {
-            vibrate();
+            vibrate(navigationView);
             handleMenuNavigation(menuItem, true, true);
             return true;
         });
@@ -321,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements MI {
 
     @Override
     public void handleMenuNavigation(MenuItem menuItem, boolean close, boolean physical) {
-        if (physical) vibrate();
+        if (physical) vibrate(drawerLayout);
         if (close && drawerLayout.isDrawerOpen(Gravity.LEFT)) drawerLayout.closeDrawers();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -329,9 +325,9 @@ public class MainActivity extends AppCompatActivity implements MI {
             if (menuItem.getItemId() != R.id.new_settlement) menuItem.setChecked(true);
             switch (menuItem.getItemId()) {
                 case R.id.new_settlement:
-                   NewSettlementFragment fragment =  new NewSettlementFragment();
-                   fragment.setStyle(DialogFragment.STYLE_NO_FRAME, R.style.AppTheme_NoActionBar_FullScreenDialog);
-                   fragment.show(fragmentManager, "newSettlement");
+                    NewSettlementFragment fragment = new NewSettlementFragment();
+                    fragment.setStyle(DialogFragment.STYLE_NO_FRAME, R.style.AppTheme_NoActionBar_FullScreenDialog);
+                    fragment.show(fragmentManager, "newSettlement");
                     break;
                 case R.id.overview:
                     transaction.replace(R.id.content_frame, new FragmentOverview(), "overview");
@@ -433,7 +429,6 @@ public class MainActivity extends AppCompatActivity implements MI {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (Utils.getVersion(getApplicationContext()) < dataSnapshot.getValue(int.class)) {
-                    update = true;
                     handleGrouping();
                     showSnack(getString(R.string.please_update), Snackbar.LENGTH_INDEFINITE);
                 }
@@ -550,9 +545,8 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     @Override
-    public void vibrate() {
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(5);
+    public void vibrate(View view) {
+        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
     }
 
     @Override
@@ -617,12 +611,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
-
-    @Override
-    public void updateOdometer() {
-        FragmentOdometer odometerFragment = new FragmentOdometer();
-        odometerFragment.show(fragmentManager, "odometer");
     }
 
     private String getAbbreviationFromUSState(String state) {

@@ -1,7 +1,5 @@
 package com.glass.payroll;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentOverviewBinding;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 
 import java.text.NumberFormat;
 import java.time.Instant;
@@ -66,8 +63,9 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         binding.next.setOnLongClickListener(this);
         binding.odomter.setOnClickListener(view -> {
             if (MI != null) {
-                MI.vibrate();
-                MI.updateOdometer();
+                MI.vibrate(view);
+                FragmentOdometer odometerFragment = new FragmentOdometer();
+                odometerFragment.show(getParentFragmentManager(), "odometer");
             }
         });
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
@@ -132,7 +130,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     @Override
     public void onClick(View view) {
         if (MI != null)
-            MI.vibrate();
+            MI.vibrate(view);
         int index = keys.indexOf(settlement.getId());
         Log.i("ROOM", "index is " + index);
         switch (view.getId()) {
@@ -236,7 +234,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             }
             holder.container.setOnClickListener(view -> {
                 if (MI != null) {
-                    MI.vibrate();
+                    MI.vibrate(view);
                     MI.navigate(item.getMenuId());
                 }
             });

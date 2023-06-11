@@ -15,7 +15,7 @@ interface MI {
 
     void showSnack(String message, int length);
 
-    void vibrate();
+    void vibrate(View view);
 
     void newSettlement(Settlement settlement, boolean transfer);
 
@@ -32,6 +32,4 @@ interface MI {
     void group();
 
     void hideKeyboard(View v);
-
-    void updateOdometer();
 }
