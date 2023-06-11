@@ -60,7 +60,7 @@
                 android:ems="4"
                 android:gravity="center"
                 android:hint="@string/dollar_signs"
-                android:inputType="number"
+                android:inputType="number|numberDecimal"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 android:textSize="@dimen/medium_text_size"

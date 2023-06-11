@@ -1,8 +1,6 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +16,6 @@ import com.glass.payroll.databinding.FragmentNewMiscBinding;
 import com.google.gson.Gson;
 
 import java.util.Calendar;
-
 public class NewMiscFragment extends DialogFragment implements View.OnClickListener {
     private MI MI;
     private Cost cost = new Cost();
@@ -27,15 +24,17 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
     private FragmentNewMiscBinding binding;
     private Settlement settlement;
     private MainViewModel model;
+
     public NewMiscFragment() {
         // Required empty public constructor
     }
+
     private void checkEntries() {
         boolean error = false;
         if (TextUtils.isEmpty(binding.cost.getText())) error = setError(binding.cost);
         if (TextUtils.isEmpty(binding.label.getText())) error = setError(binding.label);
         if (error) return;
-        cost.setCost(parseInt(binding.cost.getText()));
+        cost.setCost(Utils.parseDouble(binding.cost.getText()));
         if (!binding.location.getText().toString().trim().equals("Unknown"))
             cost.setLocation(binding.location.getText().toString().trim());
         cost.setLabel(binding.label.getText().toString().trim());
@@ -46,16 +45,10 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         model.add(Utils.sortMiscellaneous(Utils.calculate(settlement), Utils.getOrder(getContext(), "miscellaneous"), Utils.getSort(getContext(), "miscellaneous")));
         dismiss();
     }
+
     private boolean setError(EditText view) {
         view.setError("Required");
         return true;
-    }
-    private int parseInt(Editable editable) {
-        try {
-            return Integer.parseInt(editable.toString().trim());
-        } catch (NumberFormatException nfe) {
-            return 0;
-        }
     }
 
     @Override
@@ -89,13 +82,13 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
         binding.gps.setOnClickListener(this);
-        binding.cost.setFilters(Utils.inputFilter());
+        binding.cost.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(4, 2, 10000)});
         if (editing) {
             binding.title.setText("Edit Miscellaneous");
             binding.finish.setText("Update");
-            binding.label.setText(cost.getLabel());
+            if (!cost.getLabel().isEmpty()) binding.label.setText(cost.getLabel());
             binding.location.setText(cost.getLocation());
-            binding.cost.setText(String.valueOf(cost.getCost()));
+            if (cost.getCost() != 0) binding.cost.setText(String.valueOf(cost.getCost()));
             binding.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
         }
         Calendar calendar = Calendar.getInstance();

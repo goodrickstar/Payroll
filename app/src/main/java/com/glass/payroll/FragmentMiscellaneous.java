@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,9 +23,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 public class FragmentMiscellaneous extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
@@ -41,12 +37,8 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
     }
 
     private void calculate() {
-        int totalCost = 0;
-        for (Cost x : settlement.getMiscellaneous()) {
-            totalCost += x.getCost();
-        }
-        if (totalCost != 0)
-            binding.total.setText(getString(R.string.total) + " $" + formatInt(totalCost));
+        if (settlement.getMiscCost() != 0)
+            binding.total.setText(getString(R.string.total) + Utils.formatValueToCurrency(settlement.getMiscCost(), true));
         else
             binding.total.setText(getString(R.string.misc_note));
     }
@@ -67,7 +59,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.recycler);
+        new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter)).attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "miscellaneous"));
         binding.sort.setChecked(Utils.getSort(context, "miscellaneous"));
@@ -118,10 +110,6 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         }
     }
 
-    private String formatInt(int count) {
-        return NumberFormat.getNumberInstance(Locale.US).format(count);
-    }
-
     private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> {
         @NotNull
         @Override
@@ -131,11 +119,11 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
 
         @Override
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
-            Cost row = settlement.getMiscellaneous().get(position);
-            holder.location.setText(row.getLabel());
-            holder.cost.setText("$" + row.getCost());
-            holder.date.setText(Utils.toShortDateSpelled(row.getStamp()));
-            holder.gallons.setText(row.getLocation());
+            Cost cost = settlement.getMiscellaneous().get(position);
+            holder.location.setText(cost.getLabel());
+            holder.cost.setText(Utils.formatValueToCurrency(cost.getCost(), true));
+            holder.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
+            holder.gallons.setText(cost.getLocation());
         }
 
         @Override
@@ -162,11 +150,12 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         //private final ColorDrawable background;
         private Drawable icon;
+        private final RecycleAdapter adapter;
 
-        SwipeToDeleteCallback() {
+        public SwipeToDeleteCallback(RecycleAdapter adapter) {
             super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            icon = ContextCompat.getDrawable(context, R.drawable.delete);
-            //background = new ColorDrawable(getResources().getColor(R.color.colorPrimary));
+            this.adapter = adapter;
+            icon = ContextCompat.getDrawable(context, R.drawable.edit);
         }
 
         @Override
@@ -200,6 +189,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                         model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:
+                        adapter.notifyItemChanged(position);
                         MI.newMisc(cost, position);
                         break;
                 }

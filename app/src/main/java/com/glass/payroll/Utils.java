@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
@@ -127,6 +128,23 @@ class Utils {
         return load.getEmpty() + load.getLoaded();
     }
 
+
+    static int parseInt(Editable editable) {
+        try {
+            return Integer.parseInt(editable.toString().trim());
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+    static double parseDouble(Editable editable) {
+        try {
+            return Double.parseDouble(editable.toString().trim());
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
     static void gotoPlayStore(@NonNull Activity activity) {
         try {
             activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + activity.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
@@ -241,8 +259,8 @@ class Utils {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
                 else return Long.compare(two.getStamp(), one.getStamp());
             } else {
-                if (!order) return Long.compare(one.getCost(), two.getCost());
-                else return Long.compare(two.getCost(), one.getCost());
+                if (!order) return Double.compare(one.getCost(), two.getCost());
+                else return Double.compare(two.getCost(), one.getCost());
             }
         });
         return settlement;
@@ -254,8 +272,8 @@ class Utils {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
                 else return Long.compare(two.getStamp(), one.getStamp());
             } else {
-                if (!order) return Long.compare(one.getCost(), two.getCost());
-                else return Long.compare(two.getCost(), one.getCost());
+                if (!order) return Double.compare(one.getCost(), two.getCost());
+                else return Double.compare(two.getCost(), one.getCost());
             }
         });
         return settlement;

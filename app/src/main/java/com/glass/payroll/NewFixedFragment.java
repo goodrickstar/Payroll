@@ -1,8 +1,6 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.glass.payroll.databinding.FragmentNewMiscBinding;
+import com.glass.payroll.databinding.FragmentNewFixedBinding;
 import com.google.gson.Gson;
 
 import java.util.Calendar;
@@ -24,7 +22,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     private Cost cost = new Cost();
     private boolean editing = false;
     private int index = 0;
-    private FragmentNewMiscBinding binding;
+    private FragmentNewFixedBinding binding;
     private Settlement settlement;
     private MainViewModel model;
     public NewFixedFragment() {
@@ -36,7 +34,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
         if (TextUtils.isEmpty(binding.cost.getText())) error = setError(binding.cost);
         if (TextUtils.isEmpty(binding.label.getText())) error = setError(binding.label);
         if (error) return;
-        cost.setCost(parseInt(binding.cost.getText()));
+        cost.setCost(Utils.parseDouble(binding.cost.getText()));
         cost.setLabel(binding.label.getText().toString().trim());
         if (!editing) {
             settlement.getFixed().add(cost);
@@ -51,14 +49,6 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     private boolean setError(EditText view) {
         view.setError("Required");
         return true;
-    }
-
-    private int parseInt(Editable editable) {
-        try {
-            return Integer.parseInt(editable.toString().trim());
-        } catch (NumberFormatException nfe) {
-            return 0;
-        }
     }
 
     @Override
@@ -81,7 +71,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentNewMiscBinding.inflate(inflater);
+        binding = FragmentNewFixedBinding.inflate(inflater);
         return binding.getRoot();
     }
 
@@ -91,12 +81,12 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
         binding.date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
-        binding.cost.setFilters(Utils.inputFilter());
+        binding.cost.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(4, 2, 10000)});
         if (editing) {
             binding.title.setText("Edit Fixed Expenses");
             binding.finish.setText("Update");
-            binding.label.setText(cost.getLabel());
-            binding.cost.setText(String.valueOf(cost.getCost()));
+            if (!cost.getLabel().isEmpty()) binding.label.setText(cost.getLabel());
+            if (cost.getCost() != 0) binding.cost.setText(String.valueOf(cost.getCost()));
             binding.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
         }
         Calendar calendar = Calendar.getInstance();

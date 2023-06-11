@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -26,13 +25,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-
 public class FragmentFixed extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
-
     private FragmentFixedBinding binding;
-
     private MainViewModel model;
     private Settlement settlement;
 
@@ -46,12 +42,9 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
     }
 
     private void calculate() {
-        int totalCost = 0;
-        for (Cost x : settlement.getFixed()) {
-            totalCost += x.getCost();
-        }
-        if (totalCost == 0) binding.total.setText(getString(R.string.fixed_note));
-        else binding.total.setText(getString(R.string.total) + " $" + formatInt(totalCost));
+        if (settlement.getFixedCost() == 0) binding.total.setText(getString(R.string.fixed_note));
+        else
+            binding.total.setText(getString(R.string.total) + Utils.formatValueToCurrency(settlement.getFixedCost(), true));
     }
 
     @Override
@@ -67,7 +60,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback());
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter));
         itemTouchHelper.attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "fixed"));
@@ -135,7 +128,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
             Cost row = settlement.getFixed().get(position);
             holder.label.setText(row.getLabel());
-            holder.cost.setText("$" + row.getCost());
+            holder.cost.setText(Utils.formatValueToCurrency(row.getCost(), true));
         }
 
         @Override
@@ -161,12 +154,12 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
 
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private Drawable icon;
-        //private final ColorDrawable background;
+        private final RecycleAdapter adapter;
 
-        SwipeToDeleteCallback() {
+        public SwipeToDeleteCallback(RecycleAdapter adapter) {
             super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            icon = ContextCompat.getDrawable(context, R.drawable.delete);
-            //background = new ColorDrawable(getResources().getColor(R.color.colorPrimary));
+            this.adapter = adapter;
+            icon = ContextCompat.getDrawable(context, R.drawable.edit);
         }
 
         @Override
@@ -202,6 +195,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                         model.add(Utils.calculate(settlement));
                         break;
                     case ItemTouchHelper.RIGHT:
+                        adapter.notifyItemChanged(position);
                         MI.newFixed(cost, position);
                         break;
                 }
@@ -242,5 +236,4 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
             icon.draw(c);
         }
     }
-
 }

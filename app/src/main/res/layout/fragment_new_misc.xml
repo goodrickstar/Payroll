@@ -83,7 +83,7 @@
                 android:focusableInTouchMode="true"
                 android:gravity="center"
                 android:hint="@string/dollar_signs"
-                android:inputType="number"
+                android:inputType="number|numberDecimal"
                 android:nextFocusRight="@id/label"
                 android:nextFocusForward="@id/label"
                 android:padding="@dimen/common_margin"

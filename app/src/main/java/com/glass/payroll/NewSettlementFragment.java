@@ -2,13 +2,13 @@ package com.glass.payroll;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.glass.payroll.databinding.FragmentNewSettlementBinding;
@@ -32,20 +32,20 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.floating);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        getDialog().getWindow().setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP);
         binding = FragmentNewSettlementBinding.inflate(inflater);
         return binding.getRoot();
     }
 
     @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
         binding.label.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
         binding.startLayout.setOnClickListener(this);

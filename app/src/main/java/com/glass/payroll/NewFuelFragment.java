@@ -7,11 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,8 +41,8 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (error) return;
         int odometer = parseInt(binding.odometer.getText());
         fuel.setOdometer(odometer);
-        fuel.setFuelPrice(parseDouble(binding.fuelPrice.getText()));
-        fuel.setGallons(parseDouble(binding.gallons.getText()));
+        fuel.setFuelPrice(Utils.parseDouble(binding.fuelPrice.getText()));
+        fuel.setGallons(Utils.parseDouble(binding.gallons.getText()));
         fuel.setCost(fuel.getFuelPrice() * fuel.getGallons());
         fuel.setLocation(binding.location.getText().toString().trim());
         fuel.setNote(binding.optionalNote.getText().toString().trim());
@@ -75,13 +71,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         }
     }
 
-    private double parseDouble(Editable editable) {
-        try {
-            return Double.parseDouble(editable.toString().trim());
-        } catch (NumberFormatException nfe) {
-            return 0;
-        }
-    }
 
     @Override
     public int getTheme() {
@@ -110,27 +99,16 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        TextView weekView = v.findViewById(R.id.weekView);
-        TextView thisYear = v.findViewById(R.id.thisYear);
-        TextView nextYear = v.findViewById(R.id.nextYear);
-        ProgressBar progressBar = v.findViewById(R.id.progressBar);
-        TextView title = v.findViewById(R.id.title);
-        TextView cancel = v.findViewById(R.id.cancel);
-        TextView finish = v.findViewById(R.id.finish);
-        TextView date = v.findViewById(R.id.date);
-        ImageView gps = v.findViewById(R.id.gps);
-        final TextView info = v.findViewById(R.id.info);
-        CheckBox def = v.findViewById(R.id.defBox);
-        date.setText(Utils.toShortDateSpelled(fuel.getStamp()));
-        cancel.setOnClickListener(this);
-        finish.setOnClickListener(this);
-        gps.setOnClickListener(this);
+        binding.date.setText(Utils.toShortDateSpelled(fuel.getStamp()));
+        binding.cancel.setOnClickListener(this);
+        binding.finish.setOnClickListener(this);
+        binding.gps.setOnClickListener(this);
         binding.fuelPrice.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(1, 2, 10)});
         binding.gallons.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 2, 300)});
         binding.odometer.setFilters(Utils.inputFilter());
         if (editing) {
-            title.setText("Edit Fuel Entry");
-            finish.setText("Update");
+            binding.title.setText("Edit Fuel Entry");
+            binding.finish.setText("Update");
             binding.location.setText(fuel.getLocation());
             if (fuel.getCost() != 0)
                 binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getCost(), true));
@@ -141,7 +119,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             if (fuel.getOdometer() != 0)
                 binding.odometer.setText(String.valueOf(fuel.getOdometer()));
             if (!fuel.getNote().isEmpty()) binding.optionalNote.setText(fuel.getNote());
-            def.setChecked(fuel.getDef());
+            binding.defBox.setChecked(fuel.getDef());
             binding.odometer.setText(String.valueOf(fuel.getOdometer()));
             binding.truckNumber2.setText(fuel.getTruck());
         } else {
@@ -157,24 +135,24 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             }
         }
         Calendar calendar = Calendar.getInstance();
-        weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
-        progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
-        thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+        binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
+        binding.progressBar.setProgress(calendar.get(Calendar.WEEK_OF_YEAR));
+        binding.thisYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         calendar.add(Calendar.YEAR, 1);
-        nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-        def.setOnCheckedChangeListener((compoundButton, checked) -> {
+        binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+        binding.defBox.setOnCheckedChangeListener((compoundButton, checked) -> {
             fuel.setDef(checked);
-            if (checked) info.setVisibility(View.VISIBLE);
-            else info.setVisibility(View.GONE);
+            if (checked) binding.info.setVisibility(View.VISIBLE);
+            else binding.info.setVisibility(View.GONE);
         });
-        if (fuel.getDef()) info.setVisibility(View.VISIBLE);
-        else info.setVisibility(View.GONE);
+        if (fuel.getDef()) binding.info.setVisibility(View.VISIBLE);
+        else binding.info.setVisibility(View.GONE);
         Utils.showKeyboard(getContext(), binding.fuelPrice);
         EditText.OnEditorActionListener actionListener = (textView, actionId, keyEvent) -> {
             switch (actionId) {
                 case EditorInfo.IME_ACTION_NEXT:
-                    double fuelPrice = parseDouble(binding.fuelPrice.getText());
-                    double gallons = parseDouble(binding.gallons.getText());
+                    double fuelPrice = Utils.parseDouble(binding.fuelPrice.getText());
+                    double gallons = Utils.parseDouble(binding.gallons.getText());
                     if (fuelPrice != 0 && gallons != 0) {
                         binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(gallons * fuelPrice, true));
                     }
