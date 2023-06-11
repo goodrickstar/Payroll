@@ -21,6 +21,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,25 +37,21 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -67,6 +65,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -86,14 +85,11 @@ public class MainActivity extends AppCompatActivity implements MI {
     private Settlement settlement = new Settlement();
     static FirebaseUser user;
     private static String location = "";
-    private final int RC_SIGN_IN = 9002;
     private final Map<String, String> STATE_MAP = new HashMap<>();
     private final locationCallback locationCallback = new locationCallback();
     private FusedLocationProviderClient mFusedLocationClient;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    private FirebaseAuth mAuth;
-    private GoogleSignInClient mGoogleSignInClient;
     private ImageView profileView;
     private TextView profileName, balance, date, email;
     private FragmentManager fragmentManager;
@@ -102,6 +98,21 @@ public class MainActivity extends AppCompatActivity implements MI {
     private MainViewModel model;
     static Truck truck;
     static Trailer trailer;
+    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(new FirebaseAuthUIActivityResultContract(), new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
+                @Override
+                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+                    IdpResponse response = result.getIdpResponse();
+                    if (result.getResultCode() == RESULT_OK) {
+                        user = FirebaseAuth.getInstance().getCurrentUser();
+                        showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
+                        signInSheet();
+                    } else {
+                        Log.i("AUTH", "CODE: " + response.getError().getErrorCode());
+                        Log.i("AUTH", response.getError().getLocalizedMessage());
+                    }
+                }
+            }
+    );
 
     @Override
     public void newSettlement(Settlement settlement, boolean transfer) {
@@ -127,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     private void signInSheet() {
-        user = mAuth.getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             if (preferences.getBoolean("migrate", true)) {
                 returnSettlement();
@@ -296,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         email = headerLayout.findViewById(R.id.email_tv);
         profileView.setOnClickListener(view -> {
             vibrate(profileView);
-            if (mAuth.getCurrentUser() != null) {
+            if (user != null) {
                 signOut();
             } else signIn();
         });
@@ -305,9 +316,6 @@ public class MainActivity extends AppCompatActivity implements MI {
             handleMenuNavigation(menuItem, true, true);
             return true;
         });
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.google_auth)).requestEmail().build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        mAuth = FirebaseAuth.getInstance();
         fragmentManager = getSupportFragmentManager();
         signInSheet();
         STATE_MAP.putAll(createStateShorts());
@@ -457,45 +465,28 @@ public class MainActivity extends AppCompatActivity implements MI {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                firebaseAuthWithGoogle(Objects.requireNonNull(task.getResult(ApiException.class)));
-            } catch (ApiException e) {
-                Log.e("onActivityResult()", e.getMessage());
-            }
-        }
-    }
-
     private void signIn() {
         if (navigationView.getCheckedItem() != null)
             navigationView.getCheckedItem().setChecked(false);
-        startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
+        //startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
+        Intent signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build();
+        signInLauncher.launch(signInIntent);
     }
 
     private void signOut() {
-        preferences.edit().clear().apply();
-        user = null;
-        settlement = new Settlement();
-        handleMenuNavigation(null, false, false);
-        mAuth.signOut();
-        mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> signInSheet());
-        showSnack("Sign Out Successful", Snackbar.LENGTH_LONG);
-    }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
-                signInSheet();
-            } else {
-                Log.e("firebaseAuthWithGoogle()", task.getException().toString());
-            }
-        });
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(task -> {
+                    preferences.edit().clear().apply();
+                    user = null;
+                    settlement = new Settlement();
+                    handleMenuNavigation(null, false, false);
+                    showSnack("Sign Out Successful", Snackbar.LENGTH_LONG);
+                });
     }
 
     private void updateUserInfoAndDisplay(FirebaseUser user) {
