@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
 public class FragmentOverview extends Fragment implements View.OnClickListener, View.OnLongClickListener {
     private Context context;
     private MI MI;
@@ -104,9 +103,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             if (truck != null)
                 binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
         });
-        model.keys().observe(getViewLifecycleOwner(), keys -> {
-            FragmentOverview.this.keys = keys;
-        });
+        model.keys().observe(getViewLifecycleOwner(), keys -> FragmentOverview.this.keys = keys);
     }
 
     @Override
@@ -155,38 +152,31 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
                 model.setStampOnSettlement(keys.get(index - 1), Instant.now().getEpochSecond());
                 break;
         }
-
     }
 
     @Override
     public boolean onLongClick(View view) {
-       /*
-        if (settlements.isEmpty()) return false;
-        if (MI != null) {
-            MI.vibrate();
-            switch (view.getId()) {
-                case R.id.previous:
-                    MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
-                    settlement = settlements.get(settlements.size() - 1);
-                    prev.setOnClickListener(null);
-                    prev.setOnLongClickListener(null);
-                    next.setOnClickListener(this);
-                    next.setOnLongClickListener(this);
-                    break;
-                case R.id.next:
-                    MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
-                    settlement = settlements.get(0);
-                    next.setOnClickListener(null);
-                    next.setOnLongClickListener(null);
-                    prev.setOnClickListener(this);
-                    prev.setOnLongClickListener(this);
-                    break;
-            }
-            calculate();
-            MI.calculate();
+        if (keys.isEmpty()) return true;
+        MI.vibrate(view);
+        switch (view.getId()) {
+            case R.id.previous:
+                MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
+                binding.previous.setOnClickListener(null);
+                binding.previous.setOnLongClickListener(null);
+                binding.next.setOnClickListener(this);
+                binding.next.setOnLongClickListener(this);
+                model.setStampOnSettlement(keys.get(keys.size() - 1), Instant.now().getEpochSecond());
+                break;
+            case R.id.next:
+                MI.showSnack("Current Settlement", Snackbar.LENGTH_SHORT);
+                binding.next.setOnClickListener(null);
+                binding.next.setOnLongClickListener(null);
+                binding.previous.setOnClickListener(this);
+                binding.previous.setOnLongClickListener(this);
+                model.setStampOnSettlement(keys.get(0), Instant.now().getEpochSecond());
+                break;
         }
-        */
-        return false;
+        return true;
     }
 
     private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> implements View.OnClickListener {
