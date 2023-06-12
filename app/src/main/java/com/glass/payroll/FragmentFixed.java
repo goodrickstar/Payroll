@@ -44,7 +44,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
     private void calculate() {
         if (settlement.getFixedCost() == 0) binding.total.setText(getString(R.string.fixed_note));
         else
-            binding.total.setText(getString(R.string.total) + Utils.formatValueToCurrency(settlement.getFixedCost(), true));
+            binding.total.setText(getString(R.string.total) + " " + Utils.formatValueToCurrency(settlement.getFixedCost(), true));
     }
 
     @Override
@@ -72,7 +72,6 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
             model.add(Utils.sortFixed(settlement, binding.order.isChecked(), binding.sort.isChecked()));
             Utils.setOrder(context, "fixed", checked);
         });
-        //SORT
         binding.sort.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) binding.sortView.setText(getString(R.string.entry));
             else binding.sortView.setText(getString(R.string.amount));

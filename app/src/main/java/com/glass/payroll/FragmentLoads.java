@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-
 public class FragmentLoads extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
@@ -87,9 +85,13 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         model.settlement().observe(getViewLifecycleOwner(), settlement -> {
             FragmentLoads.this.settlement = settlement;
             recyclerAdapter.notifyDataSetChanged();
-            if (settlement.getGross() != 0)
+            if (settlement.getGross() != 0) {
                 binding.total.setText("Total: " + Utils.formatValueToCurrencyWhole(settlement.getGross()) + " (" + formatInt(Utils.miles(settlement)) + " miles @ " + Utils.formatValueToCurrency(settlement.getGross() / Utils.miles(settlement)) + ")");
-            binding.total2.setText("Loaded Rate: " + Utils.formatValueToCurrency(settlement.getGross() / settlement.getLoadedMiles(), true));
+                binding.total2.setText("Loaded Rate: " + Utils.formatValueToCurrency(settlement.getGross() / settlement.getLoadedMiles(), true));
+            }else{
+                binding.total.setText("");
+                binding.total2.setText("");
+            }
         });
     }
 
@@ -163,7 +165,6 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             }
         }
     }
-
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private Drawable icon;
         private final RecycleAdapter adapter;
