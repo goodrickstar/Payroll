@@ -68,14 +68,14 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         binding.order.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) button.setText(getString(R.string.asc));
             else button.setText(getString(R.string.desc));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             model.add(Utils.sortFixed(settlement, binding.order.isChecked(), binding.sort.isChecked()));
             Utils.setOrder(context, "fixed", checked);
         });
         binding.sort.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) binding.sortView.setText(getString(R.string.entry));
             else binding.sortView.setText(getString(R.string.amount));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             model.add(Utils.sortFixed(settlement, binding.order.isChecked(), binding.sort.isChecked()));
             Utils.setSort(context, "fixed", checked);
         });
@@ -112,7 +112,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         if (view.getId() == R.id.add_button && MI != null) {
             MI.newFixed(null, 0);
-            MI.vibrate(view);
+            Utils.vibrate(view);
         }
     }
 
@@ -169,7 +169,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             if (MI != null) {
-                MI.vibrate(viewHolder.itemView);
+                Utils.vibrate(viewHolder.itemView);
                 final int position = viewHolder.getAdapterPosition();
                 final Cost cost = settlement.getFixed().get(position);
                 switch (direction) {
@@ -178,7 +178,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                         Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
                         snackbar.setAction("UNDO", view -> {
                             if (MI != null) {
-                                MI.vibrate(viewHolder.itemView);
+                                Utils.vibrate(viewHolder.itemView);
                                 settlement.getFixed().add(position, cost);
                                 calculate();
                                 model.add(Utils.calculate(settlement));

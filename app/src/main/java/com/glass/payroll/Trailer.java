@@ -25,6 +25,15 @@ public class Trailer {
     String userId = "";
 
     long stamp = Instant.now().getEpochSecond();
+    long created = Instant.now().getEpochSecond();
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
+    }
 
     public long getStamp() {
         return stamp;

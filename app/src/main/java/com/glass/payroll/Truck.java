@@ -21,6 +21,7 @@ public class Truck {
     int startingOdometer = 0;
 
     long stamp = Instant.now().getEpochSecond();
+    long created = Instant.now().getEpochSecond();
 
     @Ignore
     public Truck(String userId, @NonNull String truckId, int odometer) {
@@ -34,6 +35,14 @@ public class Truck {
     public Truck(String userId, @NonNull String truckId) {
         this.userId = userId;
         this.id = truckId;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
     }
 
     public long getStamp() {

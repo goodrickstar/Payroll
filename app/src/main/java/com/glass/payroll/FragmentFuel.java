@@ -79,14 +79,14 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             if (!checked) button.setText(getString(R.string.asc));
             else button.setText(getString(R.string.desc));
             model.add(Utils.sortFuel(settlement, binding.order.isChecked(), binding.sort.isChecked()));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             Utils.setOrder(context, "fuel", checked);
         });
         binding.sort.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) binding.sortView.setText(getString(R.string.date));
             else binding.sortView.setText(getString(R.string.amount));
             model.add(Utils.sortFuel(settlement, binding.order.isChecked(), binding.sort.isChecked()));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             Utils.setSort(context, "fuel", checked);
         });
         if (!binding.order.isChecked()) binding.order.setText(getString(R.string.asc));
@@ -117,7 +117,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         if (view.getId() == R.id.add_button && MI != null) {
             MI.newFuel(null, 0);
-            MI.vibrate(view);
+            Utils.vibrate(view);
         }
     }
 
@@ -188,14 +188,14 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             final int position = viewHolder.getAdapterPosition();
             final Fuel fuel = settlement.getFuel().get(position);
             if (MI != null) {
-                MI.vibrate(viewHolder.itemView);
+                Utils.vibrate(viewHolder.itemView);
                 switch (i) {
                     case ItemTouchHelper.LEFT: //delete
                         settlement.getFuel().remove(position);
                         Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
                         snackbar.setAction("UNDO", view -> {
                             if (MI != null) {
-                                MI.vibrate(viewHolder.itemView);
+                                Utils.vibrate(viewHolder.itemView);
                                 settlement.getFuel().add(position, fuel);
                                 calculate();
                                 model.add(Utils.calculate(settlement));

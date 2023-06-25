@@ -61,7 +61,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
         binding.next.setOnLongClickListener(this);
         binding.odomter.setOnClickListener(view -> {
             if (MI != null) {
-                MI.vibrate(view);
+                Utils.vibrate(view);
                 FragmentOdometer odometerFragment = new FragmentOdometer();
                 odometerFragment.show(getParentFragmentManager(), "odometer");
             }
@@ -126,7 +126,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     @Override
     public void onClick(View view) {
         if (MI != null)
-            MI.vibrate(view);
+            Utils.vibrate(view);
         int index = keys.indexOf(settlement.getId());
         switch (view.getId()) {
             case R.id.previous:
@@ -157,7 +157,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
     @Override
     public boolean onLongClick(View view) {
         if (keys.isEmpty()) return true;
-        MI.vibrate(view);
+        Utils.vibrate(view);
         switch (view.getId()) {
             case R.id.previous:
                 MI.showSnack("Last Record", Snackbar.LENGTH_SHORT);
@@ -221,7 +221,7 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             }
             holder.container.setOnClickListener(view -> {
                 if (MI != null) {
-                    MI.vibrate(view);
+                    Utils.vibrate(view);
                     MI.navigate(item.getMenuId());
                 }
             });

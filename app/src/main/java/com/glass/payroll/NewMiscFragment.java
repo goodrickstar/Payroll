@@ -110,7 +110,7 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (MI != null) {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             MI.hideKeyboard(view);
             switch (view.getId()) {
                 case R.id.cancel:

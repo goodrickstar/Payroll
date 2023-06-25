@@ -15,8 +15,6 @@ interface MI {
 
     void showSnack(String message, int length);
 
-    void vibrate(View view);
-
     void newSettlement(Settlement settlement, boolean transfer);
 
     void newFuel(Fuel fuel, int index);

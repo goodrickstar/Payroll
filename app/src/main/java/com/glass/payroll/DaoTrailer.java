@@ -26,12 +26,12 @@ public interface DaoTrailer {
     @Query("DELETE FROM trailer_records WHERE userId = :userId")
     void emptyRecords(String userId);
 
-    @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY stamp DESC")
+    @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY created DESC")
     LiveData<List<Trailer>> getAllTrailers(String uid);
 
     @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Trailer> getTrailer(String uid);
 
-    @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY stamp DESC")
+    @Query("SELECT * FROM trailer_records WHERE userId = :uid ORDER BY created DESC")
     List<Trailer> getTrailers(String uid);
 }

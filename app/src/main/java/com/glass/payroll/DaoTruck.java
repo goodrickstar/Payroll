@@ -26,13 +26,13 @@ public interface DaoTruck {
     @Query("DELETE FROM truck_records WHERE userId = :userId")
     void emptyRecords(String userId);
 
-    @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC")
+    @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY created DESC")
     LiveData<List<Truck>> getAllTrucks(String uid);
 
     @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 1")
     LiveData<Truck> getTruck(String uid);
 
-    @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY stamp DESC")
+    @Query("SELECT * FROM truck_records WHERE userId = :uid ORDER BY created DESC")
     List<Truck> getTrucks(String uid);
 
 }

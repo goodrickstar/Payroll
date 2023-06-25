@@ -527,7 +527,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         snackbar.show();
     }
 
-    @Override
     public void vibrate(View view) {
         view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
     }

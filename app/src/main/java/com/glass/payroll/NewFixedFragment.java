@@ -108,7 +108,7 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     @Override
     public void onClick(View view) {
         if (MI != null) {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             MI.hideKeyboard(view);
             switch (view.getId()) {
                 case R.id.cancel:

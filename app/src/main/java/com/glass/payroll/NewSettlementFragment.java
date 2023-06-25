@@ -96,7 +96,7 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        if (MI != null) MI.vibrate(datePicker.getRootView());
+        if (MI != null) Utils.vibrate(datePicker.getRootView());
         calendar.set(year, month, day);
         switch (mode) {
             case 1:
@@ -132,7 +132,7 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     @Override
     public void onClick(View view) {
         if (MI != null) {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             MI.hideKeyboard(view);
         }
         calendar.setTimeInMillis(System.currentTimeMillis());

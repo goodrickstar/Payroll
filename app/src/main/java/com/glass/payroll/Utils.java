@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -378,6 +380,10 @@ class Utils {
     static ArrayList<Trailer> returnTrailerArray(String data) {
         return new Gson().fromJson(data, new TypeToken<List<Trailer>>() {
         }.getType());
+    }
+
+    static void vibrate(View view) {
+        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
     }
 
 }

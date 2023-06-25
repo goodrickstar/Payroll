@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "27076318093-d635sbo3jq8d0cfseul3v78dn34ruvd6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.glass.payroll",
+            "certificate_hash": "f3756a65b650c63a4a9fcaecbf734e052074d239"
+          }
+        },
+        {
           "client_id": "27076318093-fvt1n1p76qme50i1kuou3kib98j5fv91.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

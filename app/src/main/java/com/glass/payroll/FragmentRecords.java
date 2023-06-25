@@ -170,7 +170,7 @@ public class FragmentRecords extends Fragment {
         @Override
         public void onClick(View view) {
             Settlement settlement = (Settlement) view.getTag();
-            MI.vibrate(view);
+            Utils.vibrate(view);
             switch (view.getId()) {
                 case R.id.delete:
                     model.delete(settlement);

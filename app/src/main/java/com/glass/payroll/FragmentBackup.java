@@ -18,6 +18,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class FragmentBackup extends Fragment {
     private MI MI;
@@ -51,7 +53,7 @@ public class FragmentBackup extends Fragment {
         super.onViewCreated(v, savedInstanceState);
         checkUserBackups();
         binding.backupButton.setOnClickListener(view -> {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             FragmentUpload upload = (FragmentUpload) getParentFragmentManager().findFragmentByTag("upload");
             if (upload != null) return;
             upload = new FragmentUpload();
@@ -59,7 +61,7 @@ public class FragmentBackup extends Fragment {
             upload.show(getParentFragmentManager(), "upload");
         });
         binding.restoreButton.setOnClickListener(view -> {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             restoreDatabaseFromStorage();
         });
     }
@@ -74,15 +76,19 @@ public class FragmentBackup extends Fragment {
         final long ONE_MEGABYTE = 1024 * 1024;
         ref.child("settlements.txt").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
             model.emptyTables();
-            model.add(Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8)));
+            ArrayList<Settlement> settlements = Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8));
+            model.add(settlements);
+            model.add(settlements.get(0));
             ref.child("trucks.txt").getBytes(ONE_MEGABYTE)
                     .addOnSuccessListener(trucks -> {
                         model.addTrucks(Utils.returnTruckArray(new String(trucks, StandardCharsets.UTF_8)));
                         ref.child("trailers.txt").getBytes(ONE_MEGABYTE)
                                 .addOnSuccessListener(trailers -> {
                                     model.addTrailers(Utils.returnTrailerArray(new String(trailers, StandardCharsets.UTF_8)));
-                                    MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
-                                    MI.navigate(R.id.overview);
+                                    if (MI != null){
+                                        MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
+                                        MI.navigate(R.id.overview);
+                                    }
                                 });
                     });
         });
@@ -92,7 +98,9 @@ public class FragmentBackup extends Fragment {
         FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid()).listAll()
                 .addOnSuccessListener(listResult -> {
                     if (listResult.getItems().isEmpty()) {
-                        MI.showSnack("No backup found", Snackbar.LENGTH_SHORT);
+                        if (MI != null) {
+                            MI.showSnack("No backup found", Snackbar.LENGTH_SHORT);
+                        }
                     }
                     binding.restoreButton.setEnabled(!listResult.getItems().isEmpty());
                 })

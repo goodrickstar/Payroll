@@ -51,7 +51,7 @@ public class FragmentUpload extends DialogFragment {
         super.onViewCreated(v, savedInstanceState);
         binding.finish.setText("Start Upload");
         binding.finish.setOnClickListener(view -> {
-            MI.vibrate(view);
+            Utils.vibrate(view);
             dismiss();
         });
         binding.finish.setText("Hide");

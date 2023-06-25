@@ -67,14 +67,14 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
         order.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) button.setText(getString(R.string.asc));
             else button.setText(getString(R.string.desc));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             model.add(Utils.sortLoads(settlement, order.isChecked(), sort.isChecked()));
             Utils.setOrder(context, "loads", checked);
         });
         sort.setOnCheckedChangeListener((button, checked) -> {
             if (!checked) sortView.setText(getString(R.string.date));
             else sortView.setText(getString(R.string.revenue));
-            MI.vibrate(button);
+            Utils.vibrate(button);
             model.add(Utils.sortLoads(settlement, order.isChecked(), sort.isChecked()));
             Utils.setSort(context, "loads", checked);
         });
@@ -112,7 +112,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         if (MI != null) {
             MI.newLoad(null, 0);
-            MI.vibrate(view);
+            Utils.vibrate(view);
         }
     }
 
@@ -185,14 +185,14 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             final int position = viewHolder.getAdapterPosition();
             final Load load = settlement.getLoads().get(position);
             if (MI != null) {
-                MI.vibrate(viewHolder.itemView);
+                Utils.vibrate(viewHolder.itemView);
                 switch (direction) {
                     case ItemTouchHelper.LEFT:
                         settlement.getLoads().remove(position);
                         Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
                         snackbar.setAction("UNDO", view -> {
                             if (MI != null) {
-                                MI.vibrate(viewHolder.itemView);
+                                Utils.vibrate(viewHolder.itemView);
                                 settlement.getLoads().add(position, load);
                                 model.add(Utils.calculate(settlement));
                             }

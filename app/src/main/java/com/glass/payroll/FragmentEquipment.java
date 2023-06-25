@@ -86,7 +86,7 @@ public class FragmentEquipment extends Fragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        MI.vibrate(view);
+        Utils.vibrate(view);
         switch (view.getId()) {
             case R.id.add_truck:
                 model.add(new Truck(MainActivity.user.getUid(), "1946"));
