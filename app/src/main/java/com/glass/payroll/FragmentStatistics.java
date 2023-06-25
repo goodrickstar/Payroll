@@ -1,7 +1,11 @@
 package com.glass.payroll;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +20,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentStatisticsBinding;
+import com.google.android.gms.common.stats.StatsUtils;
+import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,6 +34,7 @@ public class FragmentStatistics extends Fragment {
     private Context context;
     private FragmentStatisticsBinding binding;
     private MainViewModel model;
+
     public FragmentStatistics() {
     }
 
@@ -67,62 +75,69 @@ public class FragmentStatistics extends Fragment {
                 Statistic statistic = new Statistic();
                 statistic.setId(settlement.getId());
                 statistic.setBalance(settlement.getBalance());
-                statistic.setMiles((settlement.getEmptyMiles() + settlement.getLoadedMiles()));
-                for (Fuel fuel : settlement.getFuel()) {
-                    if (!fuel.getDef()) {
-                        statistic.setFuelCost(statistic.getFuelCost() + fuel.getCost());
-                        statistic.setGallons(statistic.getGallons() + fuel.getGallons());
-                    }
-                }
-                int loadedMiles = 0;
-                for (Load load : settlement.getLoads()) {
-                    statistic.setGross(statistic.getGross() + load.getRate());
-                    loadedMiles += load.getLoaded();
-                }
-                statistic.setLoadedRate(statistic.getGross() / loadedMiles);
-                statistic.setFuelPrice(statistic.getFuelCost() / statistic.getGallons());
-                statistic.setNetCpm(statistic.getBalance() / statistic.getMiles());
-                statistic.setOperatingCpm((statistic.getGross() - statistic.getBalance()) / statistic.getMiles());
+                statistic.setGross(settlement.getGross());
+                statistic.setMiles(Utils.miles(settlement));
+                statistic.setEmptyMiles(settlement.getEmptyMiles());
+                statistic.setLoadedMiles(settlement.getLoadedMiles());
+                statistic.setLoadedRate(settlement.getGross() / settlement.getLoadedMiles());
+                statistic.setGallons(settlement.getDieselGallons());
+                statistic.setFuelCost(settlement.getFuelCost());
+                statistic.setFuelPrice(settlement.getFuelCost() / settlement.getDieselGallons());
+                statistic.setNetCpm(settlement.getBalance() / Utils.miles(settlement));
+                statistic.setOperatingCpm((settlement.getGross() - settlement.getBalance()) / Utils.miles(settlement));
                 statistics.add(statistic);
             }
             statistics.sort(Comparator.comparingLong(Statistic::getId));
             if (!statistics.isEmpty()) {
                 ArrayList<AverageItem> averages = new ArrayList<>();
                 double[] balances = new double[statistics.size()];
-                int[] gross = new int[statistics.size()];
+                double[] gross = new double[statistics.size()];
                 int[] miles = new int[statistics.size()];
+                int[] emptyMiles = new int[statistics.size()];
+                int[] loadedMiles = new int[statistics.size()];
                 double[] gallons = new double[statistics.size()];
-                double[] fuelCosts = new double[statistics.size()];
                 double[] loadedRate = new double[statistics.size()];
+                double[] fuelCost = new double[statistics.size()];
                 for (int i = 0; i < statistics.size(); i++) {
                     Statistic statistic = statistics.get(i);
                     balances[i] = statistic.getBalance();
                     gross[i] = statistic.getGross();
                     miles[i] = statistic.getMiles();
                     gallons[i] = statistic.getGallons();
-                    fuelCosts[i] = statistic.getFuelCost();
                     loadedRate[i] = statistic.getLoadedRate();
+                    emptyMiles[i] = statistic.getEmptyMiles();
+                    loadedMiles[i] = statistic.getLoadedMiles();
+                    fuelCost[i] = statistic.getFuelCost();
                 }
+                double totalGross = Arrays.stream(gross).sum();
+                double totalFuel = Arrays.stream(fuelCost).sum();
                 double avgBalance = Utils.avg(balances);
-                int avgGross = Utils.avg(gross);
+                double avgGross = Utils.avg(gross);
                 int avgMiles = Utils.avg(miles);
+                int avgEmptyMiles = Utils.avg(emptyMiles);
+                int avgLoadedMiles = Utils.avg(loadedMiles);
                 double avgGallons = Utils.avg(gallons);
-                double fuelCost = Utils.avg(fuelCosts);
+                double avgFuelCost = Utils.avg(fuelCost);
                 double avgRate = Utils.avg(loadedRate);
-                averages.add(new AverageItem("Miles", Utils.formatInt(avgMiles)));
-                averages.add(new AverageItem("Loaded Rate", Utils.formatValueToCurrency(avgRate)));
-                averages.add(new AverageItem("Gross Revenue", "$" + Utils.formatInt(avgGross)));
+                averages.add(new AverageItem("YTD", statistics.size() + " RECORDS", "AVERAGE"));
+                averages.add(new AverageItem("Gross Revenue", "$" + Utils.formatDoubleWhole(avgGross)));
                 averages.add(new AverageItem("Net Balance", "$" + Utils.formatInt((int) avgBalance)));
                 averages.add(new AverageItem("Net CPM", Utils.formatValueToCurrency(avgBalance / avgMiles)));
+                averages.add(new AverageItem("Total Miles", Utils.formatInt(avgMiles) + " m"));
+                averages.add(new AverageItem("Empty Miles", Utils.formatInt(avgEmptyMiles) + " m"));
+                averages.add(new AverageItem("Loaded Miles", Utils.formatInt(avgLoadedMiles) + " m"));
+                averages.add(new AverageItem("Loaded Rate", Utils.formatValueToCurrency(avgRate)));
                 averages.add(new AverageItem("Operating CPM", Utils.formatValueToCurrency((avgGross - avgBalance) / avgMiles)));
-                averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(fuelCost)));
-                averages.add(new AverageItem("Gallons", String.valueOf(Utils.formatDouble(avgGallons))));
-                averages.add(new AverageItem("Fuel Price", Utils.formatValueToCurrency(fuelCost / avgGallons)));
+                averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(avgFuelCost)));
+                averages.add(new AverageItem("Gallons", Utils.formatDoubleWhole(avgGallons) + " g"));
+                averages.add(new AverageItem("Fuel Price", Utils.formatValueToCurrency(avgFuelCost / avgGallons) + " g"));
                 binding.averages.setAdapter(new RecycleAdapter(averages));
-                binding.annual.setText("Estimated Annual Income $" + Utils.formatInt((int) avgBalance * 52));
+                binding.annual.setText("Total Revenue: $" + Utils.formatDoubleWhole(totalGross) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrency(totalFuel));
+                binding.annual.setText(binding.annual.getText() + "\n" + "Estimated Annual Profit: $" + Utils.formatInt((int) avgBalance * 50) + " (50 Weeks)");
             }
         });
     }
+
     private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> {
         ArrayList<AverageItem> averages;
 
@@ -138,8 +153,19 @@ public class FragmentStatistics extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecycleAdapter.viewHolder holder, int position) {
+            if (position == 0) {
+                holder.title.setPaintFlags(holder.title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                holder.content.setPaintFlags(holder.content.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                holder.extra.setPaintFlags(holder.content.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            } else {
+                holder.title.setTypeface(Typeface.DEFAULT);
+                holder.content.setTypeface(Typeface.DEFAULT);
+                holder.extra.setTypeface(Typeface.DEFAULT);
+            }
             holder.title.setText(averages.get(position).getTitle());
             holder.content.setText(averages.get(position).getContent());
+            holder.extra.setText(averages.get(position).getExtra());
+
         }
 
         @Override
@@ -148,12 +174,13 @@ public class FragmentStatistics extends Fragment {
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
-            final TextView title, content;
+            final TextView title, content, extra;
 
             viewHolder(View itemView) {
                 super(itemView);
                 title = itemView.findViewById(R.id.title);
                 content = itemView.findViewById(R.id.content);
+                extra = itemView.findViewById(R.id.extra);
             }
         }
     }

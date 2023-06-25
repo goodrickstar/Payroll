@@ -1,4 +1,5 @@
 package com.glass.payroll;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -13,7 +14,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.HapticFeedbackConstants;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -311,13 +311,13 @@ public class MainActivity extends AppCompatActivity implements MI {
         profileName = headerLayout.findViewById(R.id.profile_name);
         email = headerLayout.findViewById(R.id.email_tv);
         profileView.setOnClickListener(view -> {
-            vibrate(profileView);
+            Utils.vibrate(profileView);
             if (user != null) {
                 signOut();
             } else signIn();
         });
         navigationView.setNavigationItemSelectedListener(menuItem -> {
-            vibrate(navigationView);
+            Utils.vibrate(navigationView);
             handleMenuNavigation(menuItem, true, true);
             return true;
         });
@@ -330,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements MI {
 
     @Override
     public void handleMenuNavigation(MenuItem menuItem, boolean close, boolean physical) {
-        if (physical) vibrate(drawerLayout);
+        if (physical) Utils.vibrate(drawerLayout);
         if (close && drawerLayout.isDrawerOpen(Gravity.LEFT)) drawerLayout.closeDrawers();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -526,11 +526,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         textView.setTextColor(Color.WHITE);
         snackbar.show();
     }
-
-    public void vibrate(View view) {
-        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
-    }
-
     @Override
     public void newLoad(Load load, int index) {
         NewLoadFragment fi = new NewLoadFragment();

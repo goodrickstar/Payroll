@@ -3,6 +3,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (error) return;
         int odometer = parseInt(binding.odometer.getText());
         fuel.setOdometer(odometer);
+        Log.i("Fuel", String.valueOf(Utils.parseDouble(binding.fuelPrice.getText())));
         fuel.setFuelPrice(Utils.parseDouble(binding.fuelPrice.getText()));
         fuel.setGallons(Utils.parseDouble(binding.gallons.getText()));
         fuel.setCost(fuel.getFuelPrice() * fuel.getGallons());
@@ -52,6 +54,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         } else {
             settlement.getFuel().set(index, fuel);
         }
+        Log.i("Fuel", new Gson().toJson(settlement));
         model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
         if (MainActivity.truck != null && !editing)
             model.add(MainActivity.truck);
@@ -103,8 +106,8 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
         binding.gps.setOnClickListener(this);
-        binding.fuelPrice.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(1, 2, 10)});
-        binding.gallons.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 2, 300)});
+        binding.fuelPrice.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(1, 3, 10)});
+        binding.gallons.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 300)});
         binding.odometer.setFilters(Utils.inputFilter());
         if (editing) {
             binding.title.setText("Edit Fuel Entry");
@@ -113,7 +116,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             if (fuel.getCost() != 0)
                 binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(fuel.getCost(), true));
             if (fuel.getFuelPrice() != 0)
-                binding.fuelPrice.setText(Utils.formatValueToCurrency(fuel.getFuelPrice(), false));
+                binding.fuelPrice.setText(String.valueOf(fuel.getFuelPrice()));
             if (fuel.getGallons() != 0)
                 binding.gallons.setText(Utils.formatValueToCurrency(fuel.getGallons(), false));
             if (fuel.getOdometer() != 0)

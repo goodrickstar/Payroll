@@ -58,7 +58,9 @@
                 android:id="@+id/truck_recycler"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -70,11 +72,10 @@
                 android:layout_width="@dimen/large_icon_size"
                 android:layout_height="@dimen/large_icon_size"
                 android:layout_marginStart="32dp"
-                android:src="@drawable/fuel_w"
+                android:src="@drawable/rounded_truck"
                 app:layout_constraintBottom_toBottomOf="@+id/truck_title"
                 app:layout_constraintStart_toStartOf="@+id/truck_title"
-                app:layout_constraintTop_toTopOf="@+id/truck_title"
-                app:srcCompat="@drawable/rounded_truck" />
+                app:layout_constraintTop_toTopOf="@+id/truck_title"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -119,7 +120,9 @@
                 android:id="@+id/trailer_recycler"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -130,11 +133,10 @@
                 android:layout_width="@dimen/large_icon_size"
                 android:layout_height="@dimen/large_icon_size"
                 android:layout_marginStart="32dp"
-                android:src="@drawable/fuel_w"
-                app:layout_constraintBottom_toBottomOf="@+id/title"
+                android:src="@drawable/trailer_icon"
+                app:layout_constraintBottom_toBottomOf="@+id/trailer_title"
                 app:layout_constraintStart_toStartOf="@+id/trailer_title"
-                app:layout_constraintTop_toTopOf="@+id/title"
-                app:srcCompat="@drawable/trailer_icon" />
+                app:layout_constraintTop_toTopOf="@+id/trailer_title" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

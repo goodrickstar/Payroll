@@ -108,10 +108,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginStart="8dp"
                 android:background="@null"
                 android:ems="3"
-                android:gravity="center"
+                android:gravity="start|left"
                 android:hint="3.23"
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
@@ -119,7 +118,7 @@
                 android:nextFocusDown="@id/gallons"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView13"
                 app:layout_constraintTop_toBottomOf="@+id/textView12" />
 
             <EditText
