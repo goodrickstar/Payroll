@@ -29,11 +29,10 @@
         android:layout_height="@dimen/large_icon_size"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/statistics"
-        android:src="@drawable/records_white"
+        android:src="@drawable/statistics_w"
         app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintStart_toStartOf="@+id/title"
-        app:layout_constraintTop_toTopOf="@+id/title"
-        app:srcCompat="@drawable/records_white" />
+        app:layout_constraintTop_toTopOf="@+id/title" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/averages"

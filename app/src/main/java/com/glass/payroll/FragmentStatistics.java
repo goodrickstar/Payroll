@@ -111,29 +111,32 @@ public class FragmentStatistics extends Fragment {
                 }
                 double totalGross = Arrays.stream(gross).sum();
                 double totalFuel = Arrays.stream(fuelCost).sum();
-                double avgBalance = Utils.avg(balances);
-                double avgGross = Utils.avg(gross);
-                int avgMiles = Utils.avg(miles);
-                int avgEmptyMiles = Utils.avg(emptyMiles);
-                int avgLoadedMiles = Utils.avg(loadedMiles);
-                double avgGallons = Utils.avg(gallons);
-                double avgFuelCost = Utils.avg(fuelCost);
-                double avgRate = Utils.avg(loadedRate);
+                double totalMiles = Arrays.stream(miles).sum();
+                double totalProfit = Arrays.stream(balances).sum();
+                double avgBalance = Arrays.stream(balances).average().orElse(0.0);
+                double avgGross = Arrays.stream(gross).average().orElse(0.0);
+                double avgMiles = Arrays.stream(miles).average().orElse(0.0);
+                double avgEmptyMiles = Arrays.stream(emptyMiles).average().orElse(0.0);
+                double avgLoadedMiles = Arrays.stream(loadedMiles).average().orElse(0.0);
+                double avgGallons = Arrays.stream(gallons).average().orElse(0.0);
+                double avgFuelCost = Arrays.stream(fuelCost).average().orElse(0.0);
+                double avgRate = Arrays.stream(loadedRate).average().orElse(0.0);
                 averages.add(new AverageItem("YTD", statistics.size() + " RECORDS", "AVERAGE"));
                 averages.add(new AverageItem("Gross Revenue", "$" + Utils.formatDoubleWhole(avgGross)));
                 averages.add(new AverageItem("Net Balance", "$" + Utils.formatInt((int) avgBalance)));
                 averages.add(new AverageItem("Net CPM", Utils.formatValueToCurrency(avgBalance / avgMiles)));
-                averages.add(new AverageItem("Total Miles", Utils.formatInt(avgMiles) + " m"));
-                averages.add(new AverageItem("Empty Miles", Utils.formatInt(avgEmptyMiles) + " m"));
-                averages.add(new AverageItem("Loaded Miles", Utils.formatInt(avgLoadedMiles) + " m"));
+                averages.add(new AverageItem("All Miles", Utils.formatDouble(avgMiles) + " m"));
+                averages.add(new AverageItem("Empty Miles", Utils.formatDouble(avgEmptyMiles) + " m"));
+                averages.add(new AverageItem("Loaded Miles", Utils.formatDouble(avgLoadedMiles) + " m"));
                 averages.add(new AverageItem("Loaded Rate", Utils.formatValueToCurrency(avgRate)));
                 averages.add(new AverageItem("Operating CPM", Utils.formatValueToCurrency((avgGross - avgBalance) / avgMiles)));
                 averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(avgFuelCost)));
                 averages.add(new AverageItem("Gallons", Utils.formatDoubleWhole(avgGallons) + " g"));
                 averages.add(new AverageItem("Fuel Price", Utils.formatValueToCurrency(avgFuelCost / avgGallons) + " g"));
                 binding.averages.setAdapter(new RecycleAdapter(averages));
-                binding.annual.setText("Total Revenue: $" + Utils.formatDoubleWhole(totalGross) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrency(totalFuel));
-                binding.annual.setText(binding.annual.getText() + "\n" + "Estimated Annual Profit: $" + Utils.formatInt((int) avgBalance * 50) + " (50 Weeks)");
+                binding.annual.setText("Total Miles: " + Utils.formatDoubleWhole(totalMiles) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrency(totalFuel));
+                binding.annual.setText(Utils.addLine(binding.annual) + "Total Revenue: $" + Utils.formatDoubleWhole(totalGross) + "  |  " + "Total Net: " + Utils.formatValueToCurrency(totalProfit, true));
+                binding.annual.setText(Utils.addLine(binding.annual) + "Estimated Annual Profit: $" + Utils.formatInt((int) avgBalance * 50) + " (50 Weeks)");
             }
         });
     }
@@ -155,10 +158,12 @@ public class FragmentStatistics extends Fragment {
         public void onBindViewHolder(@NonNull RecycleAdapter.viewHolder holder, int position) {
             if (position == 0) {
                 holder.title.setPaintFlags(holder.title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                holder.title.setTypeface(null, Typeface.BOLD);
                 holder.content.setPaintFlags(holder.content.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                 holder.extra.setPaintFlags(holder.content.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
             } else {
                 holder.title.setTypeface(Typeface.DEFAULT);
+                holder.title.setTypeface(null, Typeface.NORMAL);
                 holder.content.setTypeface(Typeface.DEFAULT);
                 holder.extra.setTypeface(Typeface.DEFAULT);
             }
