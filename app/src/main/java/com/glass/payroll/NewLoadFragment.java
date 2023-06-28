@@ -10,8 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -80,8 +82,13 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.cost.setFilters(Utils.inputFilter());
         binding.emptyMiles.setFilters(Utils.inputFilter());
         binding.loadedMiles.setFilters(Utils.inputFilter());
+        binding.hazmat.setChecked(load.getHazmat());
+        binding.reefer.setChecked(load.getReefer());
+        final CompoundButton.OnCheckedChangeListener listener = (compoundButton, b) -> Utils.vibrate(compoundButton);
+        binding.hazmat.setOnCheckedChangeListener(listener);
+        binding.reefer.setOnCheckedChangeListener(listener);
         model.stats().observe(getViewLifecycleOwner(), stats -> {
-            if (stats != null){
+            if (stats != null) {
                 final double operatingCost = (stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles();
                 TextWatcher watcher = new TextWatcher() {
                     @Override
@@ -96,11 +103,11 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        if (!binding.emptyMiles.getText().toString().isEmpty() &&!binding.loadedMiles.getText().toString().isEmpty()){
+                        if (!binding.emptyMiles.getText().toString().isEmpty() && !binding.loadedMiles.getText().toString().isEmpty()) {
                             int emptyMiles = Utils.parseInt(binding.emptyMiles.getText());
                             int loadedMiles = Utils.parseInt(binding.loadedMiles.getText());
                             int miles = emptyMiles + loadedMiles;
-                            binding.totalMiles.setText("Total Miles: "+ Utils.formatInt(miles));
+                            binding.totalMiles.setText("Total Miles: " + Utils.formatInt(miles));
                             if (!binding.cost.getText().toString().isEmpty()) {
                                 int rate = Utils.parseInt(binding.cost.getText());
                                 binding.profit.setText("* Estimated Profit: " + Utils.formatValueToCurrency(rate - (miles * operatingCost)));
@@ -119,7 +126,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                     binding.cost.setText(String.valueOf(load.getRate()));
                     binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
                     binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-                    if (load.getWeight() != 0) binding.weight.setText(String.valueOf(load.getWeight()));
+                    if (load.getWeight() != 0)
+                        binding.weight.setText(String.valueOf(load.getWeight()));
                     binding.optionalNote.setText(load.getNote());
                 } else {
                     if (MI != null) {
@@ -132,7 +140,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                         }
                     }
                 }
-            }else Log.i("stats", "Stats was NULL");
+            } else Log.i("stats", "Stats was NULL");
         });
         binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
@@ -161,12 +169,12 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         load.setFrom(binding.location.getText().toString().trim());
         load.setTo(binding.locationB.getText().toString().trim());
         load.setNote(binding.optionalNote.getText().toString().trim());
-        if (!editing) {
+        load.setHazmat(binding.hazmat.isChecked());
+        load.setReefer(binding.reefer.isChecked());
+        if (!editing)
             settlement.getLoads().add(load);
-        } else {
-            settlement.getLoads().remove(index);
-            settlement.getLoads().add(index, load);
-        }
+        else
+            settlement.getLoads().set(index, load);
         model.add(Utils.sortLoads(Utils.calculate(settlement), Utils.getOrder(getContext(), "loads"), Utils.getSort(getContext(), "loads")));
         dismiss();
     }
