@@ -139,7 +139,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
             else holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
             holder.location.setText(fuel.getLocation());
-            holder.gallons.setText(Utils.formatDouble(fuel.getGallons()) + " gal @ $" + fuel.getFuelPrice());
+            holder.gallons.setText(Utils.formatDouble(fuel.getGallons(), 2) + " gal @ $" + fuel.getFuelPrice());
             holder.note.setText(fuel.getNote());
             if (fuel.getNote().equals("")) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);

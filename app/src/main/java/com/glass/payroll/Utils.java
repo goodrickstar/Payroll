@@ -82,11 +82,11 @@ class Utils {
             settlement.setMiscCost(settlement.getMiscCost() + cost.getCost());
         }
         settlement.setBalance(settlement.getGross() - (settlement.getPayoutCost() + settlement.getMaintenanceCost() + settlement.getFixedCost() + settlement.getMiscCost() + settlement.getFuelCost() + settlement.getDefCost()));
-        settlement.setBalance(formatDouble(settlement.getBalance()));
-        settlement.setFuelCost(formatDouble(settlement.getFuelCost()));
-        settlement.setDefCost(formatDouble(settlement.getDefCost()));
-        settlement.setMaintenanceCost(formatDouble(settlement.getMaintenanceCost()));
-        settlement.setPayoutCost(formatDouble(settlement.getPayoutCost()));
+        settlement.setBalance(formatDouble(settlement.getBalance(), 2));
+        settlement.setFuelCost(formatDouble(settlement.getFuelCost(), 2));
+        settlement.setDefCost(formatDouble(settlement.getDefCost(), 2));
+        settlement.setMaintenanceCost(formatDouble(settlement.getMaintenanceCost(), 2));
+        settlement.setPayoutCost(formatDouble(settlement.getPayoutCost(), 2));
         return settlement;
     }
 
@@ -323,9 +323,18 @@ class Utils {
         return formatInt((int) round(value));
     }
 
-    static double formatDouble(double value) {
-        return Double.parseDouble(new DecimalFormat("#.##").format(value));
-
+    static double formatDouble(double value, int digits) {
+        switch (digits){
+            case 0:
+                return Double.parseDouble(new DecimalFormat("#").format(value));
+            case 1:
+                return Double.parseDouble(new DecimalFormat("#.#").format(value));
+            case 2:
+                return Double.parseDouble(new DecimalFormat("#.##").format(value));
+            case 3:
+                return Double.parseDouble(new DecimalFormat("#.###").format(value));
+        }
+        return 0.0;
     }
 
     static int calculateDifference(long then, long now) {

@@ -136,7 +136,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             holder.from.setText(Utils.range(load.getStart(), load.getStop()));
             int miles = load.getEmpty() + load.getLoaded();
             if (load.getWeight() != 0)
-                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles) + "  | " + Utils.formatDouble(load.getWeight()) + "k lbs");
+                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles) + "  | " + Utils.formatDouble(load.getWeight(), 2) + "k lbs");
             else
                 holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles));
             holder.note.setText(load.getNote());

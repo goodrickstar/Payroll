@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +16,13 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewLoadBinding;
 import com.google.gson.Gson;
+
+import org.w3c.dom.Text;
 
 import java.util.Calendar;
 
@@ -75,28 +80,61 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.cost.setFilters(Utils.inputFilter());
         binding.emptyMiles.setFilters(Utils.inputFilter());
         binding.loadedMiles.setFilters(Utils.inputFilter());
-        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
-        if (editing) {
-            binding.title.setText("Edit Load");
-            binding.finish.setText("Update");
-            binding.location.setText(load.getFrom());
-            binding.locationB.setText(load.getTo());
-            binding.cost.setText(String.valueOf(load.getRate()));
-            binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
-            binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-            if (load.getWeight() != 0) binding.weight.setText(String.valueOf(load.getWeight()));
-            binding.optionalNote.setText(load.getNote());
-        } else {
-            if (MI != null) {
-                if (MI.locationPermission()) {
-                    String location = MI.returnLocation();
-                    if (!location.isEmpty()) {
-                        binding.location.setHint(location);
-                        binding.locationB.setHint(location);
+        model.stats().observe(getViewLifecycleOwner(), stats -> {
+            if (stats != null){
+                final double operatingCost = (stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles();
+                TextWatcher watcher = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (!binding.emptyMiles.getText().toString().isEmpty() &&!binding.loadedMiles.getText().toString().isEmpty()){
+                            int emptyMiles = Utils.parseInt(binding.emptyMiles.getText());
+                            int loadedMiles = Utils.parseInt(binding.loadedMiles.getText());
+                            int miles = emptyMiles + loadedMiles;
+                            binding.totalMiles.setText("Total Miles: "+ Utils.formatInt(miles));
+                            if (!binding.cost.getText().toString().isEmpty()) {
+                                int rate = Utils.parseInt(binding.cost.getText());
+                                binding.profit.setText("* Estimated Profit: " + Utils.formatValueToCurrency(rate - (miles * operatingCost)));
+                            }
+                        }
+                    }
+                };
+                binding.cost.addTextChangedListener(watcher);
+                binding.emptyMiles.addTextChangedListener(watcher);
+                binding.loadedMiles.addTextChangedListener(watcher);
+                if (editing) {
+                    binding.title.setText("Edit Load");
+                    binding.finish.setText("Update");
+                    binding.location.setText(load.getFrom());
+                    binding.locationB.setText(load.getTo());
+                    binding.cost.setText(String.valueOf(load.getRate()));
+                    binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
+                    binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
+                    if (load.getWeight() != 0) binding.weight.setText(String.valueOf(load.getWeight()));
+                    binding.optionalNote.setText(load.getNote());
+                } else {
+                    if (MI != null) {
+                        if (MI.locationPermission()) {
+                            String location = MI.returnLocation();
+                            if (!location.isEmpty()) {
+                                binding.location.setHint(location);
+                                binding.locationB.setHint(location);
+                            }
+                        }
                     }
                 }
-            }
-        }
+            }else Log.i("stats", "Stats was NULL");
+        });
+        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
         model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber.setText(String.valueOf(truck.getId())));
         model.trailer().observe(getViewLifecycleOwner(), trailer -> binding.trailerNumber.setText(String.valueOf(trailer.getId())));
@@ -258,4 +296,5 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 break;
         }
     }
+
 }

@@ -193,6 +193,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView17" />
 
+            <TextView
+                android:id="@+id/profit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                app:layout_constraintStart_toStartOf="@+id/location_b"
+                app:layout_constraintTop_toBottomOf="@+id/location_b" />
+
             <EditText
                 android:id="@+id/weight"
                 android:layout_width="0dp"
@@ -353,9 +362,10 @@
                 android:text="@string/agreed_rate"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/location_b" />
+                app:layout_constraintTop_toBottomOf="@+id/profit" />
 
             <TextView
+                android:id="@+id/totalMiles"
                 android:layout_width="wrap_content"
                 android:layout_height="19dp"
                 android:layout_marginStart="8dp"
