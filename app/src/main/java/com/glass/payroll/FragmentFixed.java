@@ -126,6 +126,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         @Override
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
             Cost row = settlement.getFixed().get(position);
+            holder.cost.setTextColor(Color.RED);
             holder.label.setText(row.getLabel());
             holder.cost.setText(Utils.formatValueToCurrency(row.getCost(), true));
         }

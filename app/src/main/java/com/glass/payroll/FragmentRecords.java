@@ -1,10 +1,14 @@
 package com.glass.payroll;
+
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 public class FragmentRecords extends Fragment {
     private MI MI;
@@ -53,6 +58,11 @@ public class FragmentRecords extends Fragment {
             model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
                 FragmentRecords.this.settlements = settlements;
                 adapter.notifyDataSetChanged();
+                int index = -1;
+                for (int x = 0; x < settlements.size(); x++) {
+                    if (settlements.get(x).getId() == settlement.getId()) index = x;
+                }
+                if (index != -1) binding.recycler.expandGroup(index);
             });
         });
 
@@ -104,7 +114,7 @@ public class FragmentRecords extends Fragment {
 
         @Override
         public boolean hasStableIds() {
-            return false;
+            return true;
         }
 
         @Override
@@ -118,15 +128,16 @@ public class FragmentRecords extends Fragment {
                 holder = (GroupViewHolder) view.getTag();
             }
             Settlement settlement = getGroup(i);
-            String weekString = "Week " + settlement.getWeek();
             if (settlement.getId() == (FragmentRecords.this.settlement.getId()))
-                weekString = weekString + " (current)";
-            holder.average.setText(weekString);
+                holder.eye.setVisibility(View.VISIBLE);
+            else holder.eye.setVisibility(View.INVISIBLE);
+            holder.average.setText("Week " + settlement.getWeek());
             holder.date.setText(Utils.range(settlement.getStart(), settlement.getStop()));
             holder.miles.setText(Utils.formatInt(settlement.getEmptyMiles() + settlement.getLoadedMiles()) + "m");
-            holder.balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
+            holder.balance.setText(Utils.formatValueToCurrencyWhole(settlement.getBalance()));
+            if (settlement.getBalance() < 0) holder.balance.setTextColor(Color.RED);
+            else holder.balance.setTextColor(Color.WHITE);
             calendar.setTimeInMillis(settlement.getStart());
-            //holder.average.setText(Utils.formatDoubleToCurrency((double) settlement.getBalance() / settlement.getMiles()) + " cpm");
             return view;
         }
 
@@ -144,7 +155,12 @@ public class FragmentRecords extends Fragment {
             holder.delete.setTag(settlement);
             holder.edit.setTag(settlement);
             holder.delete.setOnClickListener(this);
-            holder.edit.setOnClickListener(this);
+            if (settlement.getId() == FragmentRecords.this.settlement.getId()) {
+                holder.edit.setVisibility(View.INVISIBLE);
+            } else {
+                holder.edit.setVisibility(View.VISIBLE);
+                holder.edit.setOnClickListener(this);
+            }
             int grossRevenue = 0;
             int loadedMiles = 0;
             int emptyMiles = 0;
@@ -156,8 +172,12 @@ public class FragmentRecords extends Fragment {
             holder.grossRevenue.setText("Gross Revenue: $" + Utils.formatInt(grossRevenue));
             holder.loadedMiles.setText("Loaded Miles: " + Utils.formatInt(loadedMiles));
             holder.emptyMiles.setText("Empty Miles: " + Utils.formatInt(emptyMiles));
-            holder.loadedRate.setText("Loaded Rate: " + Utils.formatValueToCurrency((double) grossRevenue / loadedMiles));
-            holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency(settlement.getBalance() / (settlement.getEmptyMiles() + settlement.getLoadedMiles())));
+            if (settlement.getGross() > 0 && settlement.getLoadedMiles() > 0)
+                holder.loadedRate.setText("Loaded Rate: " + Utils.formatValueToCurrency((double) grossRevenue / loadedMiles));
+            else holder.loadedRate.setText("Loaded Rate: 0");
+            if (settlement.getBalance() > 0 && settlement.getLoadedMiles() > 0 && settlement.getEmptyMiles() > 0)
+                holder.netRate.setText("Net CPM: " + Utils.formatValueToCurrency(settlement.getBalance() / (settlement.getEmptyMiles() + settlement.getLoadedMiles())));
+            else holder.netRate.setText("Net CPM: 0");
             holder.loads.setText("Loads: " + Utils.formatInt(settlement.getLoads().size()));
             return view;
         }
@@ -190,12 +210,15 @@ public class FragmentRecords extends Fragment {
             final TextView miles;
             final TextView average;
 
+            final ImageView eye;
+
             GroupViewHolder(View itemView) {
                 super(itemView);
                 date = itemView.findViewById(R.id.date);
                 balance = itemView.findViewById(R.id.balance);
                 miles = itemView.findViewById(R.id.miles);
                 average = itemView.findViewById(R.id.avg);
+                eye = itemView.findViewById(R.id.eyeball);
             }
         }
 

@@ -1,4 +1,5 @@
 package com.glass.payroll;
+
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.widget.DatePicker;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewSettlementBinding;
 
@@ -21,6 +24,9 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     private int mode = 0;
     private MI MI;
     private FragmentNewSettlementBinding binding;
+
+    private MainViewModel model;
+
     public NewSettlementFragment() {
     }
 
@@ -35,6 +41,7 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.floating);
+        model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
     }
 
     @Override
@@ -52,18 +59,9 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
         binding.stopLayout.setOnClickListener(this);
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
-        if (settlement.getStart() != 0) {
-            calendar.setTimeInMillis(settlement.getStart());
-            int startOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.DAY_OF_WEEK, startOfWeek);
-            setCalendarToDayEdge(calendar, true);
-            settlement.setStart(calendar.getTimeInMillis());
-            calendar.add(Calendar.DAY_OF_YEAR, 6);
-            setCalendarToDayEdge(calendar, false);
-            settlement.setStop(calendar.getTimeInMillis());
-        } else {
-            calendar.setTimeInMillis(System.currentTimeMillis());
+        model.getMostRecentEndingDate().observe(getViewLifecycleOwner(), mostRecent -> {
+            calendar.setTimeInMillis(mostRecent);
+            calendar.add(Calendar.DAY_OF_WEEK, 1);
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
             setCalendarToDayEdge(calendar, true);
             settlement.setStart(calendar.getTimeInMillis());
@@ -71,8 +69,9 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
             setCalendarToDayEdge(calendar, false);
             settlement.setStop(calendar.getTimeInMillis());
             calendar.setTimeInMillis(System.currentTimeMillis());
-        }
-        updateUi();
+            setCalendarToDayEdge(calendar, true);
+            updateUi();
+        });
     }
 
     private void setCalendarToDayEdge(Calendar calendar, boolean beginning) {

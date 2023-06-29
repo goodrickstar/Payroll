@@ -50,12 +50,12 @@
     <string name="description">Description</string>
     <string name="cost">Cost</string>
     <string name="item_label">Item Label</string>
-    <string name="fixed_note">Include expenses that reacur such as equipment, insurance, etc</string>
-    <string name="misc_note">include one-time expenses such as washes, scales, tolls, etc</string>
+    <string name="fixed_note">Include reoccurring expenses such as equipment, insurance, etc</string>
+    <string name="misc_note">Include one-time expenses such as washes, scales, tolls, etc</string>
     <string name="settlement_records">Settlement Records</string>
     <string name="statistics">Statistics &amp; Data</string>
     <string name="update_odometer">Update Odometer</string>
-    <string name="payout_info">*Setup both the percentage of gross and/or cents per mile to be paid to the carrier and towards maintinence</string>
+    <string name="payout_info">*Setup both the percentage of gross and/or cents per mile to be paid to the carrier and towards maintenance</string>
     <string name="def_entries_are_independant_and_should_not_include_diesel">*DEF entries are independent and should not include diesel</string>
     <string name="def">DEF</string>
     <string name="pct">PCT:</string>

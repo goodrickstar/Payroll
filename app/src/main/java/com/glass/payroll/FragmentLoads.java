@@ -1,4 +1,5 @@
 package com.glass.payroll;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+
 public class FragmentLoads extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
@@ -89,8 +91,8 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
                 binding.total.setText("Total: " + Utils.formatValueToCurrencyWhole(settlement.getGross()) + " (" + formatInt(Utils.miles(settlement)) + " miles @ " + Utils.formatValueToCurrency(settlement.getGross() / Utils.miles(settlement)) + ")");
                 binding.total2.setText("Loaded Rate: " + Utils.formatValueToCurrency(settlement.getGross() / settlement.getLoadedMiles(), true));
                 binding.total2.setText(binding.total2.getText() + "  |  Net CPM: " + Utils.formatValueToCurrency(settlement.getBalance() / Utils.miles(settlement), true));
-            }else{
-                binding.total.setText("");
+            } else {
+                binding.total.setText("Include loads and TONU's");
                 binding.total2.setText("");
             }
         });
@@ -135,10 +137,19 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             holder.rate.setText("$" + load.getRate());
             holder.from.setText(Utils.range(load.getStart(), load.getStop()));
             int miles = load.getEmpty() + load.getLoaded();
-            if (load.getWeight() != 0)
-                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles) + "  | " + Utils.formatDouble(load.getWeight(), 2) + "k lbs");
-            else
-                holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles));
+            if (load.getWeight() != 0) {
+                if (load.getTonu()) {
+                    holder.miles.setText("TONU  | " + Utils.formatDouble(load.getWeight(), 2) + "k lbs");
+                } else {
+                    holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles) + "  | " + Utils.formatDouble(load.getWeight(), 2) + "k lbs");
+                }
+            } else {
+                if (load.getTonu()) {
+                    holder.miles.setText("TONU");
+                }else{
+                    holder.miles.setText(formatInt(miles) + " miles @ " + Utils.formatValueToCurrency((double) load.getRate() / miles));
+                }
+            }
             holder.note.setText(load.getNote());
             if (TextUtils.isEmpty(load.getNote())) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);
@@ -166,6 +177,7 @@ public class FragmentLoads extends Fragment implements View.OnClickListener {
             }
         }
     }
+
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private Drawable icon;
         private final RecycleAdapter adapter;

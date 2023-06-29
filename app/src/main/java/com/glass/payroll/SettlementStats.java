@@ -5,37 +5,79 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import java.util.Arrays;
+import com.google.firebase.database.annotations.NotNull;
 
 @Entity(tableName = "user_stats")
 public class SettlementStats {
     public SettlementStats() {
     }
 
-    @PrimaryKey
-            @NonNull
+    @PrimaryKey @NonNull
     String userId;
 
     double totalGross = 0.0;
     double totalFuel = 0.0;
     double totalMiles = 0.0;
     double totalProfit = 0.0;
-    double totalGallons = 0.0;
+    double totalDieselGallons = 0.0;
+    double totalDefGallons = 0.0;
     double avgBalance = 0.0;
     double avgGross = 0.0;
     double avgMiles = 0.0;
     double avgEmptyMiles = 0.0;
     double avgLoadedMiles = 0.0;
-    double avgGallons = 0.0;
+    double avgDieselGallons = 0.0;
+    double avgDefGallons = 0.0;
     double avgFuelCost = 0.0;
-    double avgRate = 0.0;
+    double avgGeneralRate = 0.0;
+    double avgHazmatRate = 0.0;
+    double avgReeferRate = 0.0;
+    double avgHazmatAndReeferRate = 0.0;
 
+    @Ignore
     public SettlementStats(String userId) {
         this.userId = userId;
     }
 
-    @Ignore
+    public double getTotalDefGallons() {
+        return totalDefGallons;
+    }
 
+    public void setTotalDefGallons(double totalDefGallons) {
+        this.totalDefGallons = totalDefGallons;
+    }
+
+    public double getAvgDefGallons() {
+        return avgDefGallons;
+    }
+
+    public void setAvgDefGallons(double avgDefGallons) {
+        this.avgDefGallons = avgDefGallons;
+    }
+
+    public double getAvgHazmatRate() {
+        return avgHazmatRate;
+    }
+
+    public void setAvgHazmatRate(double avgHazmatRate) {
+        this.avgHazmatRate = avgHazmatRate;
+    }
+
+    public double getAvgReeferRate() {
+        return avgReeferRate;
+    }
+
+    public void setAvgReeferRate(double avgReeferRate) {
+        this.avgReeferRate = avgReeferRate;
+    }
+
+    public double getAvgHazmatAndReeferRate() {
+        return avgHazmatAndReeferRate;
+    }
+
+    public void setAvgHazmatAndReeferRate(double avgHazmatAndReeferRate) {
+        this.avgHazmatAndReeferRate = avgHazmatAndReeferRate;
+    }
 
     public double getTotalGross() {
         return totalGross;
@@ -69,12 +111,12 @@ public class SettlementStats {
         this.totalProfit = totalProfit;
     }
 
-    public double getTotalGallons() {
-        return totalGallons;
+    public double getTotalDieselGallons() {
+        return totalDieselGallons;
     }
 
-    public void setTotalGallons(double totalGallons) {
-        this.totalGallons = totalGallons;
+    public void setTotalDieselGallons(double totalDieselGallons) {
+        this.totalDieselGallons = totalDieselGallons;
     }
 
     public double getAvgBalance() {
@@ -117,12 +159,12 @@ public class SettlementStats {
         this.avgLoadedMiles = avgLoadedMiles;
     }
 
-    public double getAvgGallons() {
-        return avgGallons;
+    public double getAvgDieselGallons() {
+        return avgDieselGallons;
     }
 
-    public void setAvgGallons(double avgGallons) {
-        this.avgGallons = avgGallons;
+    public void setAvgDieselGallons(double avgDieselGallons) {
+        this.avgDieselGallons = avgDieselGallons;
     }
 
     public double getAvgFuelCost() {
@@ -133,11 +175,11 @@ public class SettlementStats {
         this.avgFuelCost = avgFuelCost;
     }
 
-    public double getAvgRate() {
-        return avgRate;
+    public double getAvgGeneralRate() {
+        return avgGeneralRate;
     }
 
-    public void setAvgRate(double avgRate) {
-        this.avgRate = avgRate;
+    public void setAvgGeneralRate(double avgGeneralRate) {
+        this.avgGeneralRate = avgGeneralRate;
     }
 }

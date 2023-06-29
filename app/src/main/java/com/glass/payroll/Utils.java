@@ -36,7 +36,7 @@ import java.util.Locale;
 
 class Utils {
 
-    static Settlement calculate(@NonNull Settlement settlement) {
+    static Settlement calculate(Settlement settlement) {
         settlement.setGross(0);
         settlement.setFuelCost(0);
         settlement.setDefCost(0);
@@ -148,7 +148,7 @@ class Utils {
         }
     }
 
-    static void gotoPlayStore(@NonNull Activity activity) {
+    static void gotoPlayStore(Activity activity) {
         try {
             activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + activity.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
         } catch (ActivityNotFoundException e) {
@@ -156,29 +156,39 @@ class Utils {
         }
     }
 
-    static double avg(@NonNull double[] array) {
+    static double avgDouble(ArrayList<Double> array) {
+        if (array.isEmpty()) return 0.0;
+        return sumDouble(array) / array.size();
+    }
+
+    static double sumDouble(ArrayList<Double> array){
         double total = 0.0;
-        for (double i : array) {
+        for (Double i : array) {
             total += i;
         }
-        return total / array.length;
+        return total;
     }
 
-    static int avg(@NonNull int[] array) {
-        int total = 0;
-        for (int i : array) {
+    static double avgInt(ArrayList<Integer> array) {
+        if (array.isEmpty()) return 0.0;
+        return sumInt(array) / array.size();
+    }
+
+    static double sumInt(ArrayList<Integer> array){
+        double total = 0.0;
+        for (Integer i : array) {
             total += i;
         }
-        return total / array.length;
+        return total;
     }
 
-    static void showKeyboard(@NonNull Context context, @NonNull final EditText ettext) {
+    static void showKeyboard(Context context, final EditText ettext) {
         InputMethodManager methodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         ettext.requestFocus();
         ettext.postDelayed(() -> methodManager.showSoftInput(ettext, 0), 200);
     }
 
-    static int getVersion(@NonNull Context context) {
+    static int getVersion(Context context) {
         int version = 0;
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo("com.glass.payroll", PackageManager.GET_META_DATA);
@@ -230,7 +240,7 @@ class Utils {
         }};
     }
 
-    static Settlement sortFuel(@NonNull Settlement settlement, boolean order, boolean sort) {
+    static Settlement sortFuel(Settlement settlement, boolean order, boolean sort) {
         settlement.getFuel().sort((one, two) -> {
             if (!sort) {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
@@ -243,7 +253,7 @@ class Utils {
         return settlement;
     }
 
-    static Settlement sortLoads(@NonNull Settlement settlement, boolean order, boolean sort) {
+    static Settlement sortLoads(Settlement settlement, boolean order, boolean sort) {
         settlement.getLoads().sort((one, two) -> {
             if (!sort) {
                 if (!order) return Long.compare(one.getStart(), two.getStart());
@@ -256,7 +266,7 @@ class Utils {
         return settlement;
     }
 
-    static Settlement sortFixed(@NonNull Settlement settlement, boolean order, boolean sort) {
+    static Settlement sortFixed(Settlement settlement, boolean order, boolean sort) {
         settlement.getFixed().sort((one, two) -> {
             if (!sort) {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
@@ -269,7 +279,7 @@ class Utils {
         return settlement;
     }
 
-    static Settlement sortMiscellaneous(@NonNull Settlement settlement, boolean order, boolean sort) {
+    static Settlement sortMiscellaneous(Settlement settlement, boolean order, boolean sort) {
         settlement.getMiscellaneous().sort((one, two) -> {
             if (!sort) {
                 if (!order) return Long.compare(one.getStamp(), two.getStamp());
@@ -282,19 +292,19 @@ class Utils {
         return settlement;
     }
 
-    static boolean getOrder(@NonNull Context context, String key) {
+    static boolean getOrder(Context context, String key) {
         return context.getSharedPreferences("order", Context.MODE_PRIVATE).getBoolean(key, false);
     }
 
-    static void setOrder(@NonNull Context context, String key, boolean checked) {
+    static void setOrder(Context context, String key, boolean checked) {
         context.getSharedPreferences("order", Context.MODE_PRIVATE).edit().putBoolean(key, checked).apply();
     }
 
-    static boolean getSort(@NonNull Context context, String key) {
+    static boolean getSort(Context context, String key) {
         return context.getSharedPreferences("sort", Context.MODE_PRIVATE).getBoolean(key, false);
     }
 
-    static void setSort(@NonNull Context context, String key, boolean checked) {
+    static void setSort(Context context, String key, boolean checked) {
         context.getSharedPreferences("sort", Context.MODE_PRIVATE).edit().putBoolean(key, checked).apply();
     }
 
@@ -400,4 +410,8 @@ class Utils {
         return textView.getText() + "\n";
     }
 
+    public static double loadedRate(Load load) {
+        if (load.getLoaded() == 0) return 0;
+        else return load.getRate()/ load.getLoaded();
+    }
 }

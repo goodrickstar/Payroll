@@ -43,4 +43,7 @@ public interface DaoSettlements {
 
     @Query("UPDATE settlement_records SET stamp = :stamp WHERE id = :settlementId")
     void setStamp(long settlementId, long stamp);
+
+    @Query("SELECT stop FROM settlement_records WHERE userId = :uid ORDER BY stop DESC LIMIT 1")
+    LiveData<Long> getMostRecentEndingDate(String uid);
 }

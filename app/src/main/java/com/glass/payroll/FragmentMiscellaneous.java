@@ -121,6 +121,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
             Cost cost = settlement.getMiscellaneous().get(position);
             holder.location.setText(cost.getLabel());
+            holder.cost.setTextColor(Color.RED);
             holder.cost.setText(Utils.formatValueToCurrency(cost.getCost(), true));
             holder.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
             holder.gallons.setText(cost.getLocation());

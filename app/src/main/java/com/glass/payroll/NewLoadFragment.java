@@ -84,9 +84,11 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.loadedMiles.setFilters(Utils.inputFilter());
         binding.hazmat.setChecked(load.getHazmat());
         binding.reefer.setChecked(load.getReefer());
+        binding.tonu.setChecked(load.getTonu());
         final CompoundButton.OnCheckedChangeListener listener = (compoundButton, b) -> Utils.vibrate(compoundButton);
         binding.hazmat.setOnCheckedChangeListener(listener);
         binding.reefer.setOnCheckedChangeListener(listener);
+        binding.tonu.setOnCheckedChangeListener(listener);
         model.stats().observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
                 final double operatingCost = (stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles();
@@ -171,6 +173,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         load.setNote(binding.optionalNote.getText().toString().trim());
         load.setHazmat(binding.hazmat.isChecked());
         load.setReefer(binding.reefer.isChecked());
+        load.setTonu(binding.tonu.isChecked());
         if (!editing)
             settlement.getLoads().add(load);
         else

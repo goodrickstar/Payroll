@@ -34,6 +34,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -78,6 +79,7 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity implements MI {
     static final String SITE_URL = "http://23.111.159.2/~payroll/";
     static final OkHttpClient client = new OkHttpClient();
@@ -163,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements MI {
                         MainActivity.this.settlement = settlement;
                         if (MainActivity.this.settlement != null)
                             balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
+                        if (settlement.getBalance() > 0) balance.setTextColor(Color.WHITE);
+                        else balance.setTextColor(Color.RED);
                         if (handle)
                             handleSettlementData();
                         preferences.edit().putString("zero", gson.toJson(settlement)).apply();
@@ -526,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         textView.setTextColor(Color.WHITE);
         snackbar.show();
     }
+
     @Override
     public void newLoad(Load load, int index) {
         NewLoadFragment fi = new NewLoadFragment();

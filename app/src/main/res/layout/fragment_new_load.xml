@@ -22,7 +22,8 @@
         android:paddingBottom="@dimen/common_margin"
         android:text="@string/new_load_entry"
         android:textColor="@color/colorText"
-        android:textSize="@dimen/title_text_size" />
+        android:textSize="@dimen/title_text_size"
+        tools:ignore="TextSizeCheck" />
 
     <TextView
         android:id="@+id/date"
@@ -57,6 +58,7 @@
                 android:background="@drawable/custom_edit_text"
                 android:ems="10"
                 android:hint="@string/location_a"
+                android:importantForAutofill="no"
                 android:inputType="textAutoCorrect|textCapWords"
                 android:nextFocusDown="@id/location_b"
                 android:padding="@dimen/common_margin"
@@ -64,7 +66,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/gpsA"
                 app:layout_constraintStart_toStartOf="@+id/textView9"
                 app:layout_constraintTop_toBottomOf="@+id/textView9"
-                android:importantForAutofill="no" />
+                tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize" />
 
             <EditText
                 android:id="@+id/location_b"
@@ -76,6 +78,7 @@
                 android:background="@drawable/custom_edit_text"
                 android:ems="10"
                 android:hint="@string/location_b"
+                android:importantForAutofill="no"
                 android:inputType="textAutoCorrect|textCapWords"
                 android:nextFocusDown="@id/cost"
                 android:padding="@dimen/common_margin"
@@ -83,7 +86,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/gpsB"
                 app:layout_constraintStart_toStartOf="@+id/textView9"
                 app:layout_constraintTop_toBottomOf="@+id/textView10"
-                android:importantForAutofill="no" />
+                tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
 
             <EditText
                 android:id="@+id/cost"
@@ -95,13 +98,14 @@
                 android:ems="4"
                 android:gravity="center"
                 android:hint="@string/dollar_signs"
+                android:importantForAutofill="no"
                 android:inputType="number"
                 android:nextFocusDown="@id/empty_miles"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="@+id/textView12"
                 app:layout_constraintTop_toBottomOf="@+id/textView12"
-                android:importantForAutofill="no" />
+                tools:ignore="TouchTargetSizeCheck" />
 
             <EditText
                 android:id="@+id/empty_miles"
@@ -113,14 +117,15 @@
                 android:ems="4"
                 android:gravity="center"
                 android:hint="@string/empty"
-                android:nextFocusDown="@id/loaded_miles"
+                android:importantForAutofill="no"
                 android:inputType="number"
+                android:nextFocusDown="@id/loaded_miles"
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintBottom_toBottomOf="@+id/loaded_miles"
                 app:layout_constraintEnd_toStartOf="@+id/textView15"
                 app:layout_constraintTop_toTopOf="@+id/loaded_miles"
-                android:importantForAutofill="no" />
+                tools:ignore="TouchTargetSizeCheck" />
 
             <EditText
                 android:id="@+id/loaded_miles"
@@ -138,13 +143,12 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/cost"
-                tools:ignore="Autofill" />
+                tools:ignore="Autofill,TouchTargetSizeCheck" />
 
             <EditText
                 android:id="@+id/optional_note"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:background="@drawable/custom_edit_text"
                 android:gravity="top|left"
                 android:hint="@string/include_any_additional_notes_you_would_like_to_add_here"
@@ -155,73 +159,88 @@
                 android:textSize="@dimen/medium_text_size"
                 app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
                 app:layout_constraintStart_toStartOf="@+id/weight"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+                app:layout_constraintTop_toBottomOf="@+id/textView17"
+                tools:ignore="TextSizeCheck,VisualLintTextFieldSize" />
 
-            <LinearLayout
-                android:id="@+id/linearLayout"
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/rounded_truck_b"
+                app:layout_constraintBottom_toTopOf="@+id/tonu"
+                app:layout_constraintStart_toStartOf="@+id/textView14"
+                app:layout_constraintTop_toBottomOf="@+id/empty_miles" />
+
+            <TextView
+                android:id="@+id/truckNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="4dp"
+                android:text="1946"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+                app:layout_constraintStart_toEndOf="@+id/imageView4"
+                app:layout_constraintTop_toTopOf="@+id/imageView4" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/trailer_icon_b"
+                app:layout_constraintStart_toEndOf="@+id/empty_miles"
+                app:layout_constraintTop_toTopOf="@+id/imageView4" />
+
+            <TextView
+                android:id="@+id/trailerNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="4dp"
+                android:text="531767"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+                app:layout_constraintStart_toEndOf="@+id/imageView5"
+                app:layout_constraintTop_toTopOf="@+id/imageView5" />
+
+            <CheckBox
+                android:id="@+id/reefer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Reefer"
                 app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/textView14"
-                app:layout_constraintTop_toBottomOf="@+id/loaded_miles">
+                app:layout_constraintTop_toTopOf="@+id/hazmat"
+                tools:ignore="TouchTargetSizeCheck" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|end"
-                    android:layout_weight="1"
-                    android:gravity="start|center_vertical"
-                    android:orientation="horizontal">
+            <CheckBox
+                android:id="@+id/hazmat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"
+                android:text="Hazmat"
+                app:layout_constraintEnd_toStartOf="@+id/reefer"
+                app:layout_constraintTop_toBottomOf="@+id/weight"
+                tools:ignore="TouchTargetSizeCheck" />
 
-                    <ImageView
-                        android:id="@+id/imageView4"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="4dp"
-                        android:src="@drawable/rounded_truck_b" />
-
-                    <TextView
-                        android:id="@+id/truckNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="1946"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|end"
-                    android:layout_marginStart="20dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical|end"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/imageView5"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="4dp"
-                        android:src="@drawable/trailer_icon_b" />
-
-                    <TextView
-                        android:id="@+id/trailerNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="531767"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+            <CheckBox
+                android:id="@+id/tonu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"
+                android:text="TONU"
+                app:layout_constraintEnd_toStartOf="@+id/hazmat"
+                app:layout_constraintTop_toBottomOf="@+id/weight"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <TextView
                 android:id="@+id/profit"
@@ -231,36 +250,6 @@
                 android:gravity="center"
                 app:layout_constraintStart_toStartOf="@+id/location_b"
                 app:layout_constraintTop_toBottomOf="@+id/location_b" />
-
-            <LinearLayout
-                android:id="@+id/linearLayout3"
-                android:layout_width="0dp"
-
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="@+id/linearLayout"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-                <CheckBox
-                    android:id="@+id/hazmat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="Hazmat" />
-
-                <CheckBox
-                    android:id="@+id/reefer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:gravity="center"
-                    android:text="Reefer" />
-            </LinearLayout>
 
             <EditText
                 android:id="@+id/weight"
@@ -276,7 +265,8 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintEnd_toEndOf="@+id/cost"
                 app:layout_constraintStart_toStartOf="@+id/cost"
-                app:layout_constraintTop_toBottomOf="@+id/textView16" />
+                app:layout_constraintTop_toBottomOf="@+id/textView16"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <LinearLayout
                 android:id="@+id/startLayout"
@@ -376,10 +366,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="19dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/optional_note"
                 android:textColor="@color/colorTextBlack"
-                app:layout_constraintBottom_toTopOf="@+id/optional_note"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tonu"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView16"
@@ -390,7 +382,8 @@
                 android:text="Weight"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="@+id/textView12"
-                app:layout_constraintTop_toBottomOf="@+id/cost" />
+                app:layout_constraintTop_toBottomOf="@+id/cost"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView6"
@@ -400,7 +393,8 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintBottom_toBottomOf="@+id/weight"
                 app:layout_constraintStart_toEndOf="@+id/weight"
-                app:layout_constraintTop_toTopOf="@+id/weight" />
+                app:layout_constraintTop_toTopOf="@+id/weight"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView14"
@@ -411,7 +405,8 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintBottom_toBottomOf="@+id/empty_miles"
                 app:layout_constraintEnd_toStartOf="@+id/empty_miles"
-                app:layout_constraintTop_toTopOf="@+id/empty_miles" />
+                app:layout_constraintTop_toTopOf="@+id/empty_miles"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView12"
@@ -422,7 +417,8 @@
                 android:text="@string/agreed_rate"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profit" />
+                app:layout_constraintTop_toBottomOf="@+id/profit"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/totalMiles"
@@ -434,7 +430,8 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintBottom_toTopOf="@+id/loaded_miles"
                 app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
-                app:layout_constraintStart_toStartOf="@+id/textView14" />
+                app:layout_constraintStart_toStartOf="@+id/textView14"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView10"
@@ -445,7 +442,8 @@
                 android:text="@string/delivery_location"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/location" />
+                app:layout_constraintTop_toBottomOf="@+id/location"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView8"
@@ -471,7 +469,8 @@
                 android:textColor="@color/colorTextBlack"
                 android:textSize="12dp"
                 app:layout_constraintStart_toStartOf="@+id/progressBar"
-                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+                app:layout_constraintTop_toBottomOf="@+id/progressBar"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/nextYear"
@@ -517,7 +516,8 @@
                 android:text="@string/pick_up_location"
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/startLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/startLayout"
+                tools:ignore="TextSizeCheck" />
 
             <TextView
                 android:id="@+id/textView15"
@@ -528,7 +528,8 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintBottom_toBottomOf="@+id/loaded_miles"
                 app:layout_constraintEnd_toStartOf="@+id/loaded_miles"
-                app:layout_constraintTop_toTopOf="@+id/loaded_miles" />
+                app:layout_constraintTop_toTopOf="@+id/loaded_miles"
+                tools:ignore="TextSizeCheck" />
 
             <ImageView
                 android:id="@+id/gpsA"
@@ -572,7 +573,8 @@
             android:text="@string/cancel"
             android:textColor="@color/colorText"
             android:textSize="22dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="TextSizeCheck" />
 
         <TextView
             android:id="@+id/finish"
@@ -586,6 +588,7 @@
             android:text="@string/finish"
             android:textColor="@color/colorText"
             android:textSize="22dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="TextSizeCheck" />
     </LinearLayout>
 </RelativeLayout>

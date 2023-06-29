@@ -55,6 +55,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         }
         if (totalCost != 0)
             binding.total.setText("Fuel $" + formatInt(totalCost) + " (" + formatInt(totalGallons) + " gal @ " + Utils.formatValueToCurrency((double) totalCost / totalGallons) + ")");
+        else binding.total.setText("Include fuel and DEF purchases");
         if (defCost != 0) binding.cost.setText("DEF $" + formatInt(defCost));
     }
 

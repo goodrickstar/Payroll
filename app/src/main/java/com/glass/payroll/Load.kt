@@ -15,5 +15,6 @@ class Load {
     var note = ""
     var hazmat = false
     var reefer = false
+    var tonu = false
 
 }
