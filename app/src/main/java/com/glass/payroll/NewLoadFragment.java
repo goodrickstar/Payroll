@@ -1,30 +1,24 @@
 package com.glass.payroll;
-
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewLoadBinding;
 import com.google.gson.Gson;
-
-import org.w3c.dom.Text;
 
 import java.util.Calendar;
 
@@ -142,7 +136,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                         }
                     }
                 }
-            } else Log.i("stats", "Stats was NULL");
+            }
         });
         binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);

@@ -4,9 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-
-import com.google.firebase.database.annotations.NotNull;
-
 @Entity(tableName = "user_stats")
 public class SettlementStats {
     public SettlementStats() {
@@ -21,14 +18,16 @@ public class SettlementStats {
     double totalProfit = 0.0;
     double totalDieselGallons = 0.0;
     double totalDefGallons = 0.0;
+    double avgDieselTotal = 0.0;
+
+    double avgDefTotal = 0.0;
+    double avgDieselGallons = 0.0;
+    double avgDefGallons = 0.0;
     double avgBalance = 0.0;
     double avgGross = 0.0;
     double avgMiles = 0.0;
     double avgEmptyMiles = 0.0;
     double avgLoadedMiles = 0.0;
-    double avgDieselGallons = 0.0;
-    double avgDefGallons = 0.0;
-    double avgFuelCost = 0.0;
     double avgGeneralRate = 0.0;
     double avgHazmatRate = 0.0;
     double avgReeferRate = 0.0;
@@ -45,6 +44,23 @@ public class SettlementStats {
 
     public void setTotalDefGallons(double totalDefGallons) {
         this.totalDefGallons = totalDefGallons;
+    }
+
+    @NonNull
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(@NonNull String userId) {
+        this.userId = userId;
+    }
+
+    public double getAvgDefTotal() {
+        return avgDefTotal;
+    }
+
+    public void setAvgDefTotal(double avgDefTotal) {
+        this.avgDefTotal = avgDefTotal;
     }
 
     public double getAvgDefGallons() {
@@ -167,12 +183,12 @@ public class SettlementStats {
         this.avgDieselGallons = avgDieselGallons;
     }
 
-    public double getAvgFuelCost() {
-        return avgFuelCost;
+    public double getAvgDieselTotal() {
+        return avgDieselTotal;
     }
 
-    public void setAvgFuelCost(double avgFuelCost) {
-        this.avgFuelCost = avgFuelCost;
+    public void setAvgDieselTotal(double avgDieselTotal) {
+        this.avgDieselTotal = avgDieselTotal;
     }
 
     public double getAvgGeneralRate() {

@@ -1,9 +1,7 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +21,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
-
 public class FragmentRecords extends Fragment {
     private MI MI;
     private final Calendar calendar = Calendar.getInstance();
@@ -58,14 +54,9 @@ public class FragmentRecords extends Fragment {
             model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
                 FragmentRecords.this.settlements = settlements;
                 adapter.notifyDataSetChanged();
-                int index = -1;
-                for (int x = 0; x < settlements.size(); x++) {
-                    if (settlements.get(x).getId() == settlement.getId()) index = x;
-                }
-                if (index != -1) binding.recycler.expandGroup(index);
+                binding.recordCount.setText("Records: " + settlements.size());
             });
         });
-
     }
 
     @Override
@@ -81,7 +72,6 @@ public class FragmentRecords extends Fragment {
     }
 
     private class RecycleAdapter extends BaseExpandableListAdapter implements View.OnClickListener {
-
         @Override
         public int getGroupCount() {
             return settlements.size();
@@ -203,13 +193,11 @@ public class FragmentRecords extends Fragment {
             }
         }
 
-
         class GroupViewHolder extends RecyclerView.ViewHolder {
             final TextView date;
             final TextView balance;
             final TextView miles;
             final TextView average;
-
             final ImageView eye;
 
             GroupViewHolder(View itemView) {
@@ -221,7 +209,6 @@ public class FragmentRecords extends Fragment {
                 eye = itemView.findViewById(R.id.eyeball);
             }
         }
-
         class ChildViewHolder extends RecyclerView.ViewHolder {
             TextView delete, edit;
             TextView grossRevenue, loadedMiles, emptyMiles;

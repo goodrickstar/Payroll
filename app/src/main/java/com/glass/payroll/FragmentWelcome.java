@@ -25,7 +25,7 @@ public class FragmentWelcome extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        tips.add("Created for owner operators and lease operators to calculate settlement balances");
+        tips.add("Created for owner operators and lease operators to track, store, and evaluate their performance");
         tips.add("Track and log revenue and expenses with one easy interface");
         tips.add("Access the same settlements across multiple devices");
         tips.add("Settlements are backed up by Payroll servers allowing access to records at a later date");

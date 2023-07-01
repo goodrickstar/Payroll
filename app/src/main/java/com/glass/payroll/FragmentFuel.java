@@ -112,7 +112,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
     public void onDetach() {
         super.onDetach();
         MI = null;
-    }
+     }
 
     @Override
     public void onClick(View view) {
@@ -138,7 +138,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             Fuel fuel = settlement.getFuel().get(position);
             holder.date.setText(Utils.toShortDateSpelledWithTime(fuel.getStamp()));
             if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
-            else holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
+            else holder.cost.setText("DEF   " +Utils.formatValueToCurrency(fuel.getCost()));
             holder.location.setText(fuel.getLocation());
             holder.gallons.setText(Utils.formatDouble(fuel.getGallons(), 2) + " gal @ $" + fuel.getFuelPrice());
             holder.note.setText(fuel.getNote());

@@ -158,7 +158,7 @@ class Utils {
 
     static double avgDouble(ArrayList<Double> array) {
         if (array.isEmpty()) return 0.0;
-        return sumDouble(array) / array.size();
+        return (double) sumDouble(array) / array.size();
     }
 
     static double sumDouble(ArrayList<Double> array){
@@ -171,7 +171,7 @@ class Utils {
 
     static double avgInt(ArrayList<Integer> array) {
         if (array.isEmpty()) return 0.0;
-        return sumInt(array) / array.size();
+        return (double) sumInt(array) / array.size();
     }
 
     static double sumInt(ArrayList<Integer> array){
@@ -412,6 +412,6 @@ class Utils {
 
     public static double loadedRate(Load load) {
         if (load.getLoaded() == 0) return 0;
-        else return load.getRate()/ load.getLoaded();
+        return (double) load.getRate()/ load.getLoaded();
     }
 }

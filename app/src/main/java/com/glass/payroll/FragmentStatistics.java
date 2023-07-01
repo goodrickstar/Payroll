@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -8,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,14 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glass.payroll.databinding.FragmentStatisticsBinding;
-import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-
 public class FragmentStatistics extends Fragment {
     private Context context;
     private FragmentStatisticsBinding binding;
@@ -58,17 +53,10 @@ public class FragmentStatistics extends Fragment {
         super.onViewCreated(v, savedInstanceState);
         binding.averages.setHasFixedSize(true);
         binding.averages.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        List<String> dataSetList = new ArrayList<>();
-        dataSetList.add("Gross Revenue");
-        dataSetList.add("Net Revenue");
-        dataSetList.add("Total Miles");
-        dataSetList.add("Net CPM");
-        dataSetList.add("Fuel Price");
-        ArrayAdapter<String> dataSetAdapter = new ArrayAdapter<>(context, R.layout.custom_spinner_item, dataSetList);
-        dataSetAdapter.setDropDownViewResource(R.layout.custom_spinner_dropdown_item);
         model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
             settlements.remove(0);
             List<Statistic> statistics = new ArrayList<>();
+            ArrayList<Double> allRates = new ArrayList<>();
             for (Settlement settlement : settlements) {
                 Statistic statistic = new Statistic();
                 statistic.setId(settlement.getId());
@@ -84,23 +72,24 @@ public class FragmentStatistics extends Fragment {
                 statistic.setFuelPrice(settlement.getFuelCost() / settlement.getDieselGallons());
                 statistic.setNetCpm(settlement.getBalance() / Utils.miles(settlement));
                 statistic.setOperatingCpm((settlement.getGross() - settlement.getBalance()) / Utils.miles(settlement));
-
                 ArrayList<Double> generalRates = new ArrayList<>();
                 ArrayList<Double> hazmatRates = new ArrayList<>();
                 ArrayList<Double> reeferRates = new ArrayList<>();
                 ArrayList<Double> hazmatAndReeferRates = new ArrayList<>();
                 for (Load load : settlement.getLoads()) {
-                    Log.i("stats", new Gson().toJson(load));
-                    double rate = Utils.loadedRate(load);
-                    if (rate != 0 && !load.getTonu()) {
-                        if (!load.getHazmat() && !load.getReefer()) {
-                            generalRates.add((double) (rate));
-                        } else if (load.getHazmat() && !load.getReefer()) {
-                            hazmatRates.add((double) (rate));
-                        } else if (!load.getHazmat() && load.getReefer()) {
-                            reeferRates.add((double) (rate));
-                        } else if (load.getHazmat() && load.getReefer()) {
-                            hazmatAndReeferRates.add((double) (rate));
+                    if (!load.getTonu()){
+                        double rate = Utils.loadedRate(load);
+                        if (rate != 0) allRates.add(rate);
+                        if (rate != 0 && !load.getTonu()) {
+                            if (!load.getHazmat() && !load.getReefer()) {
+                                generalRates.add(rate);
+                            } else if (load.getHazmat() && !load.getReefer()) {
+                                hazmatRates.add(rate);
+                            } else if (!load.getHazmat() && load.getReefer()) {
+                                reeferRates.add(rate);
+                            } else if (load.getHazmat() && load.getReefer()) {
+                                hazmatAndReeferRates.add(rate);
+                            }
                         }
                     }
                 }
@@ -110,7 +99,6 @@ public class FragmentStatistics extends Fragment {
                 statistic.setHazmatAndReeferRate(Utils.avgDouble(hazmatAndReeferRates));
                 statistics.add(statistic);
             }
-            statistics.sort(Comparator.comparingLong(Statistic::getId));
             if (!statistics.isEmpty()) {
                 ArrayList<AverageItem> averages = new ArrayList<>();
                 ArrayList<Integer> miles = new ArrayList<>();
@@ -141,7 +129,6 @@ public class FragmentStatistics extends Fragment {
                     if (statistic.getDieselCost() != 0) dieselCost.add(statistic.getDieselCost());
                     if (statistic.getDefCost() != 0) defCost.add(statistic.getDefCost());
                     if (statistic.getDefGallons() != 0) defGallons.add(statistic.getDefGallons());
-
                     if (statistic.getHazmatRate() != 0)
                         hazmatLoadedRate.add(statistic.getHazmatRate());
                     if (statistic.getReeferRate() != 0)
@@ -151,7 +138,7 @@ public class FragmentStatistics extends Fragment {
                 }
                 SettlementStats stats = new SettlementStats(MainActivity.user.getUid());
                 stats.setTotalGross(Utils.sumDouble(gross));
-                stats.setTotalFuel(Utils.sumDouble(dieselCost));
+                stats.setTotalFuel(Utils.sumDouble(dieselCost) + Utils.sumDouble(defCost));
                 stats.setTotalMiles(Utils.sumInt(miles));
                 stats.setTotalProfit(Utils.sumDouble(balances));
                 stats.setAvgBalance(Utils.avgDouble(balances));
@@ -159,45 +146,47 @@ public class FragmentStatistics extends Fragment {
                 stats.setAvgMiles(Utils.avgInt(miles));
                 stats.setAvgEmptyMiles(Utils.avgInt(emptyMiles));
                 stats.setAvgLoadedMiles(Utils.avgInt(loadedMiles));
-                stats.setAvgFuelCost(Utils.avgDouble(dieselCost));
+                Log.i("stats", "Avg: " + (double) stats.getAvgGross()/ stats.getAvgLoadedMiles());
+                stats.setAvgDieselTotal(Utils.avgDouble(dieselCost));
+                stats.setAvgDefTotal(Utils.avgDouble(defCost));
                 stats.setTotalDieselGallons(Utils.sumDouble(dieselGallons));
                 stats.setAvgDieselGallons(Utils.avgDouble(dieselGallons));
                 stats.setAvgGeneralRate(Utils.avgDouble(generalLoadedRate));
-
                 stats.setTotalDefGallons(Utils.sumDouble(defGallons));
                 stats.setAvgDefGallons(Utils.avgDouble(defGallons));
                 stats.setAvgHazmatRate(Utils.avgDouble(hazmatLoadedRate));
                 stats.setAvgReeferRate(Utils.avgDouble(reeferLoadedRate));
                 stats.setAvgHazmatAndReeferRate(Utils.avgDouble(hazmatAndReeferLoadedRate));
-
-                ArrayList<Double> allRates = new ArrayList<>();
-                allRates.addAll(generalLoadedRate);
-                allRates.addAll(hazmatLoadedRate);
-                allRates.addAll(reeferLoadedRate);
-                allRates.addAll(hazmatAndReeferLoadedRate);
-
-                averages.add(new AverageItem("YTD", statistics.size() + " RECORDS", "AVERAGE"));
+                model.add(stats);
+                averages.add(new AverageItem("YTD", " RECORDS: " + settlements.size(), "AVERAGE"));
                 averages.add(new AverageItem("Gross Revenue", Utils.formatValueToCurrencyWhole(stats.getAvgGross())));
                 averages.add(new AverageItem("Net Balance", Utils.formatValueToCurrencyWhole(stats.getAvgBalance())));
                 averages.add(new AverageItem("Net CPM", Utils.formatValueToCurrency(stats.getAvgBalance() / stats.getAvgMiles())));
-                averages.add(new AverageItem("All Miles", Utils.formatDoubleWhole(stats.getAvgMiles()) + " m"));
-                averages.add(new AverageItem("Empty Miles", Utils.formatDoubleWhole(stats.getAvgEmptyMiles()) + " m"));
-                averages.add(new AverageItem("Loaded Miles", Utils.formatDoubleWhole(stats.getAvgLoadedMiles()) + " m"));
-                averages.add(new AverageItem("Loaded Rates", Utils.formatValueToCurrency(Utils.avgDouble(allRates))));
-                averages.add(new AverageItem("General Rate", Utils.formatValueToCurrency(stats.getAvgGeneralRate())));
-                averages.add(new AverageItem("Hazmat Rate", Utils.formatValueToCurrency(stats.getAvgHazmatRate())));
-                averages.add(new AverageItem("Reefer Rate", Utils.formatValueToCurrency(stats.getAvgReeferRate())));
-                averages.add(new AverageItem("Ref-Haz Rate", Utils.formatValueToCurrency(stats.getAvgHazmatAndReeferRate())));
                 averages.add(new AverageItem("Operating CPM", Utils.formatValueToCurrency((stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles())));
-                averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(stats.getAvgFuelCost())));
-                averages.add(new AverageItem("Gallons", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + " g"));
-                averages.add(new AverageItem("Fuel Price", Utils.formatValueToCurrency(stats.getAvgFuelCost() / stats.getAvgDieselGallons()) + " g"));
+                averages.add(new AverageItem("Diesel Price", Utils.formatValueToCurrency(stats.getAvgDieselTotal() / stats.getAvgDieselGallons()) + " g"));
+                averages.add(new AverageItem("DEF Price", Utils.formatValueToCurrency(stats.getAvgDefTotal() / stats.getAvgDefGallons()) + " g"));
                 averages.add(new AverageItem("Fuel Mileage", Utils.formatDouble(stats.getTotalMiles() / stats.getTotalDieselGallons(), 3) + " mpg"));
+                averages.add(new AverageItem("All Miles", Utils.formatDoubleWhole(stats.getAvgMiles()) + " m"));
+                averages.add(new AverageItem("     Empty", Utils.formatDoubleWhole(stats.getAvgEmptyMiles()) + " m"));
+                averages.add(new AverageItem("     Loaded", Utils.formatDoubleWhole(stats.getAvgLoadedMiles()) + " m"));
+                averages.add(new AverageItem("Loaded Rates", Utils.formatValueToCurrency(Utils.avgDouble(allRates))));
+                averages.add(new AverageItem("     General", Utils.formatValueToCurrency(stats.getAvgGeneralRate())));
+                if (stats.getAvgHazmatRate() != 0)
+                    averages.add(new AverageItem("     Hazmat", Utils.formatValueToCurrency(stats.getAvgHazmatRate())));
+                if (stats.getAvgReeferRate() != 0)
+                    averages.add(new AverageItem("     Reefer", Utils.formatValueToCurrency(stats.getAvgReeferRate())));
+                if (stats.getAvgHazmatAndReeferRate() != 0)
+                    averages.add(new AverageItem("     Ref-Haz", Utils.formatValueToCurrency(stats.getAvgHazmatAndReeferRate())));
+                averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(stats.getAvgDieselTotal() + stats.getAvgDefTotal())));
+                averages.add(new AverageItem("     Diesel", Utils.formatValueToCurrency(stats.getAvgDieselTotal())));
+                averages.add(new AverageItem("     DEF", Utils.formatValueToCurrency(stats.getAvgDefTotal())));
+                averages.add(new AverageItem("Diesel & DEF", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
+                averages.add(new AverageItem("     Diesel Gallons", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + " g"));
+                averages.add(new AverageItem("     DEF Gallons", Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
                 binding.averages.setAdapter(new RecycleAdapter(averages));
-                binding.annual.setText("Total Miles: " + Utils.formatDoubleWhole(stats.getTotalMiles()) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrency(stats.getTotalFuel()));
+                binding.annual.setText("Total Miles: " + Utils.formatDoubleWhole(stats.getTotalMiles()) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrencyWhole(stats.getTotalFuel()));
                 binding.annual.setText(Utils.addLine(binding.annual) + "Total Revenue: " + Utils.formatValueToCurrencyWhole(stats.getTotalGross()) + "  |  " + "Total Net: " + Utils.formatValueToCurrencyWhole(stats.getTotalProfit()));
                 binding.annual.setText(Utils.addLine(binding.annual) + "Estimated Annual Profit: $" + Utils.formatInt((int) stats.getAvgBalance() * 50) + " (50 Weeks)");
-                model.add(stats);
             }
         });
     }
@@ -231,7 +220,6 @@ public class FragmentStatistics extends Fragment {
             holder.title.setText(averages.get(position).getTitle());
             holder.content.setText(averages.get(position).getContent());
             holder.extra.setText(averages.get(position).getExtra());
-
         }
 
         @Override
@@ -250,5 +238,4 @@ public class FragmentStatistics extends Fragment {
             }
         }
     }
-
 }
