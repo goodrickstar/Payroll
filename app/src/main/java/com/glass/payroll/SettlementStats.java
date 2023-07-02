@@ -28,6 +28,7 @@ public class SettlementStats {
     double avgMiles = 0.0;
     double avgEmptyMiles = 0.0;
     double avgLoadedMiles = 0.0;
+    double avgLoadedRate = 0.0;
     double avgGeneralRate = 0.0;
     double avgHazmatRate = 0.0;
     double avgReeferRate = 0.0;
@@ -57,6 +58,14 @@ public class SettlementStats {
 
     public double getAvgDefTotal() {
         return avgDefTotal;
+    }
+
+    public double getAvgLoadedRate() {
+        return avgLoadedRate;
+    }
+
+    public void setAvgLoadedRate(double avgLoadedRate) {
+        this.avgLoadedRate = avgLoadedRate;
     }
 
     public void setAvgDefTotal(double avgDefTotal) {

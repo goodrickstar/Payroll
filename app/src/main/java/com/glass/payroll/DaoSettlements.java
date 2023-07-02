@@ -46,4 +46,7 @@ public interface DaoSettlements {
 
     @Query("SELECT stop FROM settlement_records WHERE userId = :uid ORDER BY stop DESC LIMIT 1")
     LiveData<Long> getMostRecentEndingDate(String uid);
+
+    @Query("SELECT id FROM settlement_records WHERE userId = :uid ORDER BY stop DESC LIMIT 1")
+    LiveData<Long> getMostRecentSettlementId(String uid);
 }

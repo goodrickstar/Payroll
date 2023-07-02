@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -34,7 +33,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -79,7 +77,6 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
 public class MainActivity extends AppCompatActivity implements MI {
     static final String SITE_URL = "http://23.111.159.2/~payroll/";
     static final OkHttpClient client = new OkHttpClient();
@@ -115,21 +112,6 @@ public class MainActivity extends AppCompatActivity implements MI {
             }
         }
     });
-
-    @Override
-    public void newSettlement(Settlement settlement, boolean transfer) {
-        settlement.setUserId(user.getUid());
-        settlement = Utils.setQuarters(settlement);
-        if (transfer) {
-            settlement.setPayout(this.settlement.getPayout());
-            settlement.setFixed(this.settlement.getFixed());
-        }
-        model.add(Utils.calculate(settlement));
-        FragmentOverview fragmentOverview = (FragmentOverview) fragmentManager.findFragmentByTag("overview");
-        if (fragmentOverview == null)
-            handleMenuNavigation(navigationView.getMenu().findItem(R.id.overview), false, false);
-        showSnack("New settlement created", Snackbar.LENGTH_LONG);
-    }
 
     void handleSettlementData() {
         if (settlement.getId() == 0 || truck == null) {

@@ -1,8 +1,8 @@
 package com.glass.payroll;
-
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,30 +11,41 @@ import android.widget.DatePicker;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewSettlementBinding;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
-
 public class NewSettlementFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
-    private final Settlement settlement = new Settlement();
+    private Settlement settlement = new Settlement();
     private int mode = 0;
     private MI MI;
     private FragmentNewSettlementBinding binding;
-
     private MainViewModel model;
 
     public NewSettlementFragment() {
     }
 
     private void checkEntries() {
-        if (MI != null) {
-            MI.newSettlement(settlement, binding.checkBox.isChecked());
-            NewSettlementFragment.this.dismiss();
-        }
+        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
+            binding.loadingbar.setVisibility(View.VISIBLE);
+            Log.i("ROOM", "called");
+            Log.i("ROOM", new Gson().toJson(settlements.get(0)));
+            if (binding.checkBox.isChecked()) {
+                settlement.setPayout(settlements.get(0).getPayout());
+                settlement.setFixed(settlements.get(0).getFixed());
+            }
+            settlement.setUserId(MainActivity.user.getUid());
+            settlement = Utils.setQuarters(settlement);
+            if (MI != null) MI.showSnack("New settlement created", Snackbar.LENGTH_LONG);
+            MI.navigate(R.id.overview);
+            model.add(Utils.calculateStats(settlements));
+            model.add(Utils.calculate(settlement));
+            dismiss();
+        });
     }
 
     @Override

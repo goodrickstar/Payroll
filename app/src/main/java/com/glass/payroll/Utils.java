@@ -414,4 +414,108 @@ class Utils {
         if (load.getLoaded() == 0) return 0;
         return (double) load.getRate()/ load.getLoaded();
     }
+
+    public static SettlementStats calculateStats(List<Settlement> settlements){
+        List<Statistic> statistics = new ArrayList<>();
+        ArrayList<Double> allRates = new ArrayList<>();
+        for (Settlement settlement : settlements) {
+            Statistic statistic = new Statistic();
+            statistic.setId(settlement.getId());
+            statistic.setBalance(settlement.getBalance());
+            statistic.setGross(settlement.getGross());
+            statistic.setMiles(Utils.miles(settlement));
+            statistic.setEmptyMiles(settlement.getEmptyMiles());
+            statistic.setLoadedMiles(settlement.getLoadedMiles());
+            statistic.setDieselGallons(settlement.getDieselGallons());
+            statistic.setDieselCost(settlement.getFuelCost());
+            statistic.setDefCost(settlement.getDefCost());
+            statistic.setDefGallons(settlement.getDefGallons());
+            statistic.setFuelPrice(settlement.getFuelCost() / settlement.getDieselGallons());
+            statistic.setNetCpm(settlement.getBalance() / Utils.miles(settlement));
+            statistic.setOperatingCpm((settlement.getGross() - settlement.getBalance()) / Utils.miles(settlement));
+            ArrayList<Double> generalRates = new ArrayList<>();
+            ArrayList<Double> hazmatRates = new ArrayList<>();
+            ArrayList<Double> reeferRates = new ArrayList<>();
+            ArrayList<Double> hazmatAndReeferRates = new ArrayList<>();
+            for (Load load : settlement.getLoads()) {
+                if (!load.getTonu()) {
+                    double rate = Utils.loadedRate(load);
+                    if (rate != 0) allRates.add(rate);
+                    if (rate != 0 && !load.getTonu()) {
+                        if (!load.getHazmat() && !load.getReefer()) {
+                            generalRates.add(rate);
+                        } else if (load.getHazmat() && !load.getReefer()) {
+                            hazmatRates.add(rate);
+                        } else if (!load.getHazmat() && load.getReefer()) {
+                            reeferRates.add(rate);
+                        } else if (load.getHazmat() && load.getReefer()) {
+                            hazmatAndReeferRates.add(rate);
+                        }
+                    }
+                }
+            }
+            statistic.setGeneralFreightRate(Utils.avgDouble(generalRates));
+            statistic.setHazmatRate(Utils.avgDouble(hazmatRates));
+            statistic.setReeferRate(Utils.avgDouble(reeferRates));
+            statistic.setHazmatAndReeferRate(Utils.avgDouble(hazmatAndReeferRates));
+            statistics.add(statistic);
+        }
+        ArrayList<Integer> miles = new ArrayList<>();
+        ArrayList<Integer> emptyMiles = new ArrayList<>();
+        ArrayList<Integer> loadedMiles = new ArrayList<>();
+        ArrayList<Double> balances = new ArrayList<>();
+        ArrayList<Double> gross = new ArrayList<>();
+        ArrayList<Double> dieselGallons = new ArrayList<>();
+        ArrayList<Double> generalLoadedRate = new ArrayList<>();
+        ArrayList<Double> dieselCost = new ArrayList<>();
+        ArrayList<Double> defGallons = new ArrayList<>();
+        ArrayList<Double> defCost = new ArrayList<>();
+        ArrayList<Double> hazmatLoadedRate = new ArrayList<>();
+        ArrayList<Double> reeferLoadedRate = new ArrayList<>();
+        ArrayList<Double> hazmatAndReeferLoadedRate = new ArrayList<>();
+        for (int i = 0; i < statistics.size(); i++) {
+            Statistic statistic = statistics.get(i);
+            if (statistic.getBalance() != 0) balances.add(statistic.getBalance());
+            if (statistic.getGross() != 0) gross.add(statistic.getGross());
+            if (statistic.getMiles() != 0) miles.add(statistic.getMiles());
+            if (statistic.getGeneralFreightRate() != 0)
+                generalLoadedRate.add(statistic.getGeneralFreightRate());
+            if (statistic.getEmptyMiles() != 0) emptyMiles.add(statistic.getEmptyMiles());
+            if (statistic.getLoadedMiles() != 0)
+                loadedMiles.add(statistic.getLoadedMiles());
+            if (statistic.getDieselGallons() != 0)
+                dieselGallons.add(statistic.getDieselGallons());
+            if (statistic.getDieselCost() != 0) dieselCost.add(statistic.getDieselCost());
+            if (statistic.getDefCost() != 0) defCost.add(statistic.getDefCost());
+            if (statistic.getDefGallons() != 0) defGallons.add(statistic.getDefGallons());
+            if (statistic.getHazmatRate() != 0)
+                hazmatLoadedRate.add(statistic.getHazmatRate());
+            if (statistic.getReeferRate() != 0)
+                reeferLoadedRate.add(statistic.getReeferRate());
+            if (statistic.getHazmatAndReeferRate() != 0)
+                hazmatAndReeferLoadedRate.add(statistic.getHazmatAndReeferRate());
+        }
+        SettlementStats stats = new SettlementStats(MainActivity.user.getUid());
+        stats.setTotalGross(Utils.sumDouble(gross));
+        stats.setTotalFuel(Utils.sumDouble(dieselCost) + Utils.sumDouble(defCost));
+        stats.setTotalMiles(Utils.sumInt(miles));
+        stats.setTotalProfit(Utils.sumDouble(balances));
+        stats.setAvgBalance(Utils.avgDouble(balances));
+        stats.setAvgGross(Utils.avgDouble(gross));
+        stats.setAvgMiles(Utils.avgInt(miles));
+        stats.setAvgEmptyMiles(Utils.avgInt(emptyMiles));
+        stats.setAvgLoadedMiles(Utils.avgInt(loadedMiles));
+        stats.setAvgDieselTotal(Utils.avgDouble(dieselCost));
+        stats.setAvgDefTotal(Utils.avgDouble(defCost));
+        stats.setTotalDieselGallons(Utils.sumDouble(dieselGallons));
+        stats.setAvgDieselGallons(Utils.avgDouble(dieselGallons));
+        stats.setTotalDefGallons(Utils.sumDouble(defGallons));
+        stats.setAvgLoadedRate(Utils.avgDouble(allRates));
+        stats.setAvgGeneralRate(Utils.avgDouble(generalLoadedRate));
+        stats.setAvgDefGallons(Utils.avgDouble(defGallons));
+        stats.setAvgHazmatRate(Utils.avgDouble(hazmatLoadedRate));
+        stats.setAvgReeferRate(Utils.avgDouble(reeferLoadedRate));
+        stats.setAvgHazmatAndReeferRate(Utils.avgDouble(hazmatAndReeferLoadedRate));
+        return stats;
+    }
 }

@@ -17,6 +17,7 @@ public class MainViewModel extends AndroidViewModel {
     private String userId;
 
     private LiveData<Long> mostRecentEndingDate;
+    private LiveData<Long> mostRecentSettlementId;
     private LiveData<Settlement> settlement;
     private LiveData<List<Settlement>> settlements;
     private LiveData<List<Long>> keys;
@@ -38,6 +39,7 @@ public class MainViewModel extends AndroidViewModel {
         settlement = database.daoSettlements().getSettlement(this.userId);
         settlements = database.daoSettlements().getAllSettlements(this.userId);
         mostRecentEndingDate = database.daoSettlements().getMostRecentEndingDate(this.userId);
+        mostRecentSettlementId = database.daoSettlements().getMostRecentSettlementId(this.userId);
         stats = database.daoStats().getStats(this.userId);
         truck = database.daoTruck().getTruck(userId);
         trailer = database.daoTrailer().getTrailer(userId);
@@ -137,6 +139,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<Long> getMostRecentEndingDate(){
         return mostRecentEndingDate;
+    }
+
+    public LiveData<Long> getMostRecentSettlementId(){
+        return mostRecentSettlementId;
     }
 
     public void setStampOnSettlement(long settlementId, long stamp) {

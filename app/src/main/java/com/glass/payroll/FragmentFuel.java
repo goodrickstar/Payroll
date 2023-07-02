@@ -137,6 +137,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
             Fuel fuel = settlement.getFuel().get(position);
             holder.date.setText(Utils.toShortDateSpelledWithTime(fuel.getStamp()));
+            holder.cost.setTextColor(Color.RED);
             if (!fuel.getDef()) holder.cost.setText(Utils.formatValueToCurrency(fuel.getCost()));
             else holder.cost.setText("DEF   " +Utils.formatValueToCurrency(fuel.getCost()));
             holder.location.setText(fuel.getLocation());
