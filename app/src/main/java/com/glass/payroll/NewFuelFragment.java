@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +16,19 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewFuelBinding;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
     private MI MI;
-    private Fuel fuel = new Fuel();
+    private final Fuel fuel;
     private boolean editing = false;
     private Settlement settlement;
     private MainViewModel model;
     private FragmentNewFuelBinding binding;
 
     public NewFuelFragment() {
+        fuel = new Fuel();
     }
 
     public NewFuelFragment(Fuel fuel) {
@@ -98,6 +101,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
+        Log.i("test", new Gson().toJson(fuel));
         binding.date.setText(Utils.toShortDateSpelled(fuel.getStamp()));
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
@@ -127,6 +131,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         };
         binding.fuelPrice.addTextChangedListener(watcher);
         binding.gallons.addTextChangedListener(watcher);
+        Log.i("test", "Editing " + editing);
         if (editing) {
             binding.title.setText("Edit Fuel Entry");
             binding.finish.setText("Update");

@@ -22,13 +22,14 @@ import java.util.Calendar;
 public class NewLoadFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
     private int mode = 0;
-    private Load load = new Load();
+    private final Load load;
     private boolean editing = false;
     private FragmentNewLoadBinding binding;
     private Settlement settlement;
     private MainViewModel model;
 
     public NewLoadFragment() {
+        load = new Load();
         setCalendarToDayEdge(calendar, true);
         load.setStart(calendar.getTimeInMillis());
         setCalendarToDayEdge(calendar, false);
@@ -59,6 +60,23 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
         updateUi();
+        if (editing) {
+            binding.title.setText("Edit Load");
+            binding.finish.setText("Update");
+            binding.location.setText(load.getFrom());
+            binding.locationB.setText(load.getTo());
+            binding.cost.setText(String.valueOf(load.getRate()));
+            binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
+            binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
+            if (load.getWeight() != 0)
+                binding.weight.setText(String.valueOf(load.getWeight()));
+            binding.optionalNote.setText(load.getNote());
+        } else {
+            model.location().observe(getViewLifecycleOwner(), locationString -> {
+                binding.location.setHint(locationString.getLocation());
+                binding.locationB.setHint(locationString.getLocation());
+            });
+        }
         binding.date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
         binding.gpsA.setOnClickListener(this);
         binding.gpsB.setOnClickListener(this);
@@ -76,6 +94,10 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         binding.hazmat.setOnCheckedChangeListener(listener);
         binding.reefer.setOnCheckedChangeListener(listener);
         binding.tonu.setOnCheckedChangeListener(listener);
+        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
+        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
+        model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber.setText(String.valueOf(truck.getId())));
+        model.trailer().observe(getViewLifecycleOwner(), trailer -> binding.trailerNumber.setText(String.valueOf(trailer.getId())));
         model.stats().observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
                 final double operatingCost = (stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles();
@@ -105,29 +127,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 binding.cost.addTextChangedListener(watcher);
                 binding.emptyMiles.addTextChangedListener(watcher);
                 binding.loadedMiles.addTextChangedListener(watcher);
-                if (editing) {
-                    binding.title.setText("Edit Load");
-                    binding.finish.setText("Update");
-                    binding.location.setText(load.getFrom());
-                    binding.locationB.setText(load.getTo());
-                    binding.cost.setText(String.valueOf(load.getRate()));
-                    binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
-                    binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-                    if (load.getWeight() != 0)
-                        binding.weight.setText(String.valueOf(load.getWeight()));
-                    binding.optionalNote.setText(load.getNote());
-                } else {
-                    model.location().observe(getViewLifecycleOwner(), locationString -> {
-                        binding.location.setHint(locationString.getLocation());
-                        binding.locationB.setHint(locationString.getLocation());
-                    });
-                }
             }
         });
-        binding.weight.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 200)});
-        model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
-        model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber.setText(String.valueOf(truck.getId())));
-        model.trailer().observe(getViewLifecycleOwner(), trailer -> binding.trailerNumber.setText(String.valueOf(trailer.getId())));
     }
 
     private void checkEntries() {
