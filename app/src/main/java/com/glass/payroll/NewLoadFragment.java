@@ -1,6 +1,5 @@
 package com.glass.payroll;
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -18,23 +17,28 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewLoadBinding;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
-
 public class NewLoadFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
     private int mode = 0;
-    private MI MI;
     private Load load = new Load();
     private boolean editing = false;
-    private int index = 0;
     private FragmentNewLoadBinding binding;
     private Settlement settlement;
     private MainViewModel model;
 
     public NewLoadFragment() {
-        // Required empty public constructor
+        setCalendarToDayEdge(calendar, true);
+        load.setStart(calendar.getTimeInMillis());
+        setCalendarToDayEdge(calendar, false);
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        load.setStop(calendar.getTimeInMillis());
+    }
+
+    public NewLoadFragment(Load load) {
+        this.load = load;
+        editing = true;
     }
 
     @Override
@@ -42,17 +46,6 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
-        if (getArguments() != null) {
-            editing = true;
-            load = new Gson().fromJson(getArguments().getString("load"), Load.class);
-            index = getArguments().getInt("index");
-        } else {
-            setCalendarToDayEdge(calendar, true);
-            load.setStart(calendar.getTimeInMillis());
-            setCalendarToDayEdge(calendar, false);
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-            load.setStop(calendar.getTimeInMillis());
-        }
     }
 
     @Nullable
@@ -89,12 +82,10 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 TextWatcher watcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
                     }
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
                     }
 
                     @Override
@@ -126,15 +117,10 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                         binding.weight.setText(String.valueOf(load.getWeight()));
                     binding.optionalNote.setText(load.getNote());
                 } else {
-                    if (MI != null) {
-                        if (MI.locationPermission()) {
-                            String location = MI.returnLocation();
-                            if (!location.isEmpty()) {
-                                binding.location.setHint(location);
-                                binding.locationB.setHint(location);
-                            }
-                        }
-                    }
+                    model.location().observe(getViewLifecycleOwner(), locationString -> {
+                        binding.location.setHint(locationString.getLocation());
+                        binding.locationB.setHint(locationString.getLocation());
+                    });
                 }
             }
         });
@@ -142,12 +128,6 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewLoadFragment.this.settlement = settlement);
         model.truck().observe(getViewLifecycleOwner(), truck -> binding.truckNumber.setText(String.valueOf(truck.getId())));
         model.trailer().observe(getViewLifecycleOwner(), trailer -> binding.trailerNumber.setText(String.valueOf(trailer.getId())));
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
     }
 
     private void checkEntries() {
@@ -170,8 +150,12 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         load.setTonu(binding.tonu.isChecked());
         if (!editing)
             settlement.getLoads().add(load);
-        else
-            settlement.getLoads().set(index, load);
+        else {
+            for (int x = 0; x < settlement.getLoads().size(); x++) {
+                if (settlement.getLoads().get(x).getStamp() == load.getStamp())
+                    settlement.getLoads().set(x, load);
+            }
+        }
         model.add(Utils.sortLoads(Utils.calculate(settlement), Utils.getOrder(getContext(), "loads"), Utils.getSort(getContext(), "loads")));
         dismiss();
     }
@@ -217,7 +201,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        if (MI != null) Utils.vibrate(datePicker.getRootView());
+        Utils.vibrate(datePicker.getRootView());
         calendar.set(year, month, day);
         switch (mode) {
             case 1:
@@ -262,20 +246,20 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
 
     @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-        }
+        Utils.vibrate(view);
         calendar.setTimeInMillis(System.currentTimeMillis());
         DatePickerDialog datePickerDialog;
         switch (view.getId()) {
             case R.id.gpsA:
-                if (MI != null) binding.location.setText(MI.returnLocation());
+                Utils.gps(requireActivity());
+                model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setText(locationString.getLocation()));
                 break;
             case R.id.gpsB:
-                if (MI != null) binding.locationB.setText(MI.returnLocation());
+                Utils.gps(requireActivity());
+                model.location().observe(getViewLifecycleOwner(), locationString -> binding.locationB.setText(locationString.getLocation()));
                 break;
             case R.id.startLayout:
+                Utils.hideKeyboard(requireContext(), view);
                 mode = 1;
                 calendar.setTimeInMillis(load.getStart());
                 datePickerDialog = new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
@@ -286,6 +270,7 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 datePickerDialog.show();
                 break;
             case R.id.stopLayout:
+                Utils.hideKeyboard(requireContext(), view);
                 mode = 2;
                 calendar.setTimeInMillis(load.getStop());
                 datePickerDialog = new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
@@ -294,12 +279,13 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 datePickerDialog.show();
                 break;
             case R.id.cancel:
+                Utils.hideKeyboard(requireContext(), view);
                 this.dismiss();
                 break;
             case R.id.finish:
+                Utils.hideKeyboard(requireContext(), view);
                 checkEntries();
                 break;
         }
     }
-
 }

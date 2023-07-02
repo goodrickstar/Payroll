@@ -93,7 +93,6 @@ public class FragmentEquipment extends Fragment implements View.OnClickListener 
         switch (view.getId()) {
             case R.id.add_truck:
                 model.add(new Truck(MainActivity.user.getUid(), String.valueOf(new Random().nextInt(20000)+1000)));
-                if (trucks.size() == 0) MI.handleGrouping();
                 break;
             case R.id.add_trailer:
                 model.add(new Trailer(MainActivity.user.getUid(), String.valueOf(new Random().nextInt(20000)+1000)));

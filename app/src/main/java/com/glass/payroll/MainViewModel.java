@@ -16,8 +16,8 @@ public class MainViewModel extends AndroidViewModel {
     private final Records database;
     private String userId;
 
+    private LiveData<LocationString> locationStringLiveData;
     private LiveData<Long> mostRecentEndingDate;
-    private LiveData<Long> mostRecentSettlementId;
     private LiveData<Settlement> settlement;
     private LiveData<List<Settlement>> settlements;
     private LiveData<List<Long>> keys;
@@ -39,13 +39,13 @@ public class MainViewModel extends AndroidViewModel {
         settlement = database.daoSettlements().getSettlement(this.userId);
         settlements = database.daoSettlements().getAllSettlements(this.userId);
         mostRecentEndingDate = database.daoSettlements().getMostRecentEndingDate(this.userId);
-        mostRecentSettlementId = database.daoSettlements().getMostRecentSettlementId(this.userId);
         stats = database.daoStats().getStats(this.userId);
         truck = database.daoTruck().getTruck(userId);
         trailer = database.daoTrailer().getTrailer(userId);
         trucks = database.daoTruck().getAllTrucks(userId);
         trailers = database.daoTrailer().getAllTrailers(userId);
         keys = database.daoSettlements().getSettlementKeys(userId);
+        locationStringLiveData = database.daoLocation().getLocationString(userId);
     }
 
     public Executor executor() {
@@ -140,9 +140,8 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<Long> getMostRecentEndingDate(){
         return mostRecentEndingDate;
     }
-
-    public LiveData<Long> getMostRecentSettlementId(){
-        return mostRecentSettlementId;
+    public LiveData<LocationString> location(){
+        return locationStringLiveData;
     }
 
     public void setStampOnSettlement(long settlementId, long stamp) {
@@ -153,4 +152,8 @@ public class MainViewModel extends AndroidViewModel {
         return stats;
     }
 
+
+    public void add(LocationString locationString) {
+        executor.execute(() -> database.daoLocation().addLocation(locationString));
+    }
 }

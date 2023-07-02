@@ -14,7 +14,7 @@ public class Truck {
     }
 
     @PrimaryKey
-            @NonNull
+    @NonNull
     String id = "";
     String userId = "";
     int odometer = 0;

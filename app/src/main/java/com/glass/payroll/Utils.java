@@ -2,6 +2,7 @@ package com.glass.payroll;
 
 import static java.lang.Math.round;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -92,7 +94,7 @@ class Utils {
 
     static Settlement setQuarters(Settlement settlement) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(settlement.getStop());
+        calendar.setTimeInMillis(settlement.getStart());
         int week = calendar.get(Calendar.WEEK_OF_YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         int quarter = getQuarter(month);
@@ -517,5 +519,23 @@ class Utils {
         stats.setAvgReeferRate(Utils.avgDouble(reeferLoadedRate));
         stats.setAvgHazmatAndReeferRate(Utils.avgDouble(hazmatAndReeferLoadedRate));
         return stats;
+    }
+
+    public static void hideKeyboard(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    static void requestPermission(Activity activity){
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+    }
+
+
+    static boolean permissionsAccepted(Context context) {
+        return (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    static void gps(Activity activity){
+        if (!permissionsAccepted(activity)) requestPermission(activity);
     }
 }

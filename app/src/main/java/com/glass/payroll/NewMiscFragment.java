@@ -1,5 +1,4 @@
 package com.glass.payroll;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,20 +12,21 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewMiscBinding;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
 public class NewMiscFragment extends DialogFragment implements View.OnClickListener {
-    private MI MI;
     private Cost cost = new Cost();
     private boolean editing = false;
-    private int index = 0;
     private FragmentNewMiscBinding binding;
     private Settlement settlement;
     private MainViewModel model;
 
     public NewMiscFragment() {
-        // Required empty public constructor
+    }
+
+    public NewMiscFragment(Cost cost) {
+        this.cost = cost;
+        editing = true;
     }
 
     private void checkEntries() {
@@ -38,10 +38,15 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         if (!binding.location.getText().toString().trim().equals("Unknown"))
             cost.setLocation(binding.location.getText().toString().trim());
         cost.setLabel(binding.label.getText().toString().trim());
+        cost.setOdometer(Utils.parseInt(binding.odometerInput.getText()));
         if (!editing)
             settlement.getMiscellaneous().add(cost);
-        else
-            settlement.getMiscellaneous().set(index, cost);
+        else {
+            for (int x = 0; x < settlement.getMiscellaneous().size(); x++) {
+                if (settlement.getMiscellaneous().get(x).getStamp() == cost.getStamp())
+                    settlement.getMiscellaneous().set(x, cost);
+            }
+        }
         model.add(Utils.sortMiscellaneous(Utils.calculate(settlement), Utils.getOrder(getContext(), "miscellaneous"), Utils.getSort(getContext(), "miscellaneous")));
         dismiss();
     }
@@ -61,11 +66,6 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
-        if (getArguments() != null) {
-            editing = true;
-            cost = new Gson().fromJson(getArguments().getString("cost"), Cost.class);
-            index = getArguments().getInt("index");
-        }
     }
 
     @Nullable
@@ -90,6 +90,10 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
             binding.location.setText(cost.getLocation());
             if (cost.getCost() != 0) binding.cost.setText(String.valueOf(cost.getCost()));
             binding.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
+            binding.odometerInput.setText(String.valueOf(cost.getOdometer()));
+        } else {
+            binding.odometerInput.setText(String.valueOf(MainActivity.truck.getOdometer()));
+            model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setHint(locationString.getLocation()));
         }
         Calendar calendar = Calendar.getInstance();
         binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
@@ -101,28 +105,23 @@ public class NewMiscFragment extends DialogFragment implements View.OnClickListe
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewMiscFragment.this.settlement = settlement);
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
-    }
 
     @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-            switch (view.getId()) {
-                case R.id.cancel:
-                    this.dismiss();
-                    break;
-                case R.id.finish:
-                    checkEntries();
-                    break;
-                case R.id.gps:
-                    binding.location.setText(MI.returnLocation());
-                    break;
-            }
+        Utils.vibrate(view);
+        switch (view.getId()) {
+            case R.id.cancel:
+                Utils.hideKeyboard(requireContext(), view);
+                this.dismiss();
+                break;
+            case R.id.finish:
+                Utils.hideKeyboard(requireContext(), view);
+                checkEntries();
+                break;
+            case R.id.gps:
+                Utils.gps(requireActivity());
+                model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setText(locationString.getLocation()));
+                break;
         }
     }
 }

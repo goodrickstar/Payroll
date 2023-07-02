@@ -1,6 +1,4 @@
 package com.glass.payroll;
-
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.glass.payroll.databinding.UpdateOdometerBinding;
 
 public class FragmentOdometer extends DialogFragment implements View.OnClickListener {
-    private MI MI;
     private MainViewModel model;
     private UpdateOdometerBinding binding;
 
@@ -48,27 +45,19 @@ public class FragmentOdometer extends DialogFragment implements View.OnClickList
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
-    }
-
-    @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-            final Truck truck = (Truck) binding.odometer.getTag();
-            if (view.getId() == R.id.finish && truck != null) {
-                if (!TextUtils.isEmpty(binding.odometer.getText())) {
-                    int odometer = Integer.parseInt(binding.odometer.getText().toString().trim());
-                    if (odometer != 0 && odometer != truck.getOdometer()) {
-                        truck.setOdometer(odometer);
-                        model.add(truck);
-                    }
+        Utils.vibrate(view);
+        Utils.hideKeyboard(requireContext(), view);
+        final Truck truck = (Truck) binding.odometer.getTag();
+        if (view.getId() == R.id.finish && truck != null) {
+            if (!TextUtils.isEmpty(binding.odometer.getText())) {
+                int odometer = Integer.parseInt(binding.odometer.getText().toString().trim());
+                if (odometer != 0 && odometer != truck.getOdometer()) {
+                    truck.setOdometer(odometer);
+                    model.add(truck);
                 }
             }
-            dismiss();
         }
+        dismiss();
     }
 }

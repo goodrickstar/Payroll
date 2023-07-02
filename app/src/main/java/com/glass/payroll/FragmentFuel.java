@@ -72,7 +72,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter)).attachToRecyclerView(binding.recycler);
+        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "fuel"));
         binding.sort.setChecked(Utils.getSort(context, "fuel"));
@@ -116,9 +116,11 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.add_button && MI != null) {
-            MI.newFuel(null, 0);
-            Utils.vibrate(view);
+        Utils.vibrate(view);
+        NewFuelFragment fi = (NewFuelFragment) getParentFragmentManager().findFragmentByTag("newFuel");
+        if (fi == null) {
+            fi = new NewFuelFragment();
+            fi.show(getParentFragmentManager(), "newFuel");
         }
     }
 
@@ -126,7 +128,7 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
         return NumberFormat.getNumberInstance(Locale.US).format(count);
     }
 
-    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> {
+    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> implements View.OnClickListener {
         @NotNull
         @Override
         public viewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
@@ -145,11 +147,24 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             holder.note.setText(fuel.getNote());
             if (fuel.getNote().equals("")) holder.note.setVisibility(View.GONE);
             else holder.note.setVisibility(View.VISIBLE);
+            holder.itemView.setTag(fuel);
+            holder.itemView.setOnClickListener(this);
         }
 
         @Override
         public int getItemCount() {
             return settlement.getFuel().size();
+        }
+
+        @Override
+        public void onClick(View view) {
+            Utils.vibrate(view);
+            Fuel fuel = (Fuel) view.getTag();
+            NewFuelFragment fi = (NewFuelFragment) getParentFragmentManager().findFragmentByTag("newFuel");
+            if (fi == null) {
+                fi = new NewFuelFragment(fuel);
+                fi.show(getParentFragmentManager(), "newFuel");
+            }
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
@@ -171,12 +186,10 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
     }
 
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
-        private final RecycleAdapter adapter;
         private Drawable icon;
 
-        SwipeToDeleteCallback(RecycleAdapter adapter) {
-            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            this.adapter = adapter;
+        SwipeToDeleteCallback() {
+            super(0, ItemTouchHelper.LEFT);
             icon = ContextCompat.getDrawable(context, R.drawable.delete);
         }
 
@@ -191,32 +204,24 @@ public class FragmentFuel extends Fragment implements View.OnClickListener {
             final Fuel fuel = settlement.getFuel().get(position);
             if (MI != null) {
                 Utils.vibrate(viewHolder.itemView);
-                switch (i) {
-                    case ItemTouchHelper.LEFT: //delete
-                        settlement.getFuel().remove(position);
-                        Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
-                        snackbar.setAction("UNDO", view -> {
-                            if (MI != null) {
-                                Utils.vibrate(viewHolder.itemView);
-                                settlement.getFuel().add(position, fuel);
-                                calculate();
-                                model.add(Utils.calculate(settlement));
-                            }
-                        });
-                        View v = snackbar.getView();
-                        v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
-                        TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
-                        textView.setTextColor(Color.WHITE);
-                        snackbar.setActionTextColor(Color.WHITE);
-                        snackbar.show();
+                settlement.getFuel().remove(position);
+                Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", view -> {
+                    if (MI != null) {
+                        Utils.vibrate(viewHolder.itemView);
+                        settlement.getFuel().add(position, fuel);
                         calculate();
                         model.add(Utils.calculate(settlement));
-                        break;
-                    case ItemTouchHelper.RIGHT: //edit
-                        MI.newFuel(fuel, position);
-                        adapter.notifyItemChanged(position);
-                        break;
-                }
+                    }
+                });
+                View v = snackbar.getView();
+                v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setTextColor(Color.WHITE);
+                snackbar.setActionTextColor(Color.WHITE);
+                snackbar.show();
+                calculate();
+                model.add(Utils.calculate(settlement));
             }
         }
 

@@ -51,48 +51,43 @@ public class FragmentStatistics extends Fragment {
         super.onViewCreated(v, savedInstanceState);
         binding.averages.setHasFixedSize(true);
         binding.averages.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
+        model.stats().observe(getViewLifecycleOwner(), stats -> {
             ArrayList<AverageItem> averages = new ArrayList<>();
-            if (settlements.size() < 2) {
+            if (stats == null){
                 averages.add(new AverageItem("", "As new settlements are created and updated, statistics and data will be calculated.", ""));
                 binding.averages.setAdapter(new RecycleAdapter(averages));
-            } else {
-                model.getMostRecentSettlementId().observe(getViewLifecycleOwner(), recentId -> {
-                    settlements.removeIf(settlement -> settlement.getId() == recentId);
-                    final SettlementStats stats = Utils.calculateStats(settlements);
-                    averages.add(new AverageItem("YTD", " RECORDS: " + settlements.size(), "AVERAGE"));
-                    averages.add(new AverageItem("Gross Revenue", Utils.formatValueToCurrencyWhole(stats.getAvgGross())));
-                    averages.add(new AverageItem("Net Balance", Utils.formatValueToCurrencyWhole(stats.getAvgBalance())));
-                    averages.add(new AverageItem("Net CPM", Utils.formatValueToCurrency(stats.getAvgBalance() / stats.getAvgMiles())));
-                    averages.add(new AverageItem("Operating CPM", Utils.formatValueToCurrency((stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles())));
-                    averages.add(new AverageItem("Diesel Price", Utils.formatValueToCurrency(stats.getAvgDieselTotal() / stats.getAvgDieselGallons()) + " g"));
-                    averages.add(new AverageItem("DEF Price", Utils.formatValueToCurrency(stats.getAvgDefTotal() / stats.getAvgDefGallons()) + " g"));
-                    averages.add(new AverageItem("Fuel Mileage", Utils.formatDouble(stats.getTotalMiles() / stats.getTotalDieselGallons(), 3) + " mpg"));
-                    averages.add(new AverageItem("All Miles", Utils.formatDoubleWhole(stats.getAvgMiles()) + " m"));
-                    averages.add(new AverageItem("     Empty", Utils.formatDoubleWhole(stats.getAvgEmptyMiles()) + " m"));
-                    averages.add(new AverageItem("     Loaded", Utils.formatDoubleWhole(stats.getAvgLoadedMiles()) + " m"));
-                    averages.add(new AverageItem("Loaded Rates", Utils.formatValueToCurrency(stats.getAvgLoadedRate())));
-                    averages.add(new AverageItem("     General", Utils.formatValueToCurrency(stats.getAvgGeneralRate())));
-                    if (stats.getAvgHazmatRate() != 0)
-                        averages.add(new AverageItem("     Hazmat", Utils.formatValueToCurrency(stats.getAvgHazmatRate())));
-                    if (stats.getAvgReeferRate() != 0)
-                        averages.add(new AverageItem("     Reefer", Utils.formatValueToCurrency(stats.getAvgReeferRate())));
-                    if (stats.getAvgHazmatAndReeferRate() != 0)
-                        averages.add(new AverageItem("     Ref-Haz", Utils.formatValueToCurrency(stats.getAvgHazmatAndReeferRate())));
-                    averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(stats.getAvgDieselTotal() + stats.getAvgDefTotal())));
-                    averages.add(new AverageItem("     Diesel", Utils.formatValueToCurrency(stats.getAvgDieselTotal())));
-                    averages.add(new AverageItem("     DEF", Utils.formatValueToCurrency(stats.getAvgDefTotal())));
-                    averages.add(new AverageItem("Diesel & DEF", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
-                    averages.add(new AverageItem("     Diesel Gallons", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + " g"));
-                    averages.add(new AverageItem("     DEF Gallons", Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
-                    binding.averages.setAdapter(new RecycleAdapter(averages));
-                    binding.annual.setText("Total Miles: " + Utils.formatDoubleWhole(stats.getTotalMiles()) + "  |  " + "Total Fuel: " + Utils.formatValueToCurrencyWhole(stats.getTotalFuel()));
-                    binding.annual.setText(Utils.addLine(binding.annual) + "Total Revenue: " + Utils.formatValueToCurrencyWhole(stats.getTotalGross()) + "  |  " + "Total Net: " + Utils.formatValueToCurrencyWhole(stats.getTotalProfit()));
-                    binding.annual.setText(Utils.addLine(binding.annual) + "Estimated Annual Profit: $" + Utils.formatInt((int) stats.getAvgBalance() * 50) + " (50 Weeks)");
-                    binding.averages.setAdapter(new RecycleAdapter(averages));
-                    model.add(stats);
-                });
+                return;
             }
+            averages.add(new AverageItem("YTD", "AVERAGE"));
+            averages.add(new AverageItem("Gross Revenue", Utils.formatValueToCurrencyWhole(stats.getAvgGross())));
+            averages.add(new AverageItem("Net Balance", Utils.formatValueToCurrencyWhole(stats.getAvgBalance())));
+            averages.add(new AverageItem("Net CPM", Utils.formatValueToCurrency(stats.getAvgBalance() / stats.getAvgMiles())));
+            averages.add(new AverageItem("Operating CPM", Utils.formatValueToCurrency((stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles())));
+            averages.add(new AverageItem("Diesel Price", Utils.formatValueToCurrency(stats.getAvgDieselTotal() / stats.getAvgDieselGallons()) + " g"));
+            averages.add(new AverageItem("DEF Price", Utils.formatValueToCurrency(stats.getAvgDefTotal() / stats.getAvgDefGallons()) + " g"));
+            averages.add(new AverageItem("Fuel Mileage", Utils.formatDouble(stats.getTotalMiles() / stats.getTotalDieselGallons(), 3) + " mpg"));
+            averages.add(new AverageItem("All Miles", Utils.formatDoubleWhole(stats.getAvgMiles()) + " m"));
+            averages.add(new AverageItem("     Empty", Utils.formatDoubleWhole(stats.getAvgEmptyMiles()) + " m"));
+            averages.add(new AverageItem("     Loaded", Utils.formatDoubleWhole(stats.getAvgLoadedMiles()) + " m"));
+            averages.add(new AverageItem("Loaded Rates", Utils.formatValueToCurrency(stats.getAvgLoadedRate())));
+            averages.add(new AverageItem("     General", Utils.formatValueToCurrency(stats.getAvgGeneralRate())));
+            if (stats.getAvgHazmatRate() != 0)
+                averages.add(new AverageItem("     Hazmat", Utils.formatValueToCurrency(stats.getAvgHazmatRate())));
+            if (stats.getAvgReeferRate() != 0)
+                averages.add(new AverageItem("     Reefer", Utils.formatValueToCurrency(stats.getAvgReeferRate())));
+            if (stats.getAvgHazmatAndReeferRate() != 0)
+                averages.add(new AverageItem("     Ref-Haz", Utils.formatValueToCurrency(stats.getAvgHazmatAndReeferRate())));
+            averages.add(new AverageItem("Fuel Cost", Utils.formatValueToCurrency(stats.getAvgDieselTotal() + stats.getAvgDefTotal())));
+            averages.add(new AverageItem("     Diesel", Utils.formatValueToCurrency(stats.getAvgDieselTotal())));
+            averages.add(new AverageItem("     DEF", Utils.formatValueToCurrency(stats.getAvgDefTotal())));
+            averages.add(new AverageItem("Diesel & DEF", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
+            averages.add(new AverageItem("     Diesel Gallons", Utils.formatDouble(stats.getAvgDieselGallons(), 2) + " g"));
+            averages.add(new AverageItem("     DEF Gallons", Utils.formatDouble(stats.getAvgDefGallons(), 2) + " g"));
+            binding.averages.setAdapter(new RecycleAdapter(averages));
+            binding.annual.setText("Total Miles: " + Utils.formatDoubleWhole(stats.getTotalMiles()) + "     " + "Total Fuel: " + Utils.formatValueToCurrencyWhole(stats.getTotalFuel()));
+            binding.annual.setText(Utils.addLine(binding.annual) + "Total Revenue: " + Utils.formatValueToCurrencyWhole(stats.getTotalGross()) + "     " + "Total Net: " + Utils.formatValueToCurrencyWhole(stats.getTotalProfit()));
+            binding.annual.setText(Utils.addLine(binding.annual) + "Estimated Annual Profit: $" + Utils.formatInt((int) stats.getAvgBalance() * 50) + " (50 Weeks)");
+            binding.averages.setAdapter(new RecycleAdapter(averages));
 
         });
     }

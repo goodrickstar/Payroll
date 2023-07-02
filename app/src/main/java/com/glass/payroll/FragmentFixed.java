@@ -22,9 +22,6 @@ import com.glass.payroll.databinding.FragmentFixedBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.text.NumberFormat;
-import java.util.Locale;
 public class FragmentFixed extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
@@ -60,7 +57,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback());
         itemTouchHelper.attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "fixed"));
@@ -110,13 +107,15 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.add_button && MI != null) {
-            MI.newFixed(null, 0);
-            Utils.vibrate(view);
+        Utils.vibrate(view);
+        NewFixedFragment fi = (NewFixedFragment) getParentFragmentManager().findFragmentByTag("newFixed");
+        if (fi == null) {
+            fi = new NewFixedFragment();
+            fi.show(getParentFragmentManager(), "newFixed");
         }
     }
 
-    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> {
+    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> implements View.OnClickListener {
         @NotNull
         @Override
         public viewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
@@ -125,15 +124,28 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
 
         @Override
         public void onBindViewHolder(@NotNull viewHolder holder, int position) {
-            Cost row = settlement.getFixed().get(position);
+            Cost cost = settlement.getFixed().get(position);
             holder.cost.setTextColor(Color.RED);
-            holder.label.setText(row.getLabel());
-            holder.cost.setText(Utils.formatValueToCurrency(row.getCost(), true));
+            holder.label.setText(cost.getLabel());
+            holder.cost.setText(Utils.formatValueToCurrency(cost.getCost(), true));
+            holder.itemView.setTag(cost);
+            holder.itemView.setOnClickListener(this);
         }
 
         @Override
         public int getItemCount() {
             return settlement.getFixed().size();
+        }
+
+        @Override
+        public void onClick(View view) {
+            Cost cost = (Cost) view.getTag();
+            Utils.vibrate(view);
+            NewFixedFragment fi = (NewFixedFragment) getParentFragmentManager().findFragmentByTag("newFixed");
+            if (fi == null) {
+                fi = new NewFixedFragment(cost);
+                fi.show(getParentFragmentManager(), "newFixed");
+            }
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
@@ -148,17 +160,11 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         }
     }
 
-    private String formatInt(int count) {
-        return NumberFormat.getNumberInstance(Locale.US).format(count);
-    }
-
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private Drawable icon;
-        private final RecycleAdapter adapter;
 
-        public SwipeToDeleteCallback(RecycleAdapter adapter) {
-            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            this.adapter = adapter;
+        public SwipeToDeleteCallback() {
+            super(0, ItemTouchHelper.LEFT);
             icon = ContextCompat.getDrawable(context, R.drawable.edit);
         }
 
@@ -173,32 +179,24 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                 Utils.vibrate(viewHolder.itemView);
                 final int position = viewHolder.getAdapterPosition();
                 final Cost cost = settlement.getFixed().get(position);
-                switch (direction) {
-                    case ItemTouchHelper.LEFT:
-                        settlement.getFixed().remove(position);
-                        Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
-                        snackbar.setAction("UNDO", view -> {
-                            if (MI != null) {
-                                Utils.vibrate(viewHolder.itemView);
-                                settlement.getFixed().add(position, cost);
-                                calculate();
-                                model.add(Utils.calculate(settlement));
-                            }
-                        });
-                        View v = snackbar.getView();
-                        v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
-                        TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
-                        textView.setTextColor(Color.WHITE);
-                        snackbar.setActionTextColor(Color.WHITE);
-                        snackbar.show();
+                settlement.getFixed().remove(position);
+                Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", view -> {
+                    if (MI != null) {
+                        Utils.vibrate(viewHolder.itemView);
+                        settlement.getFixed().add(position, cost);
                         calculate();
                         model.add(Utils.calculate(settlement));
-                        break;
-                    case ItemTouchHelper.RIGHT:
-                        adapter.notifyItemChanged(position);
-                        MI.newFixed(cost, position);
-                        break;
-                }
+                    }
+                });
+                View v = snackbar.getView();
+                v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setTextColor(Color.WHITE);
+                snackbar.setActionTextColor(Color.WHITE);
+                snackbar.show();
+                calculate();
+                model.add(Utils.calculate(settlement));
             }
         }
 
@@ -206,19 +204,7 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
         public void onChildDraw(@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             View itemView = viewHolder.itemView;
-            //int backgroundCornerOffset = 0;
-            if (dX > 0) { // Swiping stop the right
-                //background = new ColorDrawable(Color.BLUE);
-                icon = ContextCompat.getDrawable(context, R.drawable.edit);
-                int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
-                int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
-                int iconLeft = itemView.getLeft() + iconMargin;
-                if (iconRight > dX) icon.setBounds(0, 0, 0, 0);
-                else
-                    icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX) + backgroundCornerOffset, itemView.getBottom());
-            } else if (dX < 0) { // Swiping stop the left
-                //background = new ColorDrawable(Color.RED);
+            if (dX < 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.delete);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
@@ -227,12 +213,9 @@ public class FragmentFixed extends Fragment implements View.OnClickListener {
                 if (-iconWidth < dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-            } else { // view is unSwiped
-                //background.setBounds(0, 0, 0, 0);
+            } else {
                 icon.setBounds(0, 0, 0, 0);
             }
-            //background.draw(c);
             icon.draw(c);
         }
     }

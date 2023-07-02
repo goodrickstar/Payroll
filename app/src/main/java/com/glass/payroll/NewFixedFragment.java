@@ -1,5 +1,4 @@
 package com.glass.payroll;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,20 +12,21 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewFixedBinding;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
 
 public class NewFixedFragment extends DialogFragment implements View.OnClickListener {
-    private MI MI;
     private Cost cost = new Cost();
     private boolean editing = false;
-    private int index = 0;
     private FragmentNewFixedBinding binding;
     private Settlement settlement;
     private MainViewModel model;
     public NewFixedFragment() {
-        // Required empty public constructor
+    }
+
+    public NewFixedFragment(Cost cost) {
+        this.cost = cost;
+        editing = true;
     }
 
     private void checkEntries() {
@@ -39,8 +39,10 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
         if (!editing) {
             settlement.getFixed().add(cost);
         } else {
-            settlement.getFixed().remove(index);
-            settlement.getFixed().add(index, cost);
+            for (int x = 0; x < settlement.getFixed().size(); x++) {
+                if (settlement.getFixed().get(x).getStamp() == cost.getStamp())
+                    settlement.getFixed().set(x, cost);
+            }
         }
         model.add(Utils.sortFixed(Utils.calculate(settlement), Utils.getOrder(getContext(), "fixed"), Utils.getSort(getContext(), "fixed")));
         this.dismiss();
@@ -61,11 +63,6 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
-        if (getArguments() != null) {
-            editing = true;
-            index = getArguments().getInt("index");
-            cost = new Gson().fromJson(getArguments().getString("cost"), Cost.class);
-        }
     }
 
     @Nullable
@@ -100,24 +97,16 @@ public class NewFixedFragment extends DialogFragment implements View.OnClickList
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
-    }
-
-    @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-            switch (view.getId()) {
-                case R.id.cancel:
-                    this.dismiss();
-                    break;
-                case R.id.finish:
-                    checkEntries();
-                    break;
-            }
+        Utils.vibrate(view);
+        Utils.hideKeyboard(requireContext(), view);
+        switch (view.getId()) {
+            case R.id.cancel:
+                this.dismiss();
+                break;
+            case R.id.finish:
+                checkEntries();
+                break;
         }
     }
 }

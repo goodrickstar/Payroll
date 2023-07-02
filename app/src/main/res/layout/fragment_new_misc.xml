@@ -109,22 +109,6 @@
                 app:layout_constraintStart_toStartOf="@+id/textView9"
                 app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
-            <EditText
-                android:id="@+id/weight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/custom_edit_text"
-                android:ems="7"
-                android:gravity="left|center_vertical"
-                android:hint="@string/_123456"
-                android:inputType="number"
-                android:padding="@dimen/common_margin"
-                android:textColor="@color/colorTextBlack"
-                app:layout_constraintStart_toStartOf="@+id/textView16"
-                app:layout_constraintTop_toBottomOf="@+id/textView16" />
-
             <ImageView
                 android:id="@+id/gps"
                 android:layout_width="wrap_content"
@@ -226,6 +210,19 @@
                 android:textColor="@color/colorTextBlack"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cost" />
+
+            <EditText
+                android:id="@+id/odometerInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/common_margin"
+                android:background="@drawable/custom_edit_text"
+                android:ems="7"
+                android:hint="@string/_123456"
+                android:inputType="number"
+                android:padding="@dimen/common_margin"
+                app:layout_constraintStart_toStartOf="@+id/textView16"
+                app:layout_constraintTop_toBottomOf="@+id/textView16" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

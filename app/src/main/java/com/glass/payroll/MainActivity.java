@@ -1,6 +1,5 @@
 package com.glass.payroll;
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,7 +36,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -83,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     static final Gson gson = new Gson();
     private Settlement settlement = new Settlement();
     static FirebaseUser user;
-    private static String location = "";
     private final Map<String, String> STATE_MAP = new HashMap<>();
     private final locationCallback locationCallback = new locationCallback();
     private FusedLocationProviderClient mFusedLocationClient;
@@ -100,15 +96,12 @@ public class MainActivity extends AppCompatActivity implements MI {
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(new FirebaseAuthUIActivityResultContract(), new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
         @Override
         public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-            IdpResponse response = result.getIdpResponse();
             if (result.getResultCode() == RESULT_OK) {
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
                 signInSheet();
                 drawerLayout.close();
-            } else {
-                Log.i("AUTH", "CODE: " + response.getError().getErrorCode());
-                Log.i("AUTH", response.getError().getLocalizedMessage());
+                model.add(new LocationString(user.getUid(), ""));
             }
         }
     });
@@ -221,11 +214,7 @@ public class MainActivity extends AppCompatActivity implements MI {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 0) {//location permission
-            for (int result : grantResults) {
-                if (result == PackageManager.PERMISSION_GRANTED) requestLocationUpdates();
-            }
-        }
+        if (requestCode == 0 && Utils.permissionsAccepted(this)) requestLocationUpdates();
     }
 
     private void locationUpdated(final Location location) throws IOException {
@@ -240,10 +229,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                 if (country_code != null) {
                     if (city != null && state != null) {
                         city = city.replaceAll("(?i)township", "");
-                        if (address.getCountryCode().equals("US"))
-                            MainActivity.location = city.trim() + ", " + getAbbreviationFromUSState(state);
-                        else
-                            MainActivity.location = address.getLocality() + ", " + address.getCountryCode();
+                        model.add(new LocationString(user.getUid(), city.trim() + ", " + getAbbreviationFromUSState(state)));
                     }
                 }
             }
@@ -313,8 +299,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         if (locationGranted()) requestLocationUpdates();
         date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
     }
-
-    @Override
     public void handleMenuNavigation(MenuItem menuItem, boolean close, boolean physical) {
         if (physical) Utils.vibrate(drawerLayout);
         if (close && drawerLayout.isDrawerOpen(Gravity.LEFT)) drawerLayout.closeDrawers();
@@ -378,7 +362,6 @@ public class MainActivity extends AppCompatActivity implements MI {
         handleGrouping();
     }
 
-    @Override
     public void handleGrouping() {
         if (user == null) {
             balance.setText("Welcome to Payroll");
@@ -480,20 +463,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     @Override
-    public String returnLocation() {
-        if (!locationPermission()) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-            location = "";
-            return "";
-        } else return location;
-    }
-
-    @Override
-    public boolean locationPermission() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @Override
     public void showSnack(String message, int length) {
         final Snackbar snackbar = Snackbar.make(content_frame, message, length);
         snackbar.getView().setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
@@ -514,68 +483,10 @@ public class MainActivity extends AppCompatActivity implements MI {
     }
 
     @Override
-    public void newLoad(Load load, int index) {
-        NewLoadFragment fi = new NewLoadFragment();
-        if (load != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("load", gson.toJson(load));
-            bundle.putInt("index", index);
-            fi.setArguments(bundle);
-        }
-        fi.show(fragmentManager, "newLoad");
-    }
-
-    @Override
-    public void newFuel(Fuel fuel, int index) {
-        NewFuelFragment fi = new NewFuelFragment();
-        if (fuel != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("fuel", gson.toJson(fuel));
-            bundle.putInt("index", index);
-            fi.setArguments(bundle);
-        }
-        fi.show(fragmentManager, "newFuel");
-    }
-
-    @Override
-    public void newFixed(Cost cost, int index) {
-        NewFixedFragment fi = new NewFixedFragment();
-        if (cost != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("cost", gson.toJson(cost));
-            bundle.putInt("index", index);
-            fi.setArguments(bundle);
-        }
-        fi.show(fragmentManager, "newFixed");
-    }
-
-    @Override
-    public void newMisc(Cost cost, int index) {
-        NewMiscFragment fi = new NewMiscFragment();
-        if (cost != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("cost", gson.toJson(cost));
-            bundle.putInt("index", index);
-            fi.setArguments(bundle);
-        }
-        fi.show(fragmentManager, "newMisc");
-    }
-
-    @Override
     public void navigate(int i) {
         handleMenuNavigation(navigationView.getMenu().findItem(i), false, false);
     }
 
-    @Override
-    public void group() {
-        handleGrouping();
-    }
-
-    @Override
-    public void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
 
     private String getAbbreviationFromUSState(String state) {
         return STATE_MAP.getOrDefault(state, state);

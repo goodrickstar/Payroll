@@ -1,8 +1,6 @@
 package com.glass.payroll;
-
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +17,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class FragmentBackup extends Fragment {
     private MI MI;
@@ -103,8 +100,7 @@ public class FragmentBackup extends Fragment {
                         }
                     }
                     binding.restoreButton.setEnabled(!listResult.getItems().isEmpty());
-                })
-                .addOnFailureListener(e -> Log.i("testing", e.getMessage()));
+                });
     }
 
 }

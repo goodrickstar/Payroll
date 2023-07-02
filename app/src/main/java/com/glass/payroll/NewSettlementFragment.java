@@ -2,7 +2,6 @@ package com.glass.payroll;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewSettlementBinding;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 
+import java.time.Instant;
 import java.util.Calendar;
 public class NewSettlementFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
@@ -32,8 +31,6 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
     private void checkEntries() {
         model.getAllSettlements().observe(getViewLifecycleOwner(), settlements -> {
             binding.loadingbar.setVisibility(View.VISIBLE);
-            Log.i("ROOM", "called");
-            Log.i("ROOM", new Gson().toJson(settlements.get(0)));
             if (binding.checkBox.isChecked()) {
                 settlement.setPayout(settlements.get(0).getPayout());
                 settlement.setFixed(settlements.get(0).getFixed());
@@ -71,6 +68,8 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
         binding.cancel.setOnClickListener(this);
         binding.finish.setOnClickListener(this);
         model.getMostRecentEndingDate().observe(getViewLifecycleOwner(), mostRecent -> {
+            long current = Instant.now().getEpochSecond();
+            if (current > mostRecent) mostRecent = current;
             calendar.setTimeInMillis(mostRecent);
             calendar.add(Calendar.DAY_OF_WEEK, 1);
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -106,7 +105,7 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        if (MI != null) Utils.vibrate(datePicker.getRootView());
+        Utils.vibrate(datePicker.getRootView());
         calendar.set(year, month, day);
         switch (mode) {
             case 1:
@@ -141,10 +140,8 @@ public class NewSettlementFragment extends DialogFragment implements DatePickerD
 
     @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-        }
+        Utils.vibrate(view);
+        Utils.hideKeyboard(requireContext(), view);
         calendar.setTimeInMillis(System.currentTimeMillis());
         DatePickerDialog datePickerDialog;
         switch (view.getId()) {

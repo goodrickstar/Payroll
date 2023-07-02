@@ -59,7 +59,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recycler.setAdapter(recyclerAdapter);
-        new ItemTouchHelper(new SwipeToDeleteCallback(recyclerAdapter)).attachToRecyclerView(binding.recycler);
+        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.recycler);
         binding.addButton.setOnClickListener(this);
         binding.order.setChecked(Utils.getOrder(context, "miscellaneous"));
         binding.sort.setChecked(Utils.getSort(context, "miscellaneous"));
@@ -104,13 +104,15 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.add_button && MI != null) {
-            MI.newMisc(null, 0);
-            Utils.vibrate(view);
+        Utils.vibrate(view);
+        NewMiscFragment fi = (NewMiscFragment) getParentFragmentManager().findFragmentByTag("newMisc");
+        if (fi == null) {
+            fi = new NewMiscFragment();
+            fi.show(getParentFragmentManager(), "newMisc");
         }
     }
 
-    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> {
+    private class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.viewHolder> implements View.OnClickListener {
         @NotNull
         @Override
         public viewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
@@ -125,11 +127,24 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
             holder.cost.setText(Utils.formatValueToCurrency(cost.getCost(), true));
             holder.date.setText(Utils.toShortDateSpelled(cost.getStamp()));
             holder.gallons.setText(cost.getLocation());
+            holder.itemView.setTag(cost);
+            holder.itemView.setOnClickListener(this);
         }
 
         @Override
         public int getItemCount() {
             return settlement.getMiscellaneous().size();
+        }
+
+        @Override
+        public void onClick(View view) {
+            Utils.vibrate(view);
+            Cost cost = (Cost) view.getTag();
+            NewMiscFragment fi = (NewMiscFragment) getParentFragmentManager().findFragmentByTag("newMisc");
+            if (fi == null) {
+                fi = new NewMiscFragment(cost);
+                fi.show(getParentFragmentManager(), "newMisc");
+            }
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
@@ -149,13 +164,10 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
     }
 
     class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
-        //private final ColorDrawable background;
         private Drawable icon;
-        private final RecycleAdapter adapter;
 
-        public SwipeToDeleteCallback(RecycleAdapter adapter) {
-            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            this.adapter = adapter;
+        public SwipeToDeleteCallback() {
+            super(0, ItemTouchHelper.LEFT);
             icon = ContextCompat.getDrawable(context, R.drawable.edit);
         }
 
@@ -170,30 +182,22 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                 Utils.vibrate(viewHolder.itemView);
                 final int position = viewHolder.getAdapterPosition();
                 final Cost cost = settlement.getMiscellaneous().get(position);
-                switch (direction) {
-                    case ItemTouchHelper.LEFT:
-                        settlement.getMiscellaneous().remove(position);
-                        Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
-                        snackbar.setAction("UNDO", view -> {
-                            settlement.getMiscellaneous().add(position, cost);
-                            calculate();
-                            model.add(Utils.calculate(settlement));
-                            Utils.vibrate(viewHolder.itemView);
-                        });
-                        View v = snackbar.getView();
-                        v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
-                        TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
-                        textView.setTextColor(Color.WHITE);
-                        snackbar.setActionTextColor(Color.WHITE);
-                        snackbar.show();
-                        calculate();
-                        model.add(Utils.calculate(settlement));
-                        break;
-                    case ItemTouchHelper.RIGHT:
-                        adapter.notifyItemChanged(position);
-                        MI.newMisc(cost, position);
-                        break;
-                }
+                settlement.getMiscellaneous().remove(position);
+                Snackbar snackbar = Snackbar.make(binding.coordinator, "Item Deleted", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", view -> {
+                    settlement.getMiscellaneous().add(position, cost);
+                    calculate();
+                    model.add(Utils.calculate(settlement));
+                    Utils.vibrate(viewHolder.itemView);
+                });
+                View v = snackbar.getView();
+                v.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                TextView textView = v.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setTextColor(Color.WHITE);
+                snackbar.setActionTextColor(Color.WHITE);
+                snackbar.show();
+                calculate();
+                model.add(Utils.calculate(settlement));
             }
         }
 
@@ -201,19 +205,7 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
         public void onChildDraw(@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             View itemView = viewHolder.itemView;
-            //int backgroundCornerOffset = 0;
-            if (dX > 0) { // Swiping stop the right
-                //background = new ColorDrawable(Color.BLUE);
-                icon = ContextCompat.getDrawable(context, R.drawable.edit);
-                int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
-                int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
-                int iconLeft = itemView.getLeft() + iconMargin;
-                if (iconRight > dX) icon.setBounds(0, 0, 0, 0);
-                else
-                    icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX) + backgroundCornerOffset, itemView.getBottom());
-            } else if (dX < 0) { // Swiping stop the left
-                //background = new ColorDrawable(Color.RED);
+            if (dX < 0) {
                 icon = ContextCompat.getDrawable(context, R.drawable.delete);
                 int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 3;
                 int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
@@ -222,12 +214,9 @@ public class FragmentMiscellaneous extends Fragment implements View.OnClickListe
                 if (-iconWidth < dX) icon.setBounds(0, 0, 0, 0);
                 else
                     icon.setBounds(iconLeft, itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2, iconRight, (itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2) + icon.getIntrinsicHeight());
-                //background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-            } else { // view is unSwiped
-                //background.setBounds(0, 0, 0, 0);
+            } else {
                 icon.setBounds(0, 0, 0, 0);
             }
-            //background.draw(c);
             icon.draw(c);
         }
     }

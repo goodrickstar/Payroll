@@ -3,11 +3,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -16,20 +15,22 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.glass.payroll.databinding.FragmentNewFuelBinding;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
     private MI MI;
     private Fuel fuel = new Fuel();
     private boolean editing = false;
-    private int index = 0;
     private Settlement settlement;
     private MainViewModel model;
     private FragmentNewFuelBinding binding;
 
     public NewFuelFragment() {
-        // Required empty public constructor
+    }
+
+    public NewFuelFragment(Fuel fuel) {
+        this.fuel = fuel;
+        editing = true;
     }
 
     private void checkEntries() {
@@ -42,7 +43,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (error) return;
         int odometer = parseInt(binding.odometer.getText());
         fuel.setOdometer(odometer);
-        Log.i("Fuel", String.valueOf(Utils.parseDouble(binding.fuelPrice.getText())));
         fuel.setFuelPrice(Utils.parseDouble(binding.fuelPrice.getText()));
         fuel.setGallons(Utils.parseDouble(binding.gallons.getText()));
         fuel.setCost(fuel.getFuelPrice() * fuel.getGallons());
@@ -52,9 +52,11 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (!editing) {
             settlement.getFuel().add(fuel);
         } else {
-            settlement.getFuel().set(index, fuel);
+            for (int x = 0; x < settlement.getFuel().size(); x++) {
+                if (settlement.getFuel().get(x).getStamp() == fuel.getStamp())
+                    settlement.getFuel().set(x, fuel);
+            }
         }
-        Log.i("Fuel", new Gson().toJson(settlement));
         model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
         if (MainActivity.truck != null && !editing)
             model.add(MainActivity.truck);
@@ -74,7 +76,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         }
     }
 
-
     @Override
     public int getTheme() {
         return R.style.AppTheme_NoActionBar_FullScreenDialog;
@@ -85,11 +86,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_NoTitleBar_Fullscreen);
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
-        if (getArguments() != null) {
-            editing = true;
-            fuel = new Gson().fromJson(getArguments().getString("fuel"), Fuel.class);
-            index = getArguments().getInt("index");
-        }
     }
 
     @Nullable
@@ -109,6 +105,28 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         binding.fuelPrice.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(1, 3, 10)});
         binding.gallons.setFilters(new DigitsInputFilter[]{new DigitsInputFilter(3, 3, 300)});
         binding.odometer.setFilters(Utils.inputFilter());
+        final TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!binding.fuelPrice.getText().toString().isEmpty() && !binding.gallons.getText().toString().isEmpty()) {
+                    double price = Utils.parseDouble(binding.fuelPrice.getText());
+                    double gallons = Utils.parseDouble(binding.gallons.getText());
+                    if (price != 0 && gallons != 0) {
+                        binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(gallons * price, true));
+                    }
+                }
+            }
+        };
+        binding.fuelPrice.addTextChangedListener(watcher);
+        binding.gallons.addTextChangedListener(watcher);
         if (editing) {
             binding.title.setText("Edit Fuel Entry");
             binding.finish.setText("Update");
@@ -130,12 +148,7 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
                 binding.odometer.setText(String.valueOf(MainActivity.truck.getOdometer()));
                 binding.truckNumber2.setText(String.valueOf(MainActivity.truck.getId()));
             }
-            if (MI != null) {
-                if (MI.locationPermission()) {
-                    if (!MI.returnLocation().isEmpty())
-                        binding.location.setHint(MI.returnLocation());
-                }
-            }
+            model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setHint(locationString.getLocation()));
         }
         Calendar calendar = Calendar.getInstance();
         binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
@@ -151,26 +164,10 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
         if (fuel.getDef()) binding.info.setVisibility(View.VISIBLE);
         else binding.info.setVisibility(View.GONE);
         Utils.showKeyboard(getContext(), binding.fuelPrice);
-        EditText.OnEditorActionListener actionListener = (textView, actionId, keyEvent) -> {
-            switch (actionId) {
-                case EditorInfo.IME_ACTION_NEXT:
-                    double fuelPrice = Utils.parseDouble(binding.fuelPrice.getText());
-                    double gallons = Utils.parseDouble(binding.gallons.getText());
-                    if (fuelPrice != 0 && gallons != 0) {
-                        binding.totalFuelCostTv.setText(Utils.formatValueToCurrency(gallons * fuelPrice, true));
-                    }
-                    break;
-                case EditorInfo.IME_ACTION_DONE:
-                    if (textView.getId() == R.id.location)
-                        binding.location.setText(MI.returnLocation());
-                    break;
-            }
+        binding.location.setOnEditorActionListener((textView, i, keyEvent) -> {
+            model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setText(locationString.getLocation()));
             return false;
-        };
-        binding.fuelPrice.setOnEditorActionListener(actionListener);
-        binding.gallons.setOnEditorActionListener(actionListener);
-        binding.odometer.setOnEditorActionListener(actionListener);
-        binding.location.setOnEditorActionListener(actionListener);
+        });
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
     }
 
@@ -182,20 +179,20 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if (MI != null) {
-            Utils.vibrate(view);
-            MI.hideKeyboard(view);
-            switch (view.getId()) {
-                case R.id.cancel:
-                    this.dismiss();
-                    break;
-                case R.id.finish:
-                    checkEntries();
-                    break;
-                case R.id.gps:
-                    binding.location.setText(MI.returnLocation());
-                    break;
-            }
+        Utils.vibrate(view);
+        switch (view.getId()) {
+            case R.id.cancel:
+                Utils.hideKeyboard(requireContext(), view);
+                this.dismiss();
+                break;
+            case R.id.finish:
+                Utils.hideKeyboard(requireContext(), view);
+                checkEntries();
+                break;
+            case R.id.gps:
+                Utils.gps(requireActivity());
+                model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setText(locationString.getLocation()));
+                break;
         }
     }
 }
