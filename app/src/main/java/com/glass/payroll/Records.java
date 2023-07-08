@@ -5,7 +5,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
-@Database(entities = {Settlement.class, Truck.class, Trailer.class, SettlementStats.class, LocationString.class}, version = 1)
+@Database(entities = {Settlement.class, Truck.class, Trailer.class, SettlementStats.class, LocationString.class, WorkOrder.class}, version = 1)
 @TypeConverters({Converters.class})
 abstract public class Records extends RoomDatabase {
     public abstract DaoSettlements daoSettlements();
@@ -13,6 +13,7 @@ abstract public class Records extends RoomDatabase {
     public abstract DaoTruck daoTruck();
     public abstract DaoStats daoStats();
     public abstract DaoLocation daoLocation();
+    public abstract DaoWorkOrders daoWorkOrders();
 
     private static volatile Records INSTANCE;
 

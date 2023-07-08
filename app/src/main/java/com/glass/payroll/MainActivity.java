@@ -342,6 +342,9 @@ public class MainActivity extends AppCompatActivity implements MI {
                 case R.id.equipment:
                     transaction.replace(R.id.content_frame, new FragmentEquipment(), "equipment");
                     break;
+                case R.id.maintenance:
+                    transaction.replace(R.id.content_frame, new FragmentSchedule(), "maintenance");
+                    break;
             }
         } else {
             if (navigationView.getCheckedItem() != null)

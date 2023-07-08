@@ -18,6 +18,13 @@
             android:layout_height="wrap_content"
             android:icon="@drawable/equipment_icon"
             android:title="@string/equipment" />
+
+        <item
+            android:id="@+id/maintenance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/maintenance"
+            android:title="Maintenance" />
     </group>
     <group
         android:id="@+id/navigation_group"

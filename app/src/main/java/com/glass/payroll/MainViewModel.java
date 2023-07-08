@@ -17,6 +17,7 @@ public class MainViewModel extends AndroidViewModel {
     private String userId;
 
     private LiveData<LocationString> locationStringLiveData;
+    private LiveData<List<WorkOrder>> workOrderLiveData;
     private LiveData<Long> mostRecentEndingDate;
     private LiveData<Settlement> settlement;
     private LiveData<List<Settlement>> settlements;
@@ -91,6 +92,11 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoTruck().addTruck(truck));
     }
 
+    public void add(WorkOrder workOrder) {
+        workOrder.setStamp(Instant.now().getEpochSecond());
+        executor.execute(() -> database.daoWorkOrders().add(workOrder));
+    }
+
     public void add(Trailer trailer) {
         trailer.setStamp(Instant.now().getEpochSecond());
         executor.execute(() -> database.daoTrailer().addTrailer(trailer));
@@ -155,5 +161,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public void add(LocationString locationString) {
         executor.execute(() -> database.daoLocation().addLocation(locationString));
+    }
+
+    public LiveData<List<WorkOrder>> workOrders(Truck truck) {
+        workOrderLiveData = database.daoWorkOrders().getWorkOrders(truck.getId());
+        return workOrderLiveData;
     }
 }
