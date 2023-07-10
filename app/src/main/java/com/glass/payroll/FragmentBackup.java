@@ -1,5 +1,7 @@
 package com.glass.payroll;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +18,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
-
 public class FragmentBackup extends Fragment {
     private MI MI;
     private FragmentBackupBinding binding;
@@ -59,7 +61,15 @@ public class FragmentBackup extends Fragment {
         });
         binding.restoreButton.setOnClickListener(view -> {
             Utils.vibrate(view);
-            restoreDatabaseFromStorage();
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                Utils.vibrate(binding.restoreButton);
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    restoreDatabaseFromStorage();
+                }
+            };
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage("This will clear your local database and replace it with the cloud backup.").setPositiveButton("Okay", dialogClickListener)
+                    .setNegativeButton("Cancel", dialogClickListener).show();
         });
     }
 
@@ -71,36 +81,41 @@ public class FragmentBackup extends Fragment {
 
     private void restoreDatabaseFromStorage() {
         final long ONE_MEGABYTE = 1024 * 1024;
-        ref.child("settlements.txt").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
-            model.emptyTables();
-            ArrayList<Settlement> settlements = Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8));
-            model.add(settlements);
-            model.add(settlements.get(0));
-            ref.child("trucks.txt").getBytes(ONE_MEGABYTE)
-                    .addOnSuccessListener(trucks -> {
-                        model.addTrucks(Utils.returnTruckArray(new String(trucks, StandardCharsets.UTF_8)));
-                        ref.child("trailers.txt").getBytes(ONE_MEGABYTE)
-                                .addOnSuccessListener(trailers -> {
-                                    model.addTrailers(Utils.returnTrailerArray(new String(trailers, StandardCharsets.UTF_8)));
-                                    if (MI != null){
-                                        MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
-                                        MI.navigate(R.id.overview);
-                                    }
-                                });
-                    });
-        });
+        model.emptyTables();
+        FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid()).child("settlements").listAll()
+                .addOnSuccessListener(listResult -> {
+                    ref.child("trucks.txt").getBytes(ONE_MEGABYTE)
+                            .addOnSuccessListener(trucks -> {
+                                model.addTrucks(Utils.returnTruckArray(new String(trucks, StandardCharsets.UTF_8)));
+                                ref.child("trailers.txt").getBytes(ONE_MEGABYTE)
+                                        .addOnSuccessListener(trailers -> {
+                                            model.addTrailers(Utils.returnTrailerArray(new String(trailers, StandardCharsets.UTF_8)));
+                                            ref.child("workOrders.txt").getBytes(ONE_MEGABYTE).addOnSuccessListener(workOrders -> {
+                                                model.addWorkOrders(Utils.returnWorkOrderArray(new String(workOrders, StandardCharsets.UTF_8)));
+                                                final int[] x = {listResult.getPrefixes().size()};
+                                                for (StorageReference reference : listResult.getPrefixes()) {
+                                                    ref.child("settlements").child(reference.getName()).child("settlements.txt").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+                                                        ArrayList<Settlement> settlements = Utils.returnSettlementArray(new String(bytes, StandardCharsets.UTF_8));
+                                                        settlements.get(0).setStamp(Instant.now().getEpochSecond());
+                                                        model.add(settlements);
+                                                        x[0]--;
+                                                        if (MI != null && x[0] == 0) {
+                                                            MI.showSnack("Restore Complete!", Snackbar.LENGTH_INDEFINITE);
+                                                            MI.handleGrouping();
+                                                            MI.navigate(R.id.overview);
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        });
+                            });
+                });
     }
 
     private void checkUserBackups() {
         FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid()).listAll()
                 .addOnSuccessListener(listResult -> {
-                    if (listResult.getItems().isEmpty()) {
-                        if (MI != null) {
-                            MI.showSnack("No backup found", Snackbar.LENGTH_SHORT);
-                        }
-                    }
                     binding.restoreButton.setEnabled(!listResult.getItems().isEmpty());
                 });
     }
-
 }

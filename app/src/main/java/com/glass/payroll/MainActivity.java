@@ -138,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                     if (settlement != null) {
                         boolean handle = MainActivity.this.settlement.getId() == 0;
                         MainActivity.this.settlement = settlement;
-                        if (MainActivity.this.settlement != null)
-                            balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
+                        balance.setText("Bal: " + Utils.formatValueToCurrencyWhole(settlement.getBalance()));
                         if (settlement.getBalance() > 0) balance.setTextColor(Color.WHITE);
                         else balance.setTextColor(Color.RED);
                         if (handle)
@@ -299,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         if (locationGranted()) requestLocationUpdates();
         date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
     }
+
     public void handleMenuNavigation(MenuItem menuItem, boolean close, boolean physical) {
         if (physical) Utils.vibrate(drawerLayout);
         if (close && drawerLayout.isDrawerOpen(Gravity.LEFT)) drawerLayout.closeDrawers();
@@ -343,7 +343,10 @@ public class MainActivity extends AppCompatActivity implements MI {
                     transaction.replace(R.id.content_frame, new FragmentEquipment(), "equipment");
                     break;
                 case R.id.maintenance:
-                    transaction.replace(R.id.content_frame, new FragmentSchedule(), "maintenance");
+                    if (truck == null)
+                        transaction.replace(R.id.content_frame, new FragmentEquipment(), "equipment");
+                    else
+                        transaction.replace(R.id.content_frame, new FragmentMaintenance(), "maintenance");
                     break;
             }
         } else {
@@ -365,6 +368,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         handleGrouping();
     }
 
+    @Override
     public void handleGrouping() {
         if (user == null) {
             balance.setText("Welcome to Payroll");
@@ -489,7 +493,6 @@ public class MainActivity extends AppCompatActivity implements MI {
     public void navigate(int i) {
         handleMenuNavigation(navigationView.getMenu().findItem(i), false, false);
     }
-
 
     private String getAbbreviationFromUSState(String state) {
         return STATE_MAP.getOrDefault(state, state);

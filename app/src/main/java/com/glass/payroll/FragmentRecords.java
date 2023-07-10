@@ -1,5 +1,7 @@
 package com.glass.payroll;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -183,8 +185,15 @@ public class FragmentRecords extends Fragment {
             Utils.vibrate(view);
             switch (view.getId()) {
                 case R.id.delete:
-                    model.delete(settlement);
-                    MI.showSnack("Settlement Permanently Deleted", Snackbar.LENGTH_SHORT);
+                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            model.delete(settlement);
+                            MI.showSnack("Settlement Deleted", Snackbar.LENGTH_SHORT);
+                        }
+                    };
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setMessage("This settlement will be permanently deleted").setPositiveButton("Okay", dialogClickListener)
+                            .setNegativeButton("Cancel", dialogClickListener).show();
                     break;
                 case R.id.edit:
                     model.add(settlement);

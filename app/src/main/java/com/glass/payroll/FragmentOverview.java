@@ -1,5 +1,6 @@
 package com.glass.payroll;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 public class FragmentOverview extends Fragment implements View.OnClickListener, View.OnLongClickListener {
     private Context context;
     private MI MI;
@@ -100,8 +102,25 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
             binding.nextYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         });
         model.truck().observe(getViewLifecycleOwner(), truck -> {
-            if (truck != null)
+            if (truck != null) {
                 binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
+                model.workOrders(truck).observe(getViewLifecycleOwner(), workOrders -> {
+                    if (workOrders != null){
+                        int x = new Random().nextInt(workOrders.size());
+                        binding.workOrderUpdate.setVisibility(View.VISIBLE);
+                        int due = workOrders.get(x).getReading() - truck.getOdometer();
+                        if (due < 0) binding.workOrderUpdate.setTextColor(Color.RED);
+                        binding.workOrderUpdate.setText(workOrders.get(x).getLabel() + " due in "+ Utils.formatInt(due)+" m");
+                        binding.workOrderUpdate.setOnClickListener(view -> {
+                            Utils.vibrate(view);
+                            MI.navigate(R.id.maintenance);
+                        });
+                    } else {
+                        binding.workOrderUpdate.setVisibility(View.INVISIBLE);
+                    }
+
+                });
+            }
         });
         model.keys().observe(getViewLifecycleOwner(), keys -> FragmentOverview.this.keys = keys);
     }

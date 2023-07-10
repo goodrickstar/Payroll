@@ -1,5 +1,7 @@
 package com.glass.payroll;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,15 +17,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.glass.payroll.databinding.FragmentScheduleBinding;
+import com.glass.payroll.databinding.FragmentMaintenanceBinding;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-public class FragmentSchedule extends Fragment implements View.OnClickListener {
+public class FragmentMaintenance extends Fragment implements View.OnClickListener {
     private Context context;
     private MI MI;
-    private FragmentScheduleBinding binding;
+    private FragmentMaintenanceBinding binding;
     private MainViewModel model;
 
     @Override
@@ -32,12 +34,12 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
         model = new ViewModelProvider(getActivity()).get(MainViewModel.class);
     }
 
-    public FragmentSchedule() {
+    public FragmentMaintenance() {
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentScheduleBinding.inflate(inflater);
+        binding = FragmentMaintenanceBinding.inflate(inflater);
         return binding.getRoot();
     }
 
@@ -47,7 +49,7 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         model.trucks().observe(getViewLifecycleOwner(), trucks -> {
-            if (trucks != null){
+            if (trucks != null) {
                 SpinAdapter adapter = new SpinAdapter(context, R.layout.spinner_view, trucks);
                 binding.spinner.setAdapter(adapter);
                 binding.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -95,6 +97,7 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
     private class MaintenanceAdapter extends RecyclerView.Adapter<MaintenanceAdapter.viewHolder> implements View.OnClickListener {
         final List<WorkOrder> workOrders;
         final Truck truck;
+
         public MaintenanceAdapter(List<WorkOrder> workOrders, Truck truck) {
             this.workOrders = workOrders;
             this.truck = truck;
@@ -114,7 +117,6 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
             holder.target.setText(Utils.formatInt(workOrder.getReading()) + " m");
             holder.itemView.setTag(workOrder);
             holder.itemView.setOnClickListener(this);
-
         }
 
         @Override
@@ -126,9 +128,15 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
         public void onClick(View view) {
             Utils.vibrate(view);
             final WorkOrder workOrder = (WorkOrder) view.getTag();
-            if (MainActivity.truck != null) {
-
-            }
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    workOrder.setReading(workOrder.getReading() + workOrder.getInterval());
+                    model.add(workOrder);
+                }
+            };
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage("Mark " + workOrder.getLabel() + " as completed?").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
@@ -144,9 +152,7 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
             }
         }
     }
-
-    public static class SpinAdapter extends ArrayAdapter<Truck>{
-
+    public static class SpinAdapter extends ArrayAdapter<Truck> {
         // Your sent context
         private final Context context;
         // Your custom values for the spinner (User)
@@ -159,20 +165,19 @@ public class FragmentSchedule extends Fragment implements View.OnClickListener {
         }
 
         @Override
-        public int getCount(){
+        public int getCount() {
             return trucks.size();
         }
 
         @Override
-        public Truck getItem(int position){
+        public Truck getItem(int position) {
             return trucks.get(position);
         }
 
         @Override
-        public long getItemId(int position){
+        public long getItemId(int position) {
             return position;
         }
-
 
         // And the "magic" goes here
         // This is for the "passive" state of the spinner

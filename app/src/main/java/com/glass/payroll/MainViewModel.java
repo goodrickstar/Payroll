@@ -16,8 +16,8 @@ public class MainViewModel extends AndroidViewModel {
     private final Records database;
     private String userId;
 
+    private LiveData<List<Integer>> settlementYears;
     private LiveData<LocationString> locationStringLiveData;
-    private LiveData<List<WorkOrder>> workOrderLiveData;
     private LiveData<Long> mostRecentEndingDate;
     private LiveData<Settlement> settlement;
     private LiveData<List<Settlement>> settlements;
@@ -47,6 +47,7 @@ public class MainViewModel extends AndroidViewModel {
         trailers = database.daoTrailer().getAllTrailers(userId);
         keys = database.daoSettlements().getSettlementKeys(userId);
         locationStringLiveData = database.daoLocation().getLocationString(userId);
+        settlementYears = database.daoSettlements().getSettlementYearsLive(userId);
     }
 
     public Executor executor() {
@@ -86,6 +87,10 @@ public class MainViewModel extends AndroidViewModel {
         executor.execute(() -> database.daoTrailer().addTrailers(trailers));
     }
 
+    public void addWorkOrders(List<WorkOrder> workOrders) {
+        executor.execute(() -> database.daoWorkOrders().add(workOrders));
+    }
+
 
     public void add(Truck truck) {
         truck.setStamp(Instant.now().getEpochSecond());
@@ -107,6 +112,7 @@ public class MainViewModel extends AndroidViewModel {
             database.daoSettlements().emptyRecords(userId);
             database.daoTruck().emptyRecords(userId);
             database.daoTrailer().emptyRecords(userId);
+            database.daoWorkOrders().emptyRecords(userId);
         });
     }
     public LiveData<List<Settlement>> getAllSettlements() {
@@ -125,8 +131,8 @@ public class MainViewModel extends AndroidViewModel {
         return database.daoSettlements().getCurrentSettlement(userId);
     }
 
-    public List<Settlement> getSettlements() {
-        return database.daoSettlements().getSettlements(userId);
+    public List<Settlement> getSettlements(int year) {
+        return database.daoSettlements().getSettlements(userId, year);
     }
     public List<Truck> getTrucks() {
         return database.daoTruck().getTrucks(userId);
@@ -164,7 +170,17 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<WorkOrder>> workOrders(Truck truck) {
-        workOrderLiveData = database.daoWorkOrders().getWorkOrders(truck.getId());
-        return workOrderLiveData;
+        return database.daoWorkOrders().getWorkOrders(truck.getId());
+    }
+
+    public List<WorkOrder> getWorkAllOrders() {
+        return database.daoWorkOrders().getAllWorkOrders(userId);
+    }
+
+    public LiveData<List<Integer>> getSettlementYearsLive() {
+        return settlementYears;
+    }
+    public List<Integer> getSettlementYears() {
+        return database.daoSettlements().getSettlementYears(userId);
     }
 }

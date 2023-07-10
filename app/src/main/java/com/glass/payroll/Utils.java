@@ -404,6 +404,11 @@ class Utils {
         }.getType());
     }
 
+    static ArrayList<WorkOrder> returnWorkOrderArray(String data) {
+        return new Gson().fromJson(data, new TypeToken<List<WorkOrder>>() {
+        }.getType());
+    }
+
     static void vibrate(View view) {
         view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
     }

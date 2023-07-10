@@ -26,8 +26,8 @@ public interface DaoSettlements {
     @Query("DELETE FROM settlement_records WHERE userId = :userId")
     void emptyRecords(String userId);
 
-    @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY stamp DESC LIMIT 10")
-    List<Settlement> getSettlements(String uid);
+    @Query("SELECT * FROM settlement_records WHERE userId = :uid AND year = :year ORDER BY start DESC")
+    List<Settlement> getSettlements(String uid, int year);
 
     @Query("SELECT * FROM settlement_records WHERE userId = :uid ORDER BY start DESC")
     LiveData<List<Settlement>> getAllSettlements(String uid);
@@ -49,4 +49,10 @@ public interface DaoSettlements {
 
     @Query("SELECT id FROM settlement_records WHERE userId = :uid ORDER BY stop DESC LIMIT 1")
     LiveData<Long> getMostRecentSettlementId(String uid);
+
+    @Query("SELECT year FROM settlement_records WHERE userId = :uid GROUP BY year ORDER BY year DESC")
+    LiveData<List<Integer>> getSettlementYearsLive(String uid);
+
+    @Query("SELECT year FROM settlement_records WHERE userId = :uid GROUP BY year ORDER BY year DESC")
+    List<Integer> getSettlementYears(String uid);
 }

@@ -1,5 +1,4 @@
 package com.glass.payroll;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +18,11 @@ import com.google.gson.Gson;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
-
 public class FragmentUpload extends DialogFragment {
-    private MI MI;
     private MainViewModel model;
     private FragmentUploadBinding binding;
     private boolean uploading = false;
-
     private boolean done = false;
-
     final StorageReference ref = FirebaseStorage.getInstance().getReference().child("backups").child(MainActivity.user.getUid());
 
     public FragmentUpload() {
@@ -62,14 +57,12 @@ public class FragmentUpload extends DialogFragment {
         if (!uploading && !done) {
             uploading = true;
             model.executor().execute(() -> {
-                final List<Settlement> settlements = model.getSettlements();
-                final List<Trailer> trailers = model.getTrailers();
-                final List<Truck> trucks = model.getTrucks();
                 final int[] x = {0};
+                final List<Integer> years = model.getSettlementYears();
                 OnSuccessListener<UploadTask.TaskSnapshot> successListener = taskSnapshot -> {
                     x[0]++;
                     binding.progressBar3.setProgress(x[0]);
-                    switch (taskSnapshot.getStorage().getName()){
+                    switch (taskSnapshot.getStorage().getName()) {
                         case "settlements.txt":
                             binding.info1.setText("Settlements Uploaded");
                             binding.info1.setVisibility(View.VISIBLE);
@@ -83,7 +76,7 @@ public class FragmentUpload extends DialogFragment {
                             binding.info3.setVisibility(View.VISIBLE);
                             break;
                     }
-                    if (x[0]==3) {
+                    if (x[0] == 3 + years.size()) {
                         binding.progressBar2.setVisibility(View.INVISIBLE);
                         binding.imageView3.setVisibility(View.VISIBLE);
                         binding.info4.setText("Back Up Complete!");
@@ -92,17 +85,16 @@ public class FragmentUpload extends DialogFragment {
                         done = true;
                     }
                 };
-                ref.child("settlements.txt").putStream(new ByteArrayInputStream(new Gson().toJson(settlements).getBytes())).addOnSuccessListener(successListener);
+                for (int i : years) {
+                    ref.child("settlements").child(String.valueOf(i)).child("settlements.txt").putStream(new ByteArrayInputStream(new Gson().toJson(model.getSettlements(i)).getBytes())).addOnSuccessListener(successListener);
+                }
+                final List<Trailer> trailers = model.getTrailers();
+                final List<Truck> trucks = model.getTrucks();
+                final List<WorkOrder> workOrders = model.getWorkAllOrders();
+                ref.child("workOrders.txt").putStream(new ByteArrayInputStream(new Gson().toJson(workOrders).getBytes())).addOnSuccessListener(successListener);
                 ref.child("trucks.txt").putStream(new ByteArrayInputStream(new Gson().toJson(trucks).getBytes())).addOnSuccessListener(successListener);
                 ref.child("trailers.txt").putStream(new ByteArrayInputStream(new Gson().toJson(trailers).getBytes())).addOnSuccessListener(successListener);
             });
         }
     }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
-    }
-
 }

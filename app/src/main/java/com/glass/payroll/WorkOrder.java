@@ -1,5 +1,4 @@
 package com.glass.payroll;
-
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -9,9 +8,12 @@ import java.time.Instant;
 @Entity(tableName = "work_order_records")
 public class WorkOrder {
 
-    @PrimaryKey
+    public WorkOrder() {
+    }
+
+    @PrimaryKey(autoGenerate = true)
     @NonNull
-    String orderId = "";
+    long orderId;
 
     String truckId = "";
     String userId = "";
@@ -32,6 +34,21 @@ public class WorkOrder {
         this.interval = interval;
     }
 
+    public long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(long orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getTruckId() {
+        return truckId;
+    }
+
+    public void setTruckId(String truckId) {
+        this.truckId = truckId;
+    }
 
     public String getLabel() {
         return label;
@@ -57,13 +74,6 @@ public class WorkOrder {
         this.stamp = stamp;
     }
 
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
 
     public String getUserId() {
         return userId;
