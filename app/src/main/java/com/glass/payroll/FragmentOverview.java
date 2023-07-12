@@ -106,7 +106,8 @@ public class FragmentOverview extends Fragment implements View.OnClickListener, 
                 binding.odomter.setText("Latest Odometer: " + Utils.formatInt(truck.getOdometer()));
                 model.workOrders(truck).observe(getViewLifecycleOwner(), workOrders -> {
                     if (workOrders != null){
-                        int x = new Random().nextInt(workOrders.size());
+                        //int x = new Random().nextInt(workOrders.size());
+                        int x = 0;
                         binding.workOrderUpdate.setVisibility(View.VISIBLE);
                         int due = workOrders.get(x).getReading() - truck.getOdometer();
                         if (due < 0) binding.workOrderUpdate.setTextColor(Color.RED);

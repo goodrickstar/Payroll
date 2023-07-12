@@ -1,5 +1,7 @@
 package com.glass.payroll;
+
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -19,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.glass.payroll.databinding.FragmentNewLoadBinding;
 
 import java.util.Calendar;
+
 public class NewLoadFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     private final Calendar calendar = Calendar.getInstance();
     private int mode = 0;
@@ -60,23 +63,6 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
         updateUi();
-        if (editing) {
-            binding.title.setText("Edit Load");
-            binding.finish.setText("Update");
-            binding.location.setText(load.getFrom());
-            binding.locationB.setText(load.getTo());
-            binding.cost.setText(String.valueOf(load.getRate()));
-            binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
-            binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
-            if (load.getWeight() != 0)
-                binding.weight.setText(String.valueOf(load.getWeight()));
-            binding.optionalNote.setText(load.getNote());
-        } else {
-            model.location().observe(getViewLifecycleOwner(), locationString -> {
-                binding.location.setHint(locationString.getLocation());
-                binding.locationB.setHint(locationString.getLocation());
-            });
-        }
         binding.date.setText(Utils.toShortDateSpelled(System.currentTimeMillis()));
         binding.gpsA.setOnClickListener(this);
         binding.gpsB.setOnClickListener(this);
@@ -101,6 +87,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
         model.stats().observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
                 final double operatingCost = (stats.getAvgGross() - stats.getAvgBalance()) / stats.getAvgMiles();
+                final double dieselPrice = stats.getAvgDieselTotal() / stats.getAvgDieselGallons();
+                final double fuelMileage = stats.getTotalMiles() / stats.getTotalDieselGallons();
                 TextWatcher watcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -119,7 +107,8 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                             binding.totalMiles.setText("Total Miles: " + Utils.formatInt(miles));
                             if (!binding.cost.getText().toString().isEmpty()) {
                                 int rate = Utils.parseInt(binding.cost.getText());
-                                binding.profit.setText("* Estimated Profit: " + Utils.formatValueToCurrency(rate - (miles * operatingCost)));
+                                binding.profit.setText("* Estimated Profit: " + Utils.formatValueToCurrency(rate - (miles * operatingCost)) + "  |  " + "Fuel Cost: " + Utils.formatValueToCurrency((miles / fuelMileage) * dieselPrice));
+                                binding.loadedRateQuote.setText("Loaded Rate: " + Utils.formatValueToCurrency((double) rate / loadedMiles));
                             }
                         }
                     }
@@ -128,6 +117,25 @@ public class NewLoadFragment extends DialogFragment implements DatePickerDialog.
                 binding.emptyMiles.addTextChangedListener(watcher);
                 binding.loadedMiles.addTextChangedListener(watcher);
             }
+            if (editing) {
+                binding.title.setText("Edit Load");
+                binding.finish.setText("Update");
+                binding.location.setText(load.getFrom());
+                binding.locationB.setText(load.getTo());
+                binding.cost.setText(String.valueOf(load.getRate()));
+                binding.emptyMiles.setText(String.valueOf(load.getEmpty()));
+                binding.loadedMiles.setText(String.valueOf(load.getLoaded()));
+                if (load.getWeight() != 0)
+                    binding.weight.setText(String.valueOf(load.getWeight()));
+                binding.optionalNote.setText(load.getNote());
+            } else {
+                String location = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE).getString("location", null);
+                if (location != null) {
+                    binding.location.setHint(location);
+                    binding.locationB.setHint(location);
+                }
+            }
+
         });
     }
 

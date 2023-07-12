@@ -149,6 +149,7 @@
                 android:id="@+id/optional_note"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/custom_edit_text"
                 android:gravity="top|left"
                 android:hint="@string/include_any_additional_notes_you_would_like_to_add_here"
@@ -157,9 +158,11 @@
                 android:padding="@dimen/common_margin"
                 android:textColor="@color/colorTextBlack"
                 android:textSize="@dimen/medium_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
                 app:layout_constraintStart_toStartOf="@+id/weight"
                 app:layout_constraintTop_toBottomOf="@+id/textView17"
+                app:layout_constraintVertical_bias="0.0"
                 tools:ignore="TextSizeCheck,VisualLintTextFieldSize" />
 
             <ImageView
@@ -168,9 +171,9 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/rounded_truck_b"
-                app:layout_constraintBottom_toTopOf="@+id/tonu"
+                app:layout_constraintBottom_toBottomOf="@+id/weight"
                 app:layout_constraintStart_toStartOf="@+id/textView14"
-                app:layout_constraintTop_toBottomOf="@+id/empty_miles" />
+                app:layout_constraintTop_toTopOf="@+id/weight" />
 
             <TextView
                 android:id="@+id/truckNumber"
@@ -248,7 +251,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                app:layout_constraintStart_toStartOf="@+id/location_b"
+                app:layout_constraintStart_toStartOf="@+id/textView10"
                 app:layout_constraintTop_toBottomOf="@+id/location_b" />
 
             <EditText
@@ -431,6 +434,19 @@
                 app:layout_constraintBottom_toTopOf="@+id/loaded_miles"
                 app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
                 app:layout_constraintStart_toStartOf="@+id/textView14"
+                tools:ignore="TextSizeCheck" />
+
+            <TextView
+                android:id="@+id/loaded_rate_quote"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/colorTextBlack"
+                app:layout_constraintBottom_toTopOf="@+id/weight"
+                app:layout_constraintEnd_toEndOf="@+id/loaded_miles"
+                app:layout_constraintStart_toStartOf="@+id/textView14"
+                app:layout_constraintTop_toBottomOf="@+id/cost"
                 tools:ignore="TextSizeCheck" />
 
             <TextView

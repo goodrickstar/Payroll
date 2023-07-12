@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements MI {
         public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
             if (result.getResultCode() == RESULT_OK) {
                 user = FirebaseAuth.getInstance().getCurrentUser();
+                model.add(new LocationString(user.getUid(), ""));
                 showSnack("Sign In Successful", Snackbar.LENGTH_LONG);
                 signInSheet();
                 drawerLayout.close();
@@ -229,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements MI {
                     if (city != null && state != null) {
                         city = city.replaceAll("(?i)township", "");
                         model.add(new LocationString(user.getUid(), city.trim() + ", " + getAbbreviationFromUSState(state)));
+                        preferences.edit().putString("location", city.trim() + ", " + getAbbreviationFromUSState(state)).apply();
                     }
                 }
             }

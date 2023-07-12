@@ -1,4 +1,5 @@
 package com.glass.payroll;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,6 +20,7 @@ import com.glass.payroll.databinding.FragmentNewFuelBinding;
 import com.google.gson.Gson;
 
 import java.util.Calendar;
+
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
     private MI MI;
     private final Fuel fuel;
@@ -61,8 +63,10 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             }
         }
         model.add(Utils.sortFuel(Utils.calculate(settlement), Utils.getOrder(getContext(), "fuel"), Utils.getSort(getContext(), "fuel")));
-        if (MainActivity.truck != null && !editing)
+        if (MainActivity.truck != null && !editing) {
+            MainActivity.truck.setOdometer(odometer);
             model.add(MainActivity.truck);
+        }
         dismiss();
     }
 
@@ -153,7 +157,10 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
                 binding.odometer.setText(String.valueOf(MainActivity.truck.getOdometer()));
                 binding.truckNumber2.setText(String.valueOf(MainActivity.truck.getId()));
             }
-            model.location().observe(getViewLifecycleOwner(), locationString -> binding.location.setHint(locationString.getLocation()));
+            String location = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE).getString("location", null);
+            if (location != null) {
+                binding.location.setHint(location);
+            }
         }
         Calendar calendar = Calendar.getInstance();
         binding.weekView.setText("Week " + calendar.get(Calendar.WEEK_OF_YEAR));
