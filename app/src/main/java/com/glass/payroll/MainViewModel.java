@@ -131,7 +131,7 @@ public class MainViewModel extends AndroidViewModel {
         return database.daoSettlements().getCurrentSettlement(userId);
     }
 
-    public List<Settlement> getSettlements(int year) {
+    public List<Settlement> getSettlementsFromYear(int year) {
         return database.daoSettlements().getSettlements(userId, year);
     }
     public List<Truck> getTrucks() {
@@ -176,11 +176,36 @@ public class MainViewModel extends AndroidViewModel {
     public List<WorkOrder> getWorkAllOrders() {
         return database.daoWorkOrders().getAllWorkOrders(userId);
     }
-
-    public LiveData<List<Integer>> getSettlementYearsLive() {
-        return settlementYears;
-    }
-    public List<Integer> getSettlementYears() {
+    public List<Integer> getYears() {
         return database.daoSettlements().getSettlementYears(userId);
     }
+
+    public List<Integer> getQuarters(int year) {
+        return database.daoSettlements().getQuarters(userId, year);
+    }
+
+    public List<Integer> getMonths(int year) {
+        return database.daoSettlements().getMonths(userId, year);
+    }
+
+    public List<Integer> getWeeks(int year) {
+        return database.daoSettlements().getWeeks(userId, year);
+    }
+
+    public List<Settlement> getSettlementsFromQuarter(int year, int quarter) {
+        return database.daoSettlements().getSettlementsFromQuarters(userId, year, quarter);
+    }
+
+    public List<Settlement> getSettlementsFromMonth(int year, int month) {
+        return database.daoSettlements().getSettlementsFromMonth(userId, year, month);
+    }
+
+    public List<Settlement> getSettlementsFromWeek(int year, int week) {
+        return database.daoSettlements().getSettlementsFromWeek(userId, year, week);
+    }
+
+    public Settlement getTrueMostRecentSettlement(){
+        return database.daoSettlements().getTrueMostRecentSettlement(userId);
+    }
+
 }

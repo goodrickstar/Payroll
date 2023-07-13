@@ -58,7 +58,7 @@ public class FragmentUpload extends DialogFragment {
             uploading = true;
             model.executor().execute(() -> {
                 final int[] x = {0};
-                final List<Integer> years = model.getSettlementYears();
+                final List<Integer> years = model.getYears();
                 OnSuccessListener<UploadTask.TaskSnapshot> successListener = taskSnapshot -> {
                     x[0]++;
                     binding.progressBar3.setProgress(x[0]);
@@ -86,7 +86,7 @@ public class FragmentUpload extends DialogFragment {
                     }
                 };
                 for (int i : years) {
-                    ref.child("settlements").child(String.valueOf(i)).child("settlements.txt").putStream(new ByteArrayInputStream(new Gson().toJson(model.getSettlements(i)).getBytes())).addOnSuccessListener(successListener);
+                    ref.child("settlements").child(String.valueOf(i)).child("settlements.txt").putStream(new ByteArrayInputStream(new Gson().toJson(model.getSettlementsFromYear(i)).getBytes())).addOnSuccessListener(successListener);
                 }
                 final List<Trailer> trailers = model.getTrailers();
                 final List<Truck> trucks = model.getTrucks();

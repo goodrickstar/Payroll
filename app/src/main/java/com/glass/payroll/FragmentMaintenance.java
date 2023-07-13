@@ -186,7 +186,7 @@ public class FragmentMaintenance extends Fragment implements View.OnClickListene
             View v = convertView;
             if (v == null)
                 v = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.spinner_view, null);
-            TextView textView = v.findViewById(R.id.truck_id);
+            TextView textView = v.findViewById(R.id.item_label);
             textView.setText(trucks.get(position).getId());
             return v;
         }
@@ -198,7 +198,7 @@ public class FragmentMaintenance extends Fragment implements View.OnClickListene
             View v = convertView;
             if (v == null)
                 v = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.spinner_view, null);
-            TextView textView = v.findViewById(R.id.truck_id);
+            TextView textView = v.findViewById(R.id.item_label);
             textView.setText(trucks.get(position).getId());
             return v;
         }

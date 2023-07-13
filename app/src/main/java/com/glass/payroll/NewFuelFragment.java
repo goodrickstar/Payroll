@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import java.util.Calendar;
 
 public class NewFuelFragment extends DialogFragment implements View.OnClickListener {
-    private MI MI;
     private final Fuel fuel;
     private boolean editing = false;
     private Settlement settlement;
@@ -181,12 +180,6 @@ public class NewFuelFragment extends DialogFragment implements View.OnClickListe
             return false;
         });
         model.settlement().observe(getViewLifecycleOwner(), settlement -> NewFuelFragment.this.settlement = settlement);
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        MI = (MI) getActivity();
     }
 
     @Override

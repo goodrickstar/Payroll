@@ -204,30 +204,30 @@ class Utils {
     @NonNull
     static String returnMonthName(int month) {
         switch (month) {
-            case 0:
-                return "January";
             case 1:
-                return "February";
+                return "Jan";
             case 2:
-                return "March";
+                return "Feb";
             case 3:
-                return "April";
+                return "Mar";
             case 4:
-                return "May";
+                return "Apr";
             case 5:
-                return "June";
+                return "May";
             case 6:
-                return "July";
+                return "Jun";
             case 7:
-                return "August";
+                return "Jul";
             case 8:
-                return "September";
+                return "Aug";
             case 9:
-                return "October";
+                return "Sep";
             case 10:
-                return "November";
+                return "Oct";
+            case 11:
+                return "Nov";
             default:
-                return "December";
+                return "Dec";
         }
     }
 
